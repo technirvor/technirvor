@@ -1,10 +1,12 @@
 import type React from "react"
 import type { Metadata } from "next"
 import "./globals.css"
+
 import Navbar from "@/components/layout/navbar"
 import MobileBottomNav from "@/components/layout/mobile-bottom-nav"
 import Footer from "@/components/layout/footer"
 import Providers from "@/components/providers"
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister"
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://technirvor.com"),
@@ -68,6 +70,7 @@ export default function RootLayout({
       </head>
       <body className="antialiased" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
         <Providers>
+          <ServiceWorkerRegister />
           <div className="flex flex-col min-h-screen">
             <Navbar />
             <main className="flex-1 pb-16 md:pb-0">{children}</main>
