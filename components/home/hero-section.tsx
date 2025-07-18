@@ -70,10 +70,11 @@ export default function HeroSection() {
     <section className="relative w-full">
     {/* Hero Slider */}
       <div className="lg:col-span-3">
+
         {slides.map((slide, index) => (
           <div
             key={slide.id}
-            className={`relative h-64 md:h-80 lg:h-96 rounded-lg overflow-hidden ${
+            className={`relative h-64 md:h-80 lg:h-96 overflow-hidden max-w-7xl mx-auto ${
               index === currentSlide ? "block" : "hidden"
             }`}
           >
@@ -97,22 +98,23 @@ export default function HeroSection() {
                 </Link>
               </div>
             </div>
+            {/* Navigation Buttons on Banner */}
+            <button
+              onClick={prevSlide}
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/70 hover:bg-white/30 rounded-full p-2 transition-colors z-20"
+              aria-label="Previous Slide"
+            >
+              <ChevronLeft className="h-6 w-6 text-gray-700" />
+            </button>
+            <button
+              onClick={nextSlide}
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/70 hover:bg-white/30 rounded-full p-2 transition-colors z-20"
+              aria-label="Next Slide"
+            >
+              <ChevronRight className="h-6 w-6 text-gray-700" />
+            </button>
           </div>
         ))}
-
-        {/* Navigation Buttons */}
-        <button
-          onClick={prevSlide}
-          className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 rounded-full p-2 transition-colors z-10"
-        >
-          <ChevronLeft className="h-6 w-6 text-white" />
-        </button>
-        <button
-          onClick={nextSlide}
-          className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 rounded-full p-2 transition-colors z-10"
-        >
-          <ChevronRight className="h-6 w-6 text-white" />
-        </button>
 
         {/* Dots Indicator */}
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
