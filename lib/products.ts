@@ -213,7 +213,7 @@ export async function getRelatedProducts(id: string, category: string): Promise<
 
 export async function getCategories(): Promise<Array<{ name: string; slug: string }>> {
   try {
-    const key = "categories_all"
+    const key = "all_categories"
 
     // Try to get from cache first
     try {

@@ -54,6 +54,15 @@ export async function POST(request: Request) {
     await redis.del("all_categories")
     await redis.del("all_categories_api")
 
+    // Fetch updated categories and set cache again
+    try {
+      const categories = await CategoryModel.find({}).sort({ name: 1 })
+      await redis.setex("all_categories", 3600, JSON.stringify(categories))
+      await redis.setex("all_categories_api", 3600, JSON.stringify(categories))
+    } catch (cacheError) {
+      console.warn("Cache update error after category creation:", cacheError)
+    }
+
     return NextResponse.json({ message: "Category created successfully", category: newCategory }, { status: 201 })
   } catch (error) {
     console.error("Error creating category:", error)

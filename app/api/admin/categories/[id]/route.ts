@@ -65,6 +65,15 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     await redis.del("all_categories")
     await redis.del("all_categories_api")
 
+    // Fetch updated categories and set cache again
+    try {
+      const categories = await CategoryModel.find({}).sort({ name: 1 })
+      await redis.setex("all_categories", 3600, JSON.stringify(categories))
+      await redis.setex("all_categories_api", 3600, JSON.stringify(categories))
+    } catch (cacheError) {
+      console.warn("Cache update error after category update:", cacheError)
+    }
+
     return NextResponse.json({ message: "Category updated successfully", category: updatedCategory }, { status: 200 })
   } catch (error) {
     console.error("Error updating category:", error)
@@ -92,6 +101,15 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     // Invalidate category cache
     await redis.del("all_categories")
     await redis.del("all_categories_api")
+
+    // Fetch updated categories and set cache again
+    try {
+      const categories = await CategoryModel.find({}).sort({ name: 1 })
+      await redis.setex("all_categories", 3600, JSON.stringify(categories))
+      await redis.setex("all_categories_api", 3600, JSON.stringify(categories))
+    } catch (cacheError) {
+      console.warn("Cache update error after category delete:", cacheError)
+    }
 
     return NextResponse.json({ message: "Category deleted successfully" }, { status: 200 })
   } catch (error) {
