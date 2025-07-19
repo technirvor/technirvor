@@ -148,8 +148,6 @@ export async function getProductBySlug(slug: string): Promise<(IProduct & { imag
       // Ensure all images are returned as an array
       const images = Array.isArray(product.images)
         ? product.images
-        : product.image
-        ? [product.image]
         : []
 
       const plainProduct = {
