@@ -92,7 +92,7 @@ export default function HeroSection() {
                 <p className="text-lg md:text-xl font-medium">{slide.subtitle}</p>
                 <p className="text-sm md:text-base opacity-90">{slide.description}</p>
                 <Link href={slide.buttonLink}>
-                  <Button size="lg" className="bg-primary hover:bg-primary/90 text-gray-700">
+                  <Button size="lg" className="bg-primary hover:bg-primary/90 text-secondary">
                     {slide.buttonText}
                   </Button>
                 </Link>
