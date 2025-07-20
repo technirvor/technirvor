@@ -71,34 +71,59 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
   return (
     <Card className="w-full">
       <CardContent className="grid md:grid-cols-2 gap-8 p-6">
-        <div className="flex flex-col gap-4">
-          <div className="relative w-full aspect-[4/3] sm:aspect-[5/4] md:aspect-[4/3] lg:aspect-[3/2] max-w-full">
+        <div className="flex flex-col gap-6 items-center md:items-start">
+          <div className="relative w-full aspect-[4/3] sm:aspect-[5/4] md:aspect-[4/3] lg:aspect-[3/2] max-w-lg rounded-xl shadow-lg overflow-hidden border border-gray-200 bg-white">
             <Image
               src={selectedImage}
               alt={product.name}
               fill
-              className="object-contain rounded-lg"
+              className="object-contain transition-transform duration-300 hover:scale-105"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 70vw, 50vw"
               priority
             />
+            {/* Logo placeholder overlay */}
+            <div className="absolute bottom-2 right-2 bg-white/80 rounded-full p-2 shadow">
+              <Image
+          src="/logo/fav-dark.png"
+          alt="Logo Placeholder"
+          width={32}
+          height={32}
+          className="object-contain"
+              />
+            </div>
           </div>
           {product.images.length > 1 && (
-            <div className="flex gap-2 mt-2 flex-wrap">
+            <div className="flex gap-3 mt-3 flex-wrap justify-center md:justify-start">
               {product.images.map((img, idx) => (
-                <div
-                  key={img}
-                  className={`relative aspect-video w-20 sm:w-24 md:w-28 border rounded overflow-hidden cursor-pointer ${selectedImage === img ? 'border-primary border-2' : ''}`}
-                  onClick={() => setSelectedImage(img)}
-                  style={{ minWidth: '80px', maxWidth: '120px' }}
-                >
-                  <Image
-                    src={img}
-                    alt={`${product.name} thumbnail ${idx + 1}`}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 640px) 20vw, (max-width: 1024px) 10vw, 8vw"
-                  />
-                </div>
+          <button
+            type="button"
+            key={img}
+            className={`relative aspect-square w-16 h-16 border-2 rounded-lg overflow-hidden focus:outline-none transition-all duration-200 ${
+              selectedImage === img
+                ? 'border-primary ring-2 ring-primary'
+                : 'border-gray-200'
+            }`}
+            onClick={() => setSelectedImage(img)}
+            aria-label={`Show image ${idx + 1}`}
+          >
+            <Image
+              src={img}
+              alt={`${product.name} thumbnail ${idx + 1}`}
+              fill
+              className="object-cover"
+              sizes="64px"
+            />
+            {/* Logo placeholder overlay */}
+            <div className="absolute bottom-1 right-1 bg-white/80 rounded-full p-1 shadow">
+              <Image
+                src="/logo-placeholder.svg"
+                alt="Logo Placeholder"
+                width={16}
+                height={16}
+                className="object-contain"
+              />
+            </div>
+          </button>
               ))}
             </div>
           )}
@@ -142,13 +167,15 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
               )}
             </div>
             <div className="mb-6">
-              <p className="text-sm text-gray-700">
+              <p className="text-sm text-primary">
                 <span className="font-semibold">Category:</span> {product.category}
               </p>
-              <p className="text-sm text-gray-700">
-                <span className="font-semibold">Brand:</span> {product.brand}
-              </p>
-              <p className="text-sm text-gray-700">
+                {product.brand && (
+                <p className="text-sm text-primary">
+                  <span className="font-semibold">Brand:</span> {product.brand}
+                </p>
+                )}
+              <p className="text-sm text-primary">
                 <span className="font-semibold">Availability:</span>{" "}
                 {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
               </p>

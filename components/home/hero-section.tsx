@@ -18,12 +18,12 @@ const categories = [
 const slides = [
   {
     id: 1,
-    title: "Latest iPhone 15 Pro Max",
-    subtitle: "Now Available in Bangladesh",
-    description: "Experience the power of A17 Pro chip with titanium design",
-    image: "/placeholder.svg?height=400&width=600",
+    title: "AirPods Pro 2nd Gen",
+    subtitle: "Unmatched Sound Quality",
+    description: "Experience the next level of audio with our latest AirPods Pro",
+    image: "/hero/anc-airpod-pro.png",
     buttonText: "Shop Now",
-    buttonLink: "/products/iphone-15-pro-max",
+    buttonLink: "/products/airpods-pro-2nd-gen",
     bgColor: "bg-gradient-to-r from-blue-600 to-purple-600",
   },
   {
