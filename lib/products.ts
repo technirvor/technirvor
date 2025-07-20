@@ -32,18 +32,19 @@ function parseCached<T>(data: string | T | null): T | null {
 
 /* ---------- public API --------------------------------------------------- */
 
-export async function getFeaturedProducts(): Promise<IProduct[]> {
+export async function getFeaturedProducts(forceRefresh = false): Promise<IProduct[]> {
   try {
     const key = "featured_products"
 
-    // Try to get from cache first
-    try {
-      const cached = parseCached<IProduct[]>(await redis.get(key))
-      if (cached && Array.isArray(cached) && cached.length > 0) {
-        return cached
+    if (!forceRefresh) {
+      try {
+        const cached = parseCached<IProduct[]>(await redis.get(key))
+        if (cached && Array.isArray(cached) && cached.length > 0) {
+          return cached
+        }
+      } catch (cacheError) {
+        console.warn("Cache read error in getFeaturedProducts:", cacheError)
       }
-    } catch (cacheError) {
-      console.warn("Cache read error in getFeaturedProducts:", cacheError)
     }
 
     await db()
@@ -69,24 +70,25 @@ export async function getFeaturedProducts(): Promise<IProduct[]> {
   }
 }
 
-export async function getAllProducts(page = 1, limit = 12, category?: string, search?: string) {
+export async function getAllProducts(page = 1, limit = 12, category?: string, search?: string, forceRefresh = false) {
   try {
     const key = `all_products_${page}_${limit}_${category ?? "all"}_${search ?? "none"}`
 
-    // Try to get from cache first
-    try {
-      const cached = parseCached<{
-        products: IProduct[]
-        total: number
-        page: number
-        limit: number
-        totalPages: number
-      }>(await redis.get(key))
-      if (cached && cached.products && Array.isArray(cached.products)) {
-        return cached
+    if (!forceRefresh) {
+      try {
+        const cached = parseCached<{
+          products: IProduct[]
+          total: number
+          page: number
+          limit: number
+          totalPages: number
+        }>(await redis.get(key))
+        if (cached && cached.products && Array.isArray(cached.products)) {
+          return cached
+        }
+      } catch (cacheError) {
+        console.warn("Cache read error in getAllProducts:", cacheError)
       }
-    } catch (cacheError) {
-      console.warn("Cache read error in getAllProducts:", cacheError)
     }
 
     await db()
@@ -130,16 +132,17 @@ export async function getAllProducts(page = 1, limit = 12, category?: string, se
   }
 }
 
-export async function getProductBySlug(slug: string): Promise<(IProduct & { images: string[] }) | null> {
+export async function getProductBySlug(slug: string, forceRefresh = false): Promise<(IProduct & { images: string[] }) | null> {
   try {
     const key = `product_${slug}`
 
-    // Try to get from cache first
-    try {
-      const cached = parseCached<IProduct & { images: string[] }>(await redis.get(key))
-      if (cached) return cached
-    } catch (cacheError) {
-      console.warn("Cache read error in getProductBySlug:", cacheError)
+    if (!forceRefresh) {
+      try {
+        const cached = parseCached<IProduct & { images: string[] }>(await redis.get(key))
+        if (cached) return cached
+      } catch (cacheError) {
+        console.warn("Cache read error in getProductBySlug:", cacheError)
+      }
     }
 
     await db()
@@ -171,16 +174,17 @@ export async function getProductBySlug(slug: string): Promise<(IProduct & { imag
   }
 }
 
-export async function getRelatedProducts(id: string, category: string): Promise<IProduct[]> {
+export async function getRelatedProducts(id: string, category: string, forceRefresh = false): Promise<IProduct[]> {
   try {
     const key = `related_${category}_${id}`
 
-    // Try to get from cache first
-    try {
-      const cached = parseCached<IProduct[]>(await redis.get(key))
-      if (cached && Array.isArray(cached)) return cached
-    } catch (cacheError) {
-      console.warn("Cache read error in getRelatedProducts:", cacheError)
+    if (!forceRefresh) {
+      try {
+        const cached = parseCached<IProduct[]>(await redis.get(key))
+        if (cached && Array.isArray(cached)) return cached
+      } catch (cacheError) {
+        console.warn("Cache read error in getRelatedProducts:", cacheError)
+      }
     }
 
     await db()
@@ -211,16 +215,17 @@ export async function getRelatedProducts(id: string, category: string): Promise<
   }
 }
 
-export async function getCategories(): Promise<Array<{ name: string; slug: string }>> {
+export async function getCategories(forceRefresh = false): Promise<Array<{ name: string; slug: string }>> {
   try {
     const key = "all_categories"
 
-    // Try to get from cache first
-    try {
-      const cached = parseCached<Array<{ name: string; slug: string }>>(await redis.get(key))
-      if (cached && Array.isArray(cached)) return cached
-    } catch (cacheError) {
-      console.warn("Cache read error in getCategories:", cacheError)
+    if (!forceRefresh) {
+      try {
+        const cached = parseCached<Array<{ name: string; slug: string }>>(await redis.get(key))
+        if (cached && Array.isArray(cached)) return cached
+      } catch (cacheError) {
+        console.warn("Cache read error in getCategories:", cacheError)
+      }
     }
 
     await db()

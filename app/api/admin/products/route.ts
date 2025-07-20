@@ -3,6 +3,8 @@ import ProductModel from "@/lib/models/product"
 import { connectToDB } from "@/lib/db"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth-options"
+import redis from "@/lib/redis"
+
 
 export async function GET(request: Request) {
   try {
@@ -68,6 +70,13 @@ export async function POST(request: Request) {
       featured,
       tags,
     })
+
+    // Invalidate relevant caches
+    await redis.del("featured_products")
+    await redis.del("all_products_page_*") // Invalidate all product list caches
+    await redis.del(`product_slug_${newProduct.slug}`) // Invalidate specific product cache
+    await redis.del(`related_products_cat_${newProduct.category}_id_*`) // Invalidate related products cache
+
     return NextResponse.json(newProduct, { status: 201 })
   } catch (error) {
     console.error("Error creating product:", error)

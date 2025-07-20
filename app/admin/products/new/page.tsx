@@ -85,19 +85,38 @@ export default function NewProductPage() {
 
       if (res.ok) {
         const data = await res.json()
-        setUploadedUrls((prevUrls) => [...prevUrls, ...data.urls]) // Use setUploadedUrls to update state
-        toast({
-          title: "Image Uploaded",
-          description: "Images uploaded successfully.",
-          variant: "default",
-        })
+        if (Array.isArray(data.urls)) {
+          setUploadedUrls((prevUrls) => [...prevUrls, ...data.urls])
+          setImages((prev) => [...prev, ...data.urls])
+          toast({
+            title: "Image Uploaded",
+            description: "Images uploaded successfully.",
+            variant: "default",
+          })
+        } else if (typeof data.url === "string") {
+          setUploadedUrls((prevUrls) => [...prevUrls, data.url])
+          setImages((prev) => [...prev, data.url])
+          toast({
+            title: "Image Uploaded",
+            description: "Image uploaded successfully.",
+            variant: "default",
+          })
+        } else {
+          toast({
+            title: "Upload Failed",
+            description: `Unexpected response from server. No image URLs returned. Response: ${JSON.stringify(data)}`,
+            variant: "destructive",
+          })
+          console.error("Upload API did not return an array of URLs or a single URL:", data)
+        }
       } else {
         const errorData = await res.json()
         toast({
           title: "Upload Failed",
-          description: errorData.message || "Failed to upload images.",
+          description: errorData.message || `Failed to upload images. Response: ${JSON.stringify(errorData)}`,
           variant: "destructive",
         })
+        console.error("Upload API error response:", errorData)
       }
     } catch (error) {
       toast({
@@ -107,7 +126,6 @@ export default function NewProductPage() {
       })
       console.error("Error uploading image:", error)
     }
-    setImages((prev) => [...prev, ...uploadedUrls])
     setUploading(false)
   }
 
