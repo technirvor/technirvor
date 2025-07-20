@@ -16,14 +16,18 @@ import type { IOrder } from "@/lib/models/order"
 import { formatCurrency, formatDateTime } from "@/lib/utils"
 import Image from "next/image"
 
+type LogisticsService = "pathao" | "redx" | "steadfast" | ""
+
 export default function EditOrderPage({ params }: { params: Promise<{ id: string }> }) {
   const orderId = React.use(params).id
   const [order, setOrder] = useState<IOrder | null>(null)
   const [loading, setLoading] = useState(true) // Initial loading for fetching order
   const [submitting, setSubmitting] = useState(false) // For form submission
+  const [sendingToLogistics, setSendingToLogistics] = useState(false) // For logistics submission
   const [status, setStatus] = useState<IOrder["status"]>("pending")
   const [isPaid, setIsPaid] = useState(false)
   const [isDelivered, setIsDelivered] = useState(false)
+  const [logisticsService, setLogisticsService] = useState<LogisticsService>("")
   const { toast } = useToast()
   const router = useRouter()
 
@@ -38,13 +42,15 @@ export default function EditOrderPage({ params }: { params: Promise<{ id: string
           setStatus(orderData.status)
           setIsPaid(orderData.isPaid)
           setIsDelivered(orderData.isDelivered)
+          // Set logistics service if it exists in order data
+          setLogisticsService((orderData as any).logisticsService || "")
         } else {
           toast({
             title: "Error",
             description: "Failed to fetch order data.",
             variant: "destructive",
           })
-          router.push("/admin/orders") // Redirect if order not found
+          router.push("/admin/orders")
         }
       } catch (error) {
         toast({
@@ -97,6 +103,58 @@ export default function EditOrderPage({ params }: { params: Promise<{ id: string
       console.error("Error updating order:", error)
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  const handleSendToLogistics = async () => {
+    if (!logisticsService) {
+      toast({
+        title: "Error",
+        description: "Please select a logistics service.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setSendingToLogistics(true)
+
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}/logistics`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ logisticsService }),
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        toast({
+          title: "Success",
+          description: `Order sent to ${logisticsService.charAt(0).toUpperCase() + logisticsService.slice(1)} successfully.`,
+          variant: "default",
+        })
+        // Update the order state to reflect the logistics service
+        if (order) {
+          setOrder({ ...order, logisticsService } as any)
+        }
+      } else {
+        const errorData = await res.json()
+        toast({
+          title: "Failed to Send",
+          description: errorData.message || `Failed to send order to ${logisticsService}.`,
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "Network Error",
+        description: "Failed to communicate with logistics service.",
+        variant: "destructive",
+      })
+      console.error("Error sending to logistics:", error)
+    } finally {
+      setSendingToLogistics(false)
     }
   }
 
@@ -155,6 +213,14 @@ export default function EditOrderPage({ params }: { params: Promise<{ id: string
               <p className="text-xl font-bold">
                 <strong>Total Price:</strong> {formatCurrency(order.totalPrice)}
               </p>
+              {(order as any).logisticsService && (
+                <p>
+                  <strong>Logistics Service:</strong>{" "}
+                  <span className="capitalize font-medium text-primary">
+                    {(order as any).logisticsService}
+                  </span>
+                </p>
+              )}
               <h3 className="text-lg font-semibold mt-4">Shipping Address</h3>
               <p>{order.shippingAddress.fullName}</p>
               <p>{order.shippingAddress.address}</p>
@@ -185,59 +251,105 @@ export default function EditOrderPage({ params }: { params: Promise<{ id: string
             </div>
 
             {/* Update Form */}
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <h3 className="text-lg font-semibold">Update Order Status</h3>
-              <div className="space-y-2">
-                <Label htmlFor="status">Order Status</Label>
-                <Select
-                  value={status}
-                  onValueChange={(value) => setStatus(value as IOrder["status"])}
-                  disabled={submitting}
+            <div className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <h3 className="text-lg font-semibold">Update Order Status</h3>
+                <div className="space-y-2">
+                  <Label htmlFor="status">Order Status</Label>
+                  <Select
+                    value={status}
+                    onValueChange={(value) => setStatus(value as IOrder["status"])}
+                    disabled={submitting}
+                  >
+                    <SelectTrigger id="status">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="processing">Processing</SelectItem>
+                      <SelectItem value="shipped">Shipped</SelectItem>
+                      <SelectItem value="delivered">Delivered</SelectItem>
+                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="isPaid"
+                    checked={isPaid}
+                    onChange={(e) => setIsPaid(e.target.checked)}
+                    className="h-4 w-4 text-primary rounded border-gray-300 focus:ring-primary"
+                    disabled={submitting}
+                  />
+                  <Label htmlFor="isPaid">Mark as Paid</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="isDelivered"
+                    checked={isDelivered}
+                    onChange={(e) => setIsDelivered(e.target.checked)}
+                    className="h-4 w-4 text-primary rounded border-gray-300 focus:ring-primary"
+                    disabled={submitting}
+                  />
+                  <Label htmlFor="isDelivered">Mark as Delivered</Label>
+                </div>
+                <Button type="submit" className="w-full" disabled={submitting}>
+                  {submitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Updating Order...
+                    </>
+                  ) : (
+                    "Update Order"
+                  )}
+                </Button>
+              </form>
+
+              {/* Logistics Service Section */}
+              <div className="border-t pt-6 space-y-4">
+                <h3 className="text-lg font-semibold">Send to Logistics Service</h3>
+                <div className="space-y-2">
+                  <Label htmlFor="logistics">Select Logistics Service</Label>
+                  <Select
+                    value={logisticsService}
+                    onValueChange={(value) => setLogisticsService(value as LogisticsService)}
+                    disabled={sendingToLogistics}
+                  >
+                    <SelectTrigger id="logistics">
+                      <SelectValue placeholder="Choose logistics partner" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pathao">Pathao</SelectItem>
+                      <SelectItem value="steadfast">Steadfast</SelectItem>
+                      <SelectItem value="redx">Redx</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button
+                  type="button"
+                  onClick={handleSendToLogistics}
+                  className="w-full"
+                  disabled={sendingToLogistics || !logisticsService}
+                  variant="outline"
                 >
-                  <SelectTrigger id="status">
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="processing">Processing</SelectItem>
-                    <SelectItem value="shipped">Shipped</SelectItem>
-                    <SelectItem value="delivered">Delivered</SelectItem>
-                    <SelectItem value="cancelled">Cancelled</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="isPaid"
-                  checked={isPaid}
-                  onChange={(e) => setIsPaid(e.target.checked)}
-                  className="h-4 w-4 text-primary rounded border-gray-300 focus:ring-primary"
-                  disabled={submitting}
-                />
-                <Label htmlFor="isPaid">Mark as Paid</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="isDelivered"
-                  checked={isDelivered}
-                  onChange={(e) => setIsDelivered(e.target.checked)}
-                  className="h-4 w-4 text-primary rounded border-gray-300 focus:ring-primary"
-                  disabled={submitting}
-                />
-                <Label htmlFor="isDelivered">Mark as Delivered</Label>
-              </div>
-              <Button type="submit" className="w-full" disabled={submitting}>
-                {submitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Updating Order...
-                  </>
-                ) : (
-                  "Update Order"
+                  {sendingToLogistics ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Sending to{" "}
+                      {logisticsService ? logisticsService.charAt(0).toUpperCase() + logisticsService.slice(1) : "Logistics"}...
+                    </>
+                  ) : (
+                    `Send to ${logisticsService ? logisticsService.charAt(0).toUpperCase() + logisticsService.slice(1) : "Logistics Service"}`
+                  )}
+                </Button>
+                {(order as any).logisticsService && (
+                  <p className="text-sm text-muted-foreground text-center">
+                    This order has already been sent to{" "}
+                    <span className="capitalize font-medium">{(order as any).logisticsService}</span>
+                  </p>
                 )}
-              </Button>
-            </form>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>

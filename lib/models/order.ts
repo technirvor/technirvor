@@ -11,13 +11,14 @@ export interface IOrderItem {
 
 export interface IShippingAddress {
   fullName: string;
-  email?: string;
   address: string;
-  phone?: string;
-  city?: string; // Made optional
+  city: string;
   district: string;
+  phone?: string;
+  email: string; // Made optional
+  areaId?: number;
   postalCode?: string;
-  country?: string;
+  country?: string; // Default to "Bangladesh"
 }
 
 export interface IOrder {
@@ -34,6 +35,10 @@ export interface IOrder {
   isDelivered: boolean;
   deliveredAt?: Date;
   status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+  logisticsService?: string;
+  trackingId?: string;
+  sentToLogisticsAt?: Date;
+  logisticsResponse?: any;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -76,6 +81,10 @@ const orderSchema = new Schema<IOrder>(
       enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
       default: "pending",
     },
+    logisticsService: { type: String },
+    trackingId: { type: String },
+    sentToLogisticsAt: { type: Date },
+    logisticsResponse: { type: Schema.Types.Mixed },
   },
   {
     timestamps: true,

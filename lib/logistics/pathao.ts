@@ -173,15 +173,15 @@ export class PathaoService {
 
   async createOrder(order: IOrder, storeId: number): Promise<PathaoOrderResponse> {
     const token = await this.getAccessToken()
-    
+
     const cityId = this.mapCityNameToId(order.shippingAddress.city || "Dhaka")
     const zoneId = this.mapDistrictToZoneId(order.shippingAddress.district, cityId)
+    // If you have area_id, map it here, else leave undefined
+    const areaId = order.shippingAddress.areaId || undefined
 
-    const payload: PathaoOrderRequest = {
+    const payload: any = {
       store_id: storeId,
       merchant_order_id: order._id.toString(),
-      sender_name: process.env.STORE_NAME || "Your Store",
-      sender_phone: process.env.STORE_PHONE || "01700000000",
       recipient_name: order.shippingAddress.fullName,
       recipient_phone: order.shippingAddress.phone || "01700000000",
       recipient_address: order.shippingAddress.address,
@@ -198,8 +198,9 @@ export class PathaoService {
         .join(", ")
         .substring(0, 250), // Limit description length
     }
+    if (areaId) payload.recipient_area = areaId
 
-    const response = await fetch(`${this.config.baseUrl}/orders`, {
+    const response = await fetch(`${this.config.baseUrl}/aladdin/api/v1/orders`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -210,8 +211,13 @@ export class PathaoService {
     })
 
     if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.message || `Failed to create Pathao order: ${response.statusText}`)
+      const error = await response.text()
+      let errorMessage = `HTTP ${response.status}: ${response.statusText}`
+      try {
+        const errorJson = JSON.parse(error)
+        errorMessage = errorJson.message || errorJson.error || errorMessage
+      } catch {}
+      throw new Error(errorMessage)
     }
 
     const result = await response.json()

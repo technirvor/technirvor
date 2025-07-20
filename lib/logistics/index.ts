@@ -126,6 +126,18 @@ export class LogisticsManager {
     const storeId = parseInt(process.env.PATHAO_STORE_ID || "1")
     const response = await this.pathaoService!.createOrder(order, storeId)
 
+    // Defensive: log and check response structure
+    if (!response?.data?.consignment_id) {
+      console.error("Pathao API unexpected response:", response)
+      return {
+        success: false,
+        trackingId: "",
+        provider: "pathao",
+        providerResponse: response,
+        message: response?.message || "Failed to create Pathao order",
+      }
+    }
+
     return {
       success: true,
       trackingId: response.data.consignment_id,

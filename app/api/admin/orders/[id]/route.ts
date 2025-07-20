@@ -44,7 +44,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 
     const { id } = await params
     const body = await request.json()
-    const { status, isPaid, isDelivered } = body
+    const { status, isPaid, isDelivered, logisticsService, trackingId } = body
 
     if (!isValidObjectId(id)) {
       return NextResponse.json({ message: "Invalid order ID" }, { status: 400 })
@@ -54,6 +54,8 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     if (status) updateFields.status = status
     if (typeof isPaid === "boolean") updateFields.isPaid = isPaid
     if (typeof isDelivered === "boolean") updateFields.isDelivered = isDelivered
+    if (logisticsService) updateFields.logisticsService = logisticsService
+    if (trackingId) updateFields.trackingId = trackingId
 
     // Set paidAt/deliveredAt timestamps if status changes
     if (isPaid && !body.paidAt) updateFields.paidAt = new Date()
