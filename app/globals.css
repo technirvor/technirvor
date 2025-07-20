@@ -36,22 +36,22 @@
   }
 
   .dark {
-    --background: 224 71% 4%;
-    --foreground: 210 40% 98%;
+    --background: 220 70% 3%; /* Slightly less saturated dark background */
+    --foreground: 210 40% 98%; /* Main text: very light off-white */
 
     --muted: 215 27.9% 16.9%;
-    --muted-foreground: 217.9 10.6% 64.5%;
+    --muted-foreground: 217.9 10.6% 75%; /* Increased brightness for better readability */
 
-    --popover: 224 71% 4%;
+    --popover: 220 70% 3%; /* Matches background */
     --popover-foreground: 210 40% 98%;
 
     --border: 215 27.9% 16.9%;
     --input: 215 27.9% 16.9%;
-    --card: 224 71% 4%;
+    --card: 220 70% 3%; /* Matches background */
     --card-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 210 40% 98%; /* Primary element color (e.g., buttons, highlights) */
+    --primary-foreground: 222.2 47.4% 11.2%; /* Text on primary elements: dark */
 
     --secondary: 215 27.9% 16.9%;
     --secondary-foreground: 210 40% 98%;

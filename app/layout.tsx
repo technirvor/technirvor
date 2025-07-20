@@ -13,8 +13,6 @@ export const metadata: Metadata = {
   title: "Tech Nirvor | Best Online Shopping in Bangladesh 2024 – Electronics, Fashion, Deals",
   description: "Fuelling Your Digital Life, Without Breaking the Bank. Discover the latest electronics, gadgets, and accessories at unbeatable prices.",
   manifest: "/manifest.json",
-  themeColor: "#000000",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
   generator: "v0.dev",
   keywords: [
     "Tech Nirvor",
@@ -55,7 +53,15 @@ export const metadata: Metadata = {
     title: "Tech Nirvor | Best Online Shopping in Bangladesh 2024 – Electronics, Fashion, Deals",
     description: "Fuelling Your Digital Life, Without Breaking the Bank. Discover the latest electronics, gadgets, and accessories at unbeatable prices.",
     images: ["/og-image.jpg"]
+
   }
+}
+
+export const viewport = {
+  themeColor: "#000000",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1
 }
 
 export default function RootLayout({

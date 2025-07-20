@@ -72,7 +72,22 @@ export default function Navbar() {
               <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
               <nav className="flex flex-col gap-4 py-6">
                 <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
-                  <Image src="/logo/logo-white.png" alt="Tech Nirvor" width={240} height={40} />
+                  <Image
+                    src="/logo/logo-dark.png"
+                    alt="Tech Nirvor"
+                    width={240}
+                    height={40}
+                    className="block dark:hidden"
+                    priority
+                  />
+                  <Image
+                    src="/logo/logo-white.png"
+                    alt="Tech Nirvor"
+                    width={240}
+                    height={40}
+                    className="hidden dark:block"
+                    priority
+                  />
                 </Link>
                 <Link href="/" className="flex items-center gap-2 text-sm font-medium hover:underline">
                   <Home className="h-4 w-4" />
@@ -125,7 +140,22 @@ export default function Navbar() {
             </SheetContent>
           </Sheet>
           <Link href="/" className="hidden items-center gap-2 text-lg font-semibold lg:flex">
-            <Image src="/logo/logo-white.png" alt="Tech Nirvor" width={240} height={40} />
+            <Image
+              src="/logo/logo-dark.png"
+              alt="Tech Nirvor"
+              width={240}
+              height={40}
+              className="block dark:hidden"
+              priority
+            />
+            <Image
+              src="/logo/logo-white.png"
+              alt="Tech Nirvor"
+              width={240}
+              height={40}
+              className="hidden dark:block"
+              priority
+            />
           </Link>
           <nav className="hidden gap-6 lg:flex">
             <Link href="/" className="text-sm font-medium hover:underline">

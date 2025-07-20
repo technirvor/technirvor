@@ -23,6 +23,12 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
   const router = useRouter()
   const [quantity, setQuantity] = useState(1)
   const [selectedImage, setSelectedImage] = useState(product.images[0] || "/placeholder.svg")
+  const [showFullDescription, setShowFullDescription] = useState(false)
+
+  // Split description by newlines
+  const descriptionLines = product.description ? product.description.split(/\r?\n/) : []
+  const DESCRIPTION_PREVIEW_LINES = 3
+  const isLongDescription = descriptionLines.length > DESCRIPTION_PREVIEW_LINES
 
   const handleAddToCart = () => {
     addItemToCart({
@@ -100,7 +106,35 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
         <div className="flex flex-col justify-between">
           <div>
             <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
-            <p className="text-lg text-gray-600 mb-4">{product.description}</p>
+            <div className="text-lg text-primary-600 mb-4 relative">
+              {isLongDescription ? (
+                <>
+                  <div className={
+                    !showFullDescription
+                      ? "overflow-hidden max-h-24 relative" // adjust max-h as needed
+                      : ""
+                  } style={{ transition: 'max-height 0.3s' }}>
+                    {descriptionLines.slice(0, showFullDescription ? undefined : DESCRIPTION_PREVIEW_LINES).map((line, idx) => (
+                      <p key={idx} className="whitespace-pre-line">{line}</p>
+                    ))}
+                    {!showFullDescription && (
+                      <div className="absolute bottom-0 left-0 w-full h-10 bg-gradient-to-t from-white/30 to-transparent pointer-events-none rounded-e-md" />
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    className="mt-2 text-primary underline focus:outline-none"
+                    onClick={() => setShowFullDescription((v) => !v)}
+                  >
+                    {showFullDescription ? "Show less" : "Show more"}
+                  </button>
+                </>
+              ) : (
+                descriptionLines.map((line, idx) => (
+                  <p key={idx} className="whitespace-pre-line">{line}</p>
+                ))
+              )}
+            </div>
             <div className="flex items-center gap-4 mb-6">
               <span className="text-4xl font-bold text-primary">{formatCurrency(product.price)}</span>
               {typeof product.originalPrice === "number" && product.originalPrice > product.price && (
