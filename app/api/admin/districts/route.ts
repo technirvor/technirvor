@@ -8,11 +8,6 @@ import redis from "@/lib/redis"
 export async function GET(request: Request) {
   try {
     await connectToDB()
-    const session = await getServerSession(authOptions)
-
-    // if (!session || (session.user as any).role !== "admin") {
-    //   return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
-    // }
 
     const districts = await DistrictModel.find({}).sort({ name: 1 })
     return NextResponse.json(districts)
