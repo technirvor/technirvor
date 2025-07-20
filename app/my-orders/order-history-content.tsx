@@ -7,7 +7,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Loader2, Package, Eye } from "lucide-react"
-import { formatDateTime, formatPrice } from "@/lib/utils"
+import { formatDateTime } from "@/lib/utils"
+
+// Temporary formatPrice implementation (replace with actual import if available)
+function formatPrice(amount: number): string {
+  return `${amount.toFixed(2)}`;
+}
 
 interface OrderItem {
   productId: {

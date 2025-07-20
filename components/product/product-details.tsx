@@ -11,6 +11,7 @@ import { useToast } from "@/components/ui/use-toast"
 import type { IProduct } from "@/lib/models/product"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { useEffect } from "react"
 import { Minus, Plus } from "lucide-react"
 
 interface ProductDetailsProps {
@@ -18,6 +19,34 @@ interface ProductDetailsProps {
 }
 
 export default function ProductDetails({ product }: ProductDetailsProps) {
+  // Basic dev tools protection
+  if (process.env.NODE_ENV === 'production') {
+    useEffect(() => {
+      const blockDevTools = (e: KeyboardEvent) => {
+        // F12, Ctrl+Shift+I/J/C, Cmd+Opt+I/J/C, Ctrl+U
+        if (
+          e.key === "F12" ||
+          ((e.ctrlKey || e.metaKey) && e.shiftKey && ["I", "J", "C"].includes(e.key.toUpperCase())) ||
+          ((e.ctrlKey || e.metaKey) && e.key.toUpperCase() === "U")
+        ) {
+          e.preventDefault()
+          e.stopPropagation()
+          return false
+        }
+      }
+      const blockContextMenu = (e: MouseEvent) => {
+        e.preventDefault()
+        return false
+      }
+      window.addEventListener("keydown", blockDevTools, true)
+      window.addEventListener("contextmenu", blockContextMenu, true)
+      return () => {
+        window.removeEventListener("keydown", blockDevTools, true)
+        window.removeEventListener("contextmenu", blockContextMenu, true)
+      }
+    }, [])
+  }
+
   const { addItemToCart, clearCart } = useCart()
   const { toast } = useToast()
   const router = useRouter()
@@ -84,46 +113,45 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
             {/* Logo placeholder overlay */}
             <div className="absolute bottom-2 right-2 bg-white/80 rounded-full p-2 shadow">
               <Image
-          src="/logo/fav-dark.png"
-          alt="Logo Placeholder"
-          width={32}
-          height={32}
-          className="object-contain"
+                src="/logo/fav-dark.png"
+                alt="Logo Placeholder"
+                width={32}
+                height={32}
+                className="object-contain"
               />
             </div>
           </div>
           {product.images.length > 1 && (
             <div className="flex gap-3 mt-3 flex-wrap justify-center md:justify-start">
               {product.images.map((img, idx) => (
-          <button
-            type="button"
-            key={img}
-            className={`relative aspect-square w-16 h-16 border-2 rounded-lg overflow-hidden focus:outline-none transition-all duration-200 ${
-              selectedImage === img
-                ? 'border-primary ring-2 ring-primary'
-                : 'border-gray-200'
-            }`}
-            onClick={() => setSelectedImage(img)}
-            aria-label={`Show image ${idx + 1}`}
-          >
-            <Image
-              src={img}
-              alt={`${product.name} thumbnail ${idx + 1}`}
-              fill
-              className="object-cover"
-              sizes="64px"
-            />
-            {/* Logo placeholder overlay */}
-            <div className="absolute bottom-1 right-1 bg-white/80 rounded-full p-1 shadow">
-              <Image
-                src="/logo-placeholder.svg"
-                alt="Logo Placeholder"
-                width={16}
-                height={16}
-                className="object-contain"
-              />
-            </div>
-          </button>
+                <button
+                  type="button"
+                  key={img}
+                  className={`relative aspect-square w-16 h-16 border-2 rounded-lg overflow-hidden focus:outline-none transition-all duration-200 ${selectedImage === img
+                      ? 'border-primary ring-2 ring-primary'
+                      : 'border-gray-200'
+                    }`}
+                  onClick={() => setSelectedImage(img)}
+                  aria-label={`Show image ${idx + 1}`}
+                >
+                  <Image
+                    src={img}
+                    alt={`${product.name} thumbnail ${idx + 1}`}
+                    fill
+                    className="object-cover"
+                    sizes="64px"
+                  />
+                  {/* Logo placeholder overlay */}
+                  <div className="absolute bottom-1 right-1 bg-white/80 rounded-full p-1 shadow">
+                    <Image
+                      src="/logo/fav-dark.png"
+                      alt="Logo Placeholder"
+                      width={16}
+                      height={16}
+                      className="object-contain"
+                    />
+                  </div>
+                </button>
               ))}
             </div>
           )}
@@ -170,11 +198,11 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
               <p className="text-sm text-primary">
                 <span className="font-semibold">Category:</span> {product.category}
               </p>
-                {product.brand && (
+              {product.brand && (
                 <p className="text-sm text-primary">
                   <span className="font-semibold">Brand:</span> {product.brand}
                 </p>
-                )}
+              )}
               <p className="text-sm text-primary">
                 <span className="font-semibold">Availability:</span>{" "}
                 {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
