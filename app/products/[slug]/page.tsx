@@ -1,4 +1,5 @@
 import { getProductBySlug, getRelatedProducts } from "@/lib/products"
+import Script from "next/script"
 import ProductDetails from "@/components/product/product-details"
 import RelatedProducts from "@/components/product/related-products"
 import { notFound } from "next/navigation"
@@ -72,14 +73,37 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const relatedProducts = await getRelatedProducts(product._id.toString(), product.category)
 
   return (
-    <div className="container py-8">
-      <ProductDetails product={product} />
-      {relatedProducts.length > 0 && (
-        <div className="mt-12">
-          {/* <h2 className="text-2xl font-bold text-center mb-6">Related Products</h2> */}
-          <RelatedProducts products={relatedProducts} />
-        </div>
-      )}
-    </div>
+    <>
+      {/* Meta Pixel Code using next/script */}
+      <Script id="facebook-pixel-product" strategy="afterInteractive">
+        {`
+          !function(f,b,e,v,n,t,s)
+          {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+          n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+          if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+          n.queue=[];t=b.createElement(e);t.async=!0;
+          t.src=v;s=b.getElementsByTagName(e)[0];
+          s.parentNode.insertBefore(t,s)}(window, document,'script',
+          'https://connect.facebook.net/en_US/fbevents.js');
+          fbq('init', '1296029782048566');
+          fbq('track', 'PageView');
+        `}
+      </Script>
+      {/* End Meta Pixel Code */}
+      {/* Meta Pixel NoScript */}
+      <noscript>
+        <img height="1" width="1" style={{ display: 'none' }} src="https://www.facebook.com/tr?id=1296029782048566&ev=PageView&noscript=1" />
+      </noscript>
+      {/* End Meta Pixel NoScript */}
+      <div className="container py-8">
+        <ProductDetails product={product} />
+        {relatedProducts.length > 0 && (
+          <div className="mt-12">
+            {/* <h2 className="text-2xl font-bold text-center mb-6">Related Products</h2> */}
+            <RelatedProducts products={relatedProducts} />
+          </div>
+        )}
+      </div>
+    </>
   )
 }
