@@ -10,7 +10,7 @@ import ServiceWorkerRegister from "@/components/ServiceWorkerRegister"
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://technirvor.com"),
-  title: "Tech Nirvor | Best Online Shopping in Bangladesh 2024 – Electronics, Fashion, Deals",
+  title: "Tech Nirvor | Best Online Shopping in Bangladesh – Electronics, Fashion, Deals",
   description: "Fuelling Your Digital Life, Without Breaking the Bank. Discover the latest electronics, gadgets, and accessories at unbeatable prices.",
   manifest: "/manifest.json",
   generator: "v0.dev",
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Tech Nirvor Team", url: "https://technirvor.com" }],
   openGraph: {
-    title: "Tech Nirvor | Best Online Shopping in Bangladesh 2024 – Electronics, Fashion, Deals",
+    title: "Tech Nirvor | Best Online Shopping in Bangladesh – Electronics, Fashion, Deals",
     description: "Fuelling Your Digital Life, Without Breaking the Bank. Discover the latest electronics, gadgets, and accessories at unbeatable prices.",
     url: "https://technirvor.com",
     siteName: "Tech Nirvor",
@@ -50,10 +50,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Tech Nirvor | Best Online Shopping in Bangladesh 2024 – Electronics, Fashion, Deals",
+    title: "Tech Nirvor | Best Online Shopping in Bangladesh – Electronics, Fashion, Deals",
     description: "Fuelling Your Digital Life, Without Breaking the Bank. Discover the latest electronics, gadgets, and accessories at unbeatable prices.",
     images: ["/og-image.jpg"]
-
   }
 }
 
@@ -73,6 +72,27 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/logo/fav-white.png" type="image/png" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": "Tech Nirvor",
+              "url": "https://technirvor.com",
+              "description": "Fuelling Your Digital Life, Without Breaking the Bank. Discover the latest electronics, gadgets, and accessories at unbeatable prices.",
+              "publisher": {
+                "@type": "Organization",
+                "name": "Tech Nirvor Team",
+                "url": "https://technirvor.com",
+                "logo": {
+                  "@type": "ImageObject",
+                  "url": "/logo/logo-white.png"
+                }
+              }
+            })
+          }}
+        />
       </head>
       <body className="antialiased" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
         <Providers>
