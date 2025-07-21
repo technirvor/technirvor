@@ -7,6 +7,10 @@
 /.next/
 /out/
 
+# Testing
+/test/
+/test/*
+
 # production
 /build
 

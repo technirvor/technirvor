@@ -12,7 +12,10 @@ export default async function SignInPage() {
 
   return (
     <div className="flex min-h-[calc(100vh-14rem)] items-center justify-center bg-muted py-12">
-      <SignInForm />
+      <div className="w-full max-w-md mx-auto">
+        <h1 className="text-3xl font-bold mb-6 text-center">Sign In</h1>
+        <SignInForm />
+      </div>
     </div>
   )
 }

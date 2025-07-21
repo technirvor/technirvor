@@ -17,5 +17,10 @@ export default async function MyOrdersPage() {
     redirect("/auth/signin")
   }
 
-  return <OrderHistoryContent />
+  return (
+    <div className="container py-8">
+      <h1 className="text-3xl font-bold mb-6">My Orders</h1>
+      <OrderHistoryContent />
+    </div>
+  )
 }
