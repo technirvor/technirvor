@@ -94,8 +94,6 @@ export default function RootLayout({
             })
           }}
         />
-      </head>
-      <body className="antialiased" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
         {/* Meta Pixel Code using next/script */}
         <Script id="facebook-pixel" strategy="afterInteractive">
           {`
@@ -112,6 +110,8 @@ export default function RootLayout({
           `}
         </Script>
         {/* End Meta Pixel Code */}
+      </head>
+      <body className="antialiased" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
         {/* Meta Pixel NoScript */}
         <noscript>
           <img height="1" width="1" style={{ display: 'none' }} src="https://www.facebook.com/tr?id=1296029782048566&ev=PageView&noscript=1" />

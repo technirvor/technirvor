@@ -1,4 +1,3 @@
-"use client"
 import type React from "react"
 import HeroSection from "@/components/home/hero-section"
 import FeaturedProducts from "@/components/home/featured-products"
