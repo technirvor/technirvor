@@ -3,6 +3,8 @@ import type { Metadata } from "next"
 import "./globals.css"
 
 import Navbar from "@/components/layout/navbar"
+import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import MobileBottomNav from "@/components/layout/mobile-bottom-nav"
 import Footer from "@/components/layout/footer"
 import Providers from "@/components/providers"
@@ -126,6 +128,8 @@ export default function RootLayout({
             <MobileBottomNav />
           </div>
         </Providers>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   )
