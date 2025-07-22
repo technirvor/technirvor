@@ -20,9 +20,16 @@ export default async function FeaturedProducts() {
             <p className="text-center text-muted-foreground">No featured products found.</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {products.map((product) => (
-                <ProductCard key={product._id || product.id} product={product} />
-              ))}
+              {products.map((product) => {
+                // Ensure originalPrice is a number
+                const safeProduct = {
+                  ...product,
+                  originalPrice: typeof product.originalPrice === "number" ? product.originalPrice : 0,
+                }
+                return (
+                  <ProductCard key={product._id?.toString()} product={safeProduct} />
+                )
+              })}
             </div>
           )}
         </div>
