@@ -127,14 +127,15 @@ export default function Navbar() {
                     </Button>
                   </>
                 ) : (
-                  <Button
-                    variant="ghost"
-                    className="flex items-center gap-2 text-sm font-medium"
-                    onClick={() => signIn()}
-                  >
-                    <LogIn className="h-4 w-4" />
-                    Sign In
-                  </Button>
+                  // <Button
+                  //   variant="ghost"
+                  //   className="flex items-center gap-2 text-sm font-medium"
+                  //   onClick={() => signIn()}
+                  // >
+                  //   <LogIn className="h-4 w-4" />
+                  //   Sign In
+                  // </Button>
+                  <></>
                 )}
               </nav>
             </SheetContent>
@@ -237,9 +238,11 @@ export default function Navbar() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button variant="ghost" onClick={() => signIn()}>
-              Sign In
-            </Button>
+            // <Button variant="ghost" onClick={() => signIn()}>
+            //   Sign In
+            // </Button>
+            <>
+            </>
           )}
         </div>
       </div>

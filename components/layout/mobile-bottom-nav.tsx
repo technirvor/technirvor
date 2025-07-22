@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Home, Package, ShoppingCart, User } from "lucide-react"
+import { Home, Package, ShoppingCart, ChartBarStacked } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { usePathname } from "next/navigation"
 import { useCart } from "@/contexts/cart-context"
@@ -10,7 +10,6 @@ import { useSession } from "next-auth/react"
 export default function MobileBottomNav() {
   const pathname = usePathname()
   const { cartItems } = useCart()
-  const { data: session } = useSession()
 
   const navItems = [
     {
@@ -24,15 +23,15 @@ export default function MobileBottomNav() {
       icon: Package,
     },
     {
+      name: "Categories",
+      href: "/categories",
+      icon: ChartBarStacked,
+    },
+    {
       name: "Cart",
       href: "/cart",
       icon: ShoppingCart,
       badge: cartItems.length,
-    },
-    {
-      name: session ? "Profile" : "Sign In",
-      href: session ? "/profile" : "/auth/signin",
-      icon: User,
     },
   ]
 
