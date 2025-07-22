@@ -69,25 +69,41 @@ export default function CheckoutContent() {
 
     // Validate product IDs
     try {
+      const payload = { productIds: cartItems.map((item) => item.productId) };
+      console.log("Validating products with payload:", payload);
       const response = await fetch("/api/v1/products/validate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productIds: cartItems.map((item) => item.productId) }),
+        body: JSON.stringify(payload),
       });
+      console.log("Validation response status:", response.status);
       if (!response.ok) {
-        const errorData = await response.json();
-        alert(`Invalid products in cart: ${errorData.message}`);
+        let errorText = await response.text();
+        console.error("Validation API error response:", errorText);
+        try {
+          const errorData = JSON.parse(errorText);
+          alert(`Invalid products in cart: ${errorData.message}`);
+        } catch (parseErr) {
+          alert(`Invalid products in cart. Server response: ${errorText}`);
+        }
         return;
       }
       const validProductIds = await response.json();
+      console.log("Valid product IDs returned:", validProductIds, "Type:", typeof validProductIds);
+      if (!Array.isArray(validProductIds)) {
+        alert("Product validation API did not return an array. See console for details.");
+        console.error("Expected array from validation API, got:", validProductIds);
+        return;
+      }
       const invalidItems = cartItems.filter((item) => !validProductIds.includes(item.productId));
       if (invalidItems.length > 0) {
         alert("Some items in your cart are no longer available. Please remove them.");
+        console.warn("Invalid cart items:", invalidItems);
         return;
       }
     } catch (error) {
       console.error("Error validating products:", error);
-      alert("Failed to validate cart items. Please try again.");
+      alert("Failed to validate cart items. Please try again. See console for details.");
       return;
     }
 
