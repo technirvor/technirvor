@@ -36,25 +36,38 @@ function LoadingSection({ children }: { children: React.ReactNode }) {
 export default function HomePage() {
   return (
     <>
-      {/* Meta Pixel Code using next/script */}
-      <Script id="facebook-pixel-home" strategy="afterInteractive" dangerouslySetInnerHTML={{
-        __html: `!function(f,b,e,v,n,t,s)
-        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-        n.queue=[];t=b.createElement(e);t.async=!0;
-        t.src=v;s=b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t,s)}(window, document,'script',
-        'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '1296029782048566');
-        fbq('track', 'PageView');`
-      }} />
+      {/* Meta Pixel Code */}
+      <Script
+        id="facebook-pixel-home"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `
+            !function(f,b,e,v,n,t,s)
+            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+            n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t,s)}(window, document,'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', '772937612559753');
+            fbq('track', 'PageView');
+          `
+        }}
+      />
       {/* End Meta Pixel Code */}
+      
       {/* Meta Pixel NoScript */}
       <noscript>
-        <img height="1" width="1" style={{ display: 'none' }} src="https://www.facebook.com/tr?id=1296029782048566&ev=PageView&noscript=1" />
+        <img 
+          height="1" 
+          width="1" 
+          style={{ display: 'none' }} 
+          src="https://www.facebook.com/tr?id=772937612559753&ev=PageView&noscript=1" 
+        />
       </noscript>
       {/* End Meta Pixel NoScript */}
+      
       <div className="flex flex-col min-h-screen">
         <HeroSection />
         <Suspense fallback={<LoadingSection>Loading categories...</LoadingSection>}>

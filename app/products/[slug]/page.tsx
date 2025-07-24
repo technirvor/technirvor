@@ -57,7 +57,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
       images: [image],
     },
     alternates: {
-      canonical: `https://yourdomain.com/products/${slug}`,
+      canonical: `https://technirvor.com/products/${slug}`,
     },
   }
 }
@@ -66,6 +66,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const awaitedParams = await params
   const { slug } = awaitedParams
   const product = await getProductBySlug(slug)
+  
   // Skeleton loader for product details
   const ProductDetailsSkeleton = (
     <div className="animate-pulse flex flex-col md:flex-row gap-8">
@@ -79,6 +80,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       </div>
     </div>
   )
+  
   // Skeleton loader for related products
   const RelatedProductsSkeleton = (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-12">
@@ -92,6 +94,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       ))}
     </div>
   )
+  
   if (!product) {
     return (
       <div className="container py-8">
@@ -104,27 +107,46 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   return (
     <>
-      {/* Meta Pixel Code using next/script */}
-      <Script id="facebook-pixel-product" strategy="afterInteractive">
-        {`
-          !function(f,b,e,v,n,t,s)
-          {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-          n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-          if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-          n.queue=[];t=b.createElement(e);t.async=!0;
-          t.src=v;s=b.getElementsByTagName(e)[0];
-          s.parentNode.insertBefore(t,s)}(window, document,'script',
-          'https://connect.facebook.net/en_US/fbevents.js');
-          fbq('init', '1296029782048566');
-          fbq('track', 'PageView');
-        `}
-      </Script>
+      {/* Meta Pixel Code */}
+      <Script
+        id="facebook-pixel-product"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `
+            !function(f,b,e,v,n,t,s)
+            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+            n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t,s)}(window, document,'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', '772937612559753');
+            fbq('track', 'PageView');
+            fbq('track', 'ViewContent', {
+              content_type: 'product',
+              content_ids: ['${product._id}'],
+              content_name: '${product.name}',
+              content_category: '${product.category}',
+              value: ${product.price || 0},
+              currency: 'BDT'
+            });
+          `
+        }}
+      />
       {/* End Meta Pixel Code */}
+      
       {/* Meta Pixel NoScript */}
       <noscript>
-        <img height="1" width="1" style={{ display: 'none' }} src="https://www.facebook.com/tr?id=1296029782048566&ev=PageView&noscript=1" />
+        <img 
+          height="1" 
+          width="1" 
+          style={{ display: 'none' }} 
+          src="https://www.facebook.com/tr?id=772937612559753&ev=PageView&noscript=1" 
+        />
       </noscript>
       {/* End Meta Pixel NoScript */}
+      
       <div className="container py-8">
         {/* Show skeleton while product is loading */}
         {!product ? ProductDetailsSkeleton : <ProductDetails product={product} />}
