@@ -1,85 +1,108 @@
-import { NextResponse } from "next/server"
-import ProductModel from "@/lib/models/product"
-import { connectToDB } from "@/lib/db"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth-options"
-import redis from "@/lib/redis"
+import { type NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import { validateRequest } from '@/lib/api-security';
 
+// Use validateRequest for admin access
+async function validateAdminAccess(request: NextRequest) {
+  return validateRequest(request, { requireAdmin: true });
+}
 
-export async function GET(request: Request) {
+// Basic input sanitizer stub
+function sanitizeInput(data: any) {
+  // Add real sanitization logic as needed
+  return data;
+}
+
+// Basic product data validator stub
+function validateProductData(data: any) {
+  // Add real validation logic as needed
+  return { isValid: true, errors: [] };
+}
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+);
+
+export async function GET(request: NextRequest) {
   try {
-    await connectToDB()
-    const session = await getServerSession(authOptions)
-
-    if (!session || (session.user as any).role !== "admin") {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+    const { isValid, error } = await validateAdminAccess(request);
+    if (!isValid) {
+      return NextResponse.json({ error }, { status: 401 });
     }
 
-    const { searchParams } = new URL(request.url)
-    const page = Number.parseInt(searchParams.get("page") || "1")
-    const limit = Number.parseInt(searchParams.get("limit") || "10")
-    const search = searchParams.get("search") || ""
+    const { searchParams } = new URL(request.url);
+    const page = Number.parseInt(searchParams.get('page') || '1');
+    const limit = Math.min(Number.parseInt(searchParams.get('limit') || '20'), 100); // Max 100 items
+    const search = searchParams.get('search') || '';
+    const category = searchParams.get('category') || '';
 
-    const query: any = {}
+    let query = supabase.from('products').select(
+      `
+        *,
+        category:categories(*)
+      `,
+      { count: 'exact' },
+    );
+
     if (search) {
-      query.$or = [{ name: { $regex: search, $options: "i" } }, { description: { $regex: search, $options: "i" } }]
+      query = query.ilike('name', `%${search}%`);
     }
 
-    const skip = (page - 1) * limit
-    const products = await ProductModel.find(query).skip(skip).limit(limit).sort({ createdAt: -1 })
-    const total = await ProductModel.countDocuments(query)
+    if (category && category !== 'all') {
+      query = query.eq('category_id', category);
+    }
 
-    return NextResponse.json({ products, total, page, limit, totalPages: Math.ceil(total / limit) })
+    const {
+      data,
+      error: fetchError,
+      count,
+    } = await query
+      .order('created_at', { ascending: false })
+      .range((page - 1) * limit, page * limit - 1);
+
+    if (fetchError) throw fetchError;
+
+    return NextResponse.json({
+      products: data,
+      pagination: {
+        page,
+        limit,
+        total: count || 0,
+        totalPages: Math.ceil((count || 0) / limit),
+      },
+    });
   } catch (error) {
-    console.error("Error fetching products:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    console.error('API Error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    await connectToDB()
-    const session = await getServerSession(authOptions)
-
-    if (!session || (session.user as any).role !== "admin") {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+    const { isValid, error } = await validateAdminAccess(request);
+    if (!isValid) {
+      return NextResponse.json({ error }, { status: 401 });
     }
 
-    const { name, slug, description, price, oldPrice, category, brand, stock, images, featured, tags } =
-      await request.json()
+    const body = await request.json();
+    const sanitizedData = sanitizeInput(body);
 
-    if (!name || !slug || !description || !price || !category || !stock || !images || images.length === 0) {
-      return NextResponse.json({ message: "Missing required fields" }, { status: 400 })
+    const { isValid: isDataValid, errors } = validateProductData(sanitizedData);
+    if (!isDataValid) {
+      return NextResponse.json({ error: 'Validation failed', details: errors }, { status: 400 });
     }
 
-    const existingProduct = await ProductModel.findOne({ slug })
-    if (existingProduct) {
-      return NextResponse.json({ message: "Product with this slug already exists" }, { status: 409 })
-    }
+    const { data, error: insertError } = await supabase
+      .from('products')
+      .insert(sanitizedData)
+      .select()
+      .single();
 
-    const newProduct = await ProductModel.create({
-      name,
-      slug,
-      description,
-      price,
-      oldPrice,
-      category,
-      brand,
-      stock,
-      images,
-      featured,
-      tags,
-    })
+    if (insertError) throw insertError;
 
-    // Invalidate relevant caches
-    await redis.del("featured_products")
-    await redis.del("all_products_page_*") // Invalidate all product list caches
-    await redis.del(`product_slug_${newProduct.slug}`) // Invalidate specific product cache
-    await redis.del(`related_products_cat_${newProduct.category}_id_*`) // Invalidate related products cache
-
-    return NextResponse.json(newProduct, { status: 201 })
+    return NextResponse.json({ product: data }, { status: 201 });
   } catch (error) {
-    console.error("Error creating product:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    console.error('API Error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

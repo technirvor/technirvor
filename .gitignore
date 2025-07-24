@@ -7,10 +7,6 @@
 /.next/
 /out/
 
-# Testing
-/test/
-/test/*
-
 # production
 /build
 
@@ -29,3 +25,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+
+public/sitemap.xml
+public/*.xml
+public/sitemap-*.xml
+public/robots.txt

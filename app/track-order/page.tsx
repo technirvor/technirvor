@@ -1,188 +1,249 @@
-"use client"
+'use client';
 
-import type React from "react"
-import { useSearchParams } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { useToast } from "@/hooks/use-toast"
-import { Loader2, Package, Truck, CheckCircle, XCircle } from "lucide-react"
-import { formatCurrency } from "@/lib/utils"
-import type { IOrder } from "@/lib/models/order"
-import OrderStatus from "@/lib/models/order"
-import Image from "next/image"
-import { useState, useEffect } from "react"
+import type React from 'react';
+
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Search, Package, Truck, CheckCircle, Clock } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import type { Order } from '@/lib/types';
+import { toast } from 'sonner';
 
 export default function TrackOrderPage() {
-  const [orderIdInput, setOrderIdInput] = useState("")
-  const [order, setOrder] = useState<IOrder | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const { toast } = useToast()
-  const searchParams = useSearchParams()
-  const initialOrderId = searchParams.get("orderId") || ""
+  const [orderId, setOrderId] = useState('');
+  const [phone, setPhone] = useState('');
+  const [order, setOrder] = useState<Order | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const fetchOrder = async (id: string) => {
-    setIsLoading(true)
-    setOrder(null) // Clear previous order data
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!orderId.trim() || !phone.trim()) {
+      toast.error('Please enter both Order ID and Phone Number');
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      const res = await fetch(`/api/v1/orders/track?orderId=${id}`)
-      if (!res.ok) {
-        const errorData = await res.json()
-        throw new Error(errorData.message || "Order not found or failed to fetch.")
+      const { data, error } = await supabase
+        .from('orders')
+        .select(
+          `
+          *,
+          items:order_items(
+            *,
+            product:products(*)
+          ),
+          tracking_notes:order_tracking(*)
+        `,
+        )
+        .eq('order_number', orderId)
+        .eq('customer_phone', phone)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+          toast.error('Order not found. Please check your Order ID and Phone Number.');
+        } else {
+          throw error;
+        }
+        setOrder(null);
+        return;
       }
-      const data: IOrder = await res.json()
-      setOrder(data)
-      toast({
-        title: "Order Found",
-        description: `Details for order #${id.slice(-6)} loaded.`,
-      })
-    } catch (error: any) {
-      console.error("Error fetching order:", error)
-      toast({
-        title: "Error",
-        description: error.message || "Failed to track order. Please check the ID.",
-        variant: "destructive",
-      })
-      setOrder(null)
+
+      setOrder(data);
+    } catch (error) {
+      console.error('Error fetching order:', error);
+      toast.error('Failed to fetch order details');
+      setOrder(null);
     } finally {
-      setIsLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  useEffect(() => {
-    if (initialOrderId) {
-      fetchOrder(initialOrderId)
-    }
-  }, [initialOrderId])
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (orderIdInput) {
-      fetchOrder(orderIdInput)
-    } else {
-      toast({
-        title: "Missing Order ID",
-        description: "Please enter an order ID to track.",
-        variant: "destructive",
-      })
-    }
-  }
-
-  const getStatusIcon = (status: IOrder["status"]) => {
+  const getStatusIcon = (status: string) => {
     switch (status) {
-      case "pending":
-      case "processing":
-        return <Package className="h-6 w-6 text-blue-500" />
-      case "shipped":
-        return <Truck className="h-6 w-6 text-yellow-500" />
-      case "delivered":
-        return <CheckCircle className="h-6 w-6 text-green-500" />
-      case "cancelled":
-        return <XCircle className="h-6 w-6 text-red-500" />
+      case 'pending':
+        return <Clock className="w-5 h-5 text-yellow-500" />;
+      case 'confirmed':
+        return <CheckCircle className="w-5 h-5 text-blue-500" />;
+      case 'processing':
+        return <Package className="w-5 h-5 text-orange-500" />;
+      case 'shipped':
+        return <Truck className="w-5 h-5 text-purple-500" />;
+      case 'delivered':
+        return <CheckCircle className="w-5 h-5 text-green-500" />;
       default:
-        return <Package className="h-6 w-6 text-gray-500" />
+        return <Clock className="w-5 h-5 text-gray-500" />;
     }
-  }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'confirmed':
+        return 'bg-blue-100 text-blue-800';
+      case 'processing':
+        return 'bg-orange-100 text-orange-800';
+      case 'shipped':
+        return 'bg-purple-100 text-purple-800';
+      case 'delivered':
+        return 'bg-green-100 text-green-800';
+      case 'cancelled':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
 
   return (
-    <main className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-center">Track Your Order</h1>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">Track Your Order</h1>
 
-      <Card className="max-w-xl mx-auto mb-8">
-        <CardHeader>
-          <CardTitle>Enter Order ID</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="flex gap-2">
-            <Input
-              type="text"
-              placeholder="Enter your order ID"
-              value={orderIdInput}
-              onChange={(e) => setOrderIdInput(e.target.value)}
-              className="flex-grow"
-            />
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              Track
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      {isLoading && (
-        <div className="flex justify-center items-center h-32">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      )}
-
-      {!isLoading && order && (
-        <Card className="max-w-3xl mx-auto">
+        {/* Search Form */}
+        <Card className="mb-8">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              {getStatusIcon(order.status)} Order #{order._id?.toString().slice(-6)}
+              <Search className="w-5 h-5" />
+              Order Tracking
             </CardTitle>
-            <p className="text-sm text-gray-500">Placed on {new Date(order.createdAt).toLocaleDateString()}</p>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div>
-              <h3 className="font-semibold mb-2">Current Status:</h3>
-              <p className="text-lg font-bold capitalize">{order.status}</p>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-2">Shipping Information:</h3>
-              <p>
-                <strong>Name:</strong> {order.shippingAddress.fullName}
-              </p>
-              <p>
-                <strong>Address:</strong> {order.shippingAddress.address},{" "}
-                {order.shippingAddress.district}
-              </p>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-2">Order Summary:</h3>
-              <div className="space-y-2">
-                {order.orderItems.map((item) => (
-                  <div key={item.product?.toString()} className="flex items-center gap-4">
-                    <Image
-                      src={item.image || "/placeholder.svg"}
-                      alt={item.name}
-                      width={64}
-                      height={64}
-                      className="rounded-md object-cover"
-                    />
-                    <div>
-                      <p className="font-medium">{item.name}</p>
-                      <p className="text-sm text-gray-500">
-                        {formatCurrency(item.price)} x {item.quantity} = {formatCurrency(item.price * item.quantity)}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="border-t pt-4 mt-4 space-y-1">
-                <div className="flex justify-between">
-                  <span>Items Total:</span>
-                  <span>{formatCurrency(order.itemsPrice)}</span>
+          <CardContent>
+            <form onSubmit={handleSearch} className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="orderId">Order ID</Label>
+                  <Input
+                    id="orderId"
+                    type="text"
+                    value={orderId}
+                    onChange={(e) => setOrderId(e.target.value)}
+                    placeholder="Enter your order ID"
+                    required
+                  />
                 </div>
-                <div className="flex justify-between">
-                  <span>Delivery Charge:</span>
-                  <span>{formatCurrency(order.shippingPrice)}</span>
-                </div>
-                <div className="flex justify-between text-lg font-bold">
-                  <span>Grand Total:</span>
-                  <span>{formatCurrency(order.totalPrice)}</span>
+                <div>
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="Enter your phone number"
+                    required
+                  />
                 </div>
               </div>
-            </div>
+              <Button type="submit" disabled={loading} className="w-full md:w-auto">
+                {loading ? 'Searching...' : 'Track Order'}
+              </Button>
+            </form>
           </CardContent>
         </Card>
-      )}
 
-      {!isLoading && !order && orderIdInput && (
-        <div className="text-center text-gray-600 py-10">No order found with that ID. Please try again.</div>
-      )}
-    </main>
-  )
+        {/* Order Details */}
+        {order && (
+          <div className="space-y-6">
+            {/* Order Info */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Order #{order.id}</CardTitle>
+                  <Badge className={getStatusColor(order.status)}>
+                    {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-2">Customer Information</h3>
+                    <p className="text-gray-600">Name: {order.customer_name}</p>
+                    <p className="text-gray-600">Phone: {order.customer_phone}</p>
+                    <p className="text-gray-600">District: {order.district}</p>
+                    <p className="text-gray-600">Address: {order.address}</p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-2">Order Details</h3>
+                    <p className="text-gray-600">
+                      Order Date: {new Date(order.created_at).toLocaleDateString()}
+                    </p>
+                    <p className="text-gray-600">Payment: {order.payment_method.toUpperCase()}</p>
+                    <p className="text-gray-600">Total: ৳{order.total_amount.toLocaleString()}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Order Items */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Order Items</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {order.items?.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center space-x-4 p-4 border rounded-lg"
+                    >
+                      <img
+                        src={item.product.image_url || '/placeholder.svg'}
+                        alt={item.product.name}
+                        className="w-16 h-16 object-cover rounded-lg"
+                      />
+                      <div className="flex-1">
+                        <h4 className="font-medium text-gray-900">{item.product.name}</h4>
+                        <p className="text-gray-600">Quantity: {item.quantity}</p>
+                        <p className="text-gray-600">Price: ৳{item.price.toLocaleString()}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold">
+                          ৳{(item.price * item.quantity).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Tracking Timeline */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Order Tracking</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {order.tracking_notes?.map((note, index) => (
+                    <div key={note.id} className="flex items-start space-x-4">
+                      <div className="flex-shrink-0">{getStatusIcon(note.status)}</div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-medium text-gray-900">
+                            {note.status.charAt(0).toUpperCase() + note.status.slice(1)}
+                          </h4>
+                          <span className="text-sm text-gray-500">
+                            {new Date(note.created_at).toLocaleString()}
+                          </span>
+                        </div>
+                        <p className="text-gray-600 mt-1">{note.note}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
