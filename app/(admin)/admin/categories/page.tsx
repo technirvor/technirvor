@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -13,16 +13,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Edit, Trash2, Plus, Search } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
-import type { Category } from '@/lib/types';
-import { toast } from 'sonner';
+} from "@/components/ui/table";
+import { Edit, Trash2, Plus, Search } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import type { Category } from "@/lib/types";
+import { toast } from "sonner";
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     fetchCategories();
@@ -30,13 +30,16 @@ export default function AdminCategoriesPage() {
 
   const fetchCategories = async () => {
     try {
-      const { data, error } = await supabase.from('categories').select('*').order('name');
+      const { data, error } = await supabase
+        .from("categories")
+        .select("*")
+        .order("name");
 
       if (error) throw error;
       setCategories(data || []);
     } catch (error) {
-      console.error('Error fetching categories:', error);
-      toast.error('Failed to fetch categories');
+      console.error("Error fetching categories:", error);
+      toast.error("Failed to fetch categories");
     } finally {
       setLoading(false);
     }
@@ -51,14 +54,14 @@ export default function AdminCategoriesPage() {
       return;
 
     try {
-      const { error } = await supabase.from('categories').delete().eq('id', id);
+      const { error } = await supabase.from("categories").delete().eq("id", id);
       if (error) throw error;
 
       setCategories(categories.filter((c) => c.id !== id));
-      toast.success('Category deleted successfully');
+      toast.success("Category deleted successfully");
     } catch (error) {
-      console.error('Error deleting category:', error);
-      toast.error('Failed to delete category');
+      console.error("Error deleting category:", error);
+      toast.error("Failed to delete category");
     }
   };
 
@@ -83,7 +86,9 @@ export default function AdminCategoriesPage() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Categories Management</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Categories Management
+          </h1>
           <Link href="/admin/categories/new">
             <Button>
               <Plus className="w-4 h-4 mr-2" />
@@ -132,7 +137,7 @@ export default function AdminCategoriesPage() {
                       <TableCell>
                         {category.image_url ? (
                           <Image
-                            src={category.image_url || '/placeholder.svg'}
+                            src={category.image_url || "/placeholder.svg"}
                             alt={category.name}
                             width={50}
                             height={50}
@@ -140,15 +145,21 @@ export default function AdminCategoriesPage() {
                           />
                         ) : (
                           <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-lg flex items-center justify-center">
-                            <span className="text-white font-bold">{category.name.charAt(0)}</span>
+                            <span className="text-white font-bold">
+                              {category.name.charAt(0)}
+                            </span>
                           </div>
                         )}
                       </TableCell>
-                      <TableCell className="font-medium">{category.name}</TableCell>
+                      <TableCell className="font-medium">
+                        {category.name}
+                      </TableCell>
                       <TableCell className="font-mono text-sm text-gray-600">
                         {category.slug}
                       </TableCell>
-                      <TableCell>{new Date(category.created_at).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        {new Date(category.created_at).toLocaleDateString()}
+                      </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Link href={`/admin/categories/${category.id}/edit`}>
@@ -159,7 +170,9 @@ export default function AdminCategoriesPage() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleDelete(category.id, category.name)}
+                            onClick={() =>
+                              handleDelete(category.id, category.name)
+                            }
                             className="text-red-600 hover:text-red-800"
                           >
                             <Trash2 className="w-4 h-4" />

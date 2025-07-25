@@ -1,5 +1,5 @@
-import type { NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import type { NextRequest } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -16,26 +16,29 @@ export interface SecurityConfig {
   allowedMethods?: string[];
 }
 
-export async function validateRequest(request: NextRequest, config: SecurityConfig = {}) {
+export async function validateRequest(
+  request: NextRequest,
+  config: SecurityConfig = {},
+) {
   const {
     requireAuth = false,
     requireAdmin = false,
     rateLimit,
-    allowedMethods = ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedMethods = ["GET", "POST", "PUT", "DELETE"],
   } = config;
 
   // Method validation
   if (!allowedMethods.includes(request.method)) {
     return {
       isValid: false,
-      error: 'Method not allowed',
+      error: "Method not allowed",
       status: 405,
     };
   }
 
   // Rate limiting
   if (rateLimit) {
-    const ip = request.headers.get('x-forwarded-for') || 'unknown';
+    const ip = request.headers.get("x-forwarded-for") || "unknown";
     const rateLimitResult = await rateLimitCheck(
       `${ip}:${request.nextUrl.pathname}`,
       rateLimit.requests,
@@ -45,7 +48,7 @@ export async function validateRequest(request: NextRequest, config: SecurityConf
     if (!rateLimitResult.isAllowed) {
       return {
         isValid: false,
-        error: 'Rate limit exceeded',
+        error: "Rate limit exceeded",
         status: 429,
       };
     }
@@ -53,13 +56,13 @@ export async function validateRequest(request: NextRequest, config: SecurityConf
 
   // Authentication check
   if (requireAuth || requireAdmin) {
-    const authHeader = request.headers.get('authorization');
-    const token = authHeader?.replace('Bearer ', '');
+    const authHeader = request.headers.get("authorization");
+    const token = authHeader?.replace("Bearer ", "");
 
     if (!token) {
       return {
         isValid: false,
-        error: 'Authentication required',
+        error: "Authentication required",
         status: 401,
       };
     }
@@ -73,7 +76,7 @@ export async function validateRequest(request: NextRequest, config: SecurityConf
       if (error || !user) {
         return {
           isValid: false,
-          error: 'Invalid token',
+          error: "Invalid token",
           status: 401,
         };
       }
@@ -81,15 +84,15 @@ export async function validateRequest(request: NextRequest, config: SecurityConf
       // Admin check
       if (requireAdmin) {
         const { data: adminUser, error: adminError } = await supabase
-          .from('admin_users')
-          .select('*')
-          .eq('user_id', user.id)
+          .from("admin_users")
+          .select("*")
+          .eq("user_id", user.id)
           .single();
 
         if (adminError || !adminUser || !adminUser.is_active) {
           return {
             isValid: false,
-            error: 'Admin access required',
+            error: "Admin access required",
             status: 403,
           };
         }
@@ -108,7 +111,7 @@ export async function validateRequest(request: NextRequest, config: SecurityConf
     } catch (error) {
       return {
         isValid: false,
-        error: 'Authentication failed',
+        error: "Authentication failed",
         status: 401,
       };
     }
@@ -117,17 +120,21 @@ export async function validateRequest(request: NextRequest, config: SecurityConf
   return { isValid: true };
 }
 
-export async function logAdminActivity(adminUserId: string, action: string, details?: any) {
+export async function logAdminActivity(
+  adminUserId: string,
+  action: string,
+  details?: any,
+) {
   try {
-    await supabase.from('admin_activity_logs').insert({
+    await supabase.from("admin_activity_logs").insert({
       admin_user_id: adminUserId,
       action,
       details,
-      ip_address: 'server',
-      user_agent: 'server',
+      ip_address: "server",
+      user_agent: "server",
     });
   } catch (error) {
-    console.error('Failed to log admin activity:', error);
+    console.error("Failed to log admin activity:", error);
   }
 }
 
@@ -136,11 +143,11 @@ export async function logAdminActivity(adminUserId: string, action: string, deta
  * Falls back to `API_KEY` if you prefer a server-only secret.
  */
 export function validateApiKey(request: NextRequest) {
-  const apiKey = request.headers.get('x-api-key');
+  const apiKey = request.headers.get("x-api-key");
   const validKey = process.env.NEXT_PUBLIC_API_KEY || process.env.API_KEY;
 
   if (!apiKey || apiKey !== validKey) {
-    return { isValid: false, error: 'Invalid API key' };
+    return { isValid: false, error: "Invalid API key" };
   }
 
   return { isValid: true };
@@ -150,9 +157,16 @@ export function validateApiKey(request: NextRequest) {
  * Simple in-memory rate-limiter.
  * For production replace this with Upstash/Redis or a DB procedure.
  */
-const rateLimitState = new Map<string, { windowStart: number; count: number }>();
+const rateLimitState = new Map<
+  string,
+  { windowStart: number; count: number }
+>();
 
-export async function rateLimitCheck(identifier: string, limit = 100, windowSeconds = 60) {
+export async function rateLimitCheck(
+  identifier: string,
+  limit = 100,
+  windowSeconds = 60,
+) {
   const now = Date.now();
   const windowStart = Math.floor(now / 1000 / windowSeconds) * windowSeconds;
 

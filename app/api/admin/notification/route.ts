@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { validateRequest } from '@/lib/api-security';
+import { NextRequest, NextResponse } from "next/server";
+import { validateRequest } from "@/lib/api-security";
 
 // Use validateRequest for admin access
 async function validateAdminAccess(request: NextRequest) {
@@ -21,10 +21,14 @@ export async function POST(request: NextRequest) {
     // For real push, integrate with a push service and use Service Workers
     return NextResponse.json({
       success: true,
-      message: 'Notification request received. Use Notification API on client to show notification.',
+      message:
+        "Notification request received. Use Notification API on client to show notification.",
       data: { title, body, icon },
     });
   } catch (error) {
-    return NextResponse.json({ success: false, error: error?.toString() }, { status: 400 });
+    return NextResponse.json(
+      { success: false, error: error?.toString() },
+      { status: 400 },
+    );
   }
 }

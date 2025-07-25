@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
@@ -7,14 +7,17 @@ export async function POST(req: NextRequest) {
     const pixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 
     if (!accessToken || !pixelId) {
-      return NextResponse.json({ error: 'Meta CAPI credentials missing' }, { status: 500 });
+      return NextResponse.json(
+        { error: "Meta CAPI credentials missing" },
+        { status: 500 },
+      );
     }
 
     const response = await fetch(
       `https://graph.facebook.com/v18.0/${pixelId}/events?access_token=${accessToken}`,
       {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           data: [eventData],
           event_name: eventName,
@@ -26,7 +29,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(result);
   } catch (e: any) {
     return NextResponse.json(
-      { error: 'Meta CAPI request failed', details: e.message },
+      { error: "Meta CAPI request failed", details: e.message },
       { status: 500 },
     );
   }

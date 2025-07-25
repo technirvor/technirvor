@@ -1,5 +1,5 @@
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function BannerSection() {
   return (
@@ -9,7 +9,9 @@ export default function BannerSection() {
           {/* Flash Sale Banner */}
           <div className="relative rounded-lg overflow-hidden bg-gradient-to-r from-red-500 to-pink-600 text-white">
             <div className="p-6 md:p-8">
-              <h3 className="text-2xl md:text-3xl font-bold mb-2">Flash Sale</h3>
+              <h3 className="text-2xl md:text-3xl font-bold mb-2">
+                Flash Sale
+              </h3>
               <p className="text-lg mb-4">Up to 70% off on selected items</p>
               <p className="text-sm mb-4">Limited time offer - Hurry up!</p>
               <Link href="/flash-sale">
@@ -25,7 +27,9 @@ export default function BannerSection() {
           {/* Combo Offer Banner */}
           <div className="relative rounded-lg overflow-hidden bg-gradient-to-r from-green-500 to-blue-600 text-white">
             <div className="p-6 md:p-8">
-              <h3 className="text-2xl md:text-3xl font-bold mb-2">Combo Offers</h3>
+              <h3 className="text-2xl md:text-3xl font-bold mb-2">
+                Combo Offers
+              </h3>
               <p className="text-lg mb-4">Buy more, save more!</p>
               <p className="text-sm mb-4">Special combo deals available</p>
               <Link href="/combo-offers">

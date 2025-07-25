@@ -1,26 +1,26 @@
-'use client';
+"use client";
 
-import type React from 'react';
+import type React from "react";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { supabase } from '@/lib/supabase';
-import type { Category } from '@/lib/types';
-import { toast } from 'sonner';
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { supabase } from "@/lib/supabase";
+import type { Category } from "@/lib/types";
+import { toast } from "sonner";
 
 export default function NewProductPage() {
   const router = useRouter();
@@ -45,23 +45,23 @@ export default function NewProductPage() {
     metaKeywords: string;
     imagesInput: string;
   }>({
-    name: '',
-    slug: '',
-    description: '',
-    price: '',
-    salePrice: '',
-    imageUrl: '',
+    name: "",
+    slug: "",
+    description: "",
+    price: "",
+    salePrice: "",
+    imageUrl: "",
     images: [],
-    categoryId: '',
-    stockQuantity: '',
+    categoryId: "",
+    stockQuantity: "",
     isFeatured: false,
     isFlashSale: false,
-    flashSaleEnd: '',
-    tags: '',
-    metaTitle: '',
-    metaDescription: '',
-    metaKeywords: '',
-    imagesInput: '',
+    flashSaleEnd: "",
+    tags: "",
+    metaTitle: "",
+    metaDescription: "",
+    metaKeywords: "",
+    imagesInput: "",
   });
 
   useEffect(() => {
@@ -70,35 +70,38 @@ export default function NewProductPage() {
 
   const fetchCategories = async () => {
     try {
-      const { data, error } = await supabase.from('categories').select('*').order('name');
+      const { data, error } = await supabase
+        .from("categories")
+        .select("*")
+        .order("name");
       if (error) throw error;
       setCategories(data || []);
     } catch (error) {
-      console.error('Error fetching categories:', error);
-      toast.error('Failed to fetch categories');
+      console.error("Error fetching categories:", error);
+      toast.error("Failed to fetch categories");
     }
   };
 
   const generateSlug = (name: string) => {
     return name
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
   };
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData((prev) => {
       const updated = { ...prev, [field]: value };
-      if (field === 'name') {
+      if (field === "name") {
         updated.slug = generateSlug(value as string);
         // Auto-generate SEO fields
         updated.metaTitle = `${value} - Best Price in Bangladesh | Tech Nirvor`;
         updated.metaDescription = `Buy ${value} online in Bangladesh. Best price guaranteed. Cash on delivery available. Fast shipping across Bangladesh.`;
       }
       // If updating imagesInput, also update images array
-      if (field === 'imagesInput') {
+      if (field === "imagesInput") {
         updated.images = (value as string)
-          .split(',')
+          .split(",")
           .map((img) => img.trim())
           .filter(Boolean);
       }
@@ -108,23 +111,26 @@ export default function NewProductPage() {
 
   const validateForm = () => {
     if (!formData.name.trim()) {
-      toast.error('Product name is required');
+      toast.error("Product name is required");
       return false;
     }
     if (!formData.price || Number.parseFloat(formData.price) <= 0) {
-      toast.error('Valid price is required');
+      toast.error("Valid price is required");
       return false;
     }
     if (!formData.imageUrl.trim()) {
-      toast.error('Product image URL is required');
+      toast.error("Product image URL is required");
       return false;
     }
     if (!formData.categoryId) {
-      toast.error('Category is required');
+      toast.error("Category is required");
       return false;
     }
-    if (!formData.stockQuantity || Number.parseInt(formData.stockQuantity) < 0) {
-      toast.error('Valid stock quantity is required');
+    if (
+      !formData.stockQuantity ||
+      Number.parseInt(formData.stockQuantity) < 0
+    ) {
+      toast.error("Valid stock quantity is required");
       return false;
     }
     return true;
@@ -142,35 +148,38 @@ export default function NewProductPage() {
         slug: formData.slug,
         description: formData.description,
         price: Number.parseFloat(formData.price),
-        sale_price: formData.salePrice ? Number.parseFloat(formData.salePrice) : null,
+        sale_price: formData.salePrice
+          ? Number.parseFloat(formData.salePrice)
+          : null,
         image_url: formData.imageUrl,
-        images: formData.images.length > 0 ? formData.images : [formData.imageUrl],
+        images:
+          formData.images.length > 0 ? formData.images : [formData.imageUrl],
         category_id: formData.categoryId,
         stock: Number.parseInt(formData.stockQuantity),
         is_featured: formData.isFeatured,
         is_flash_sale: formData.isFlashSale,
         flash_sale_end: formData.flashSaleEnd || null,
         tags: formData.tags
-          .split(',')
+          .split(",")
           .map((tag) => tag.trim())
           .filter(Boolean),
         meta_title: formData.metaTitle,
         meta_description: formData.metaDescription,
         meta_keywords: formData.metaKeywords
-          .split(',')
+          .split(",")
           .map((kw) => kw.trim())
           .filter(Boolean),
       };
 
-      const { error } = await supabase.from('products').insert(productData);
+      const { error } = await supabase.from("products").insert(productData);
 
       if (error) throw error;
 
-      toast.success('Product created successfully!');
-      router.push('/admin/products');
+      toast.success("Product created successfully!");
+      router.push("/admin/products");
     } catch (error) {
-      console.error('Error creating product:', error);
-      toast.error('Failed to create product');
+      console.error("Error creating product:", error);
+      toast.error("Failed to create product");
     } finally {
       setLoading(false);
     }
@@ -181,7 +190,9 @@ export default function NewProductPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Add New Product</h1>
-          <p className="text-gray-600 mt-2">Create a new product with proper stock management</p>
+          <p className="text-gray-600 mt-2">
+            Create a new product with proper stock management
+          </p>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -206,7 +217,9 @@ export default function NewProductPage() {
                         id="name"
                         type="text"
                         value={formData.name}
-                        onChange={(e) => handleInputChange('name', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("name", e.target.value)
+                        }
                         placeholder="Enter product name"
                         required
                       />
@@ -218,7 +231,9 @@ export default function NewProductPage() {
                         id="slug"
                         type="text"
                         value={formData.slug}
-                        onChange={(e) => handleInputChange('slug', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("slug", e.target.value)
+                        }
                         placeholder="product-slug"
                         required
                       />
@@ -230,7 +245,9 @@ export default function NewProductPage() {
                     <Textarea
                       id="description"
                       value={formData.description}
-                      onChange={(e) => handleInputChange('description', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("description", e.target.value)
+                      }
                       placeholder="Enter product description"
                       rows={4}
                     />
@@ -240,7 +257,9 @@ export default function NewProductPage() {
                     <Label htmlFor="category">Category *</Label>
                     <Select
                       value={formData.categoryId}
-                      onValueChange={(value) => handleInputChange('categoryId', value)}
+                      onValueChange={(value) =>
+                        handleInputChange("categoryId", value)
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select a category" />
@@ -261,7 +280,9 @@ export default function NewProductPage() {
                       id="tags"
                       type="text"
                       value={formData.tags}
-                      onChange={(e) => handleInputChange('tags', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("tags", e.target.value)
+                      }
                       placeholder="electronics, smartphone, android"
                     />
                   </div>
@@ -273,18 +294,24 @@ export default function NewProductPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Product Media</CardTitle>
-                  <p className="text-sm text-gray-600">Add product images and media files.</p>
+                  <p className="text-sm text-gray-600">
+                    Add product images and media files.
+                  </p>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Main Image: Single upload or URL */}
                   <div>
-                    <Label htmlFor="imageUrl">Main Image (Single Upload or URL) *</Label>
+                    <Label htmlFor="imageUrl">
+                      Main Image (Single Upload or URL) *
+                    </Label>
                     <div className="flex gap-2 items-center">
                       <Input
                         id="imageUrl"
                         type="url"
                         value={formData.imageUrl}
-                        onChange={(e) => handleInputChange('imageUrl', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("imageUrl", e.target.value)
+                        }
                         placeholder="https://example.com/image.jpg"
                         required
                       />
@@ -294,22 +321,24 @@ export default function NewProductPage() {
                         onChange={async (e) => {
                           const file = e.target.files?.[0];
                           if (!file) return;
-                          const { uploadOptimizedImage } = await import('@/lib/image-upload');
+                          const { uploadOptimizedImage } = await import(
+                            "@/lib/image-upload"
+                          );
                           try {
                             const result = await uploadOptimizedImage(file, {
-                              folder: 'products',
+                              folder: "products",
                               generateSizes: true,
-                              uploadProvider: 'supabase',
+                              uploadProvider: "supabase",
                             });
                             if (result.original.publicUrl) {
                               setFormData((prev) => ({
                                 ...prev,
                                 imageUrl: result.original.publicUrl,
                               }));
-                              toast.success('Main image uploaded!');
+                              toast.success("Main image uploaded!");
                             }
                           } catch (err) {
-                            toast.error('Failed to upload main image');
+                            toast.error("Failed to upload main image");
                           }
                         }}
                       />
@@ -332,7 +361,9 @@ export default function NewProductPage() {
                     <Textarea
                       id="imagesInput"
                       value={formData.imagesInput}
-                      onChange={(e) => handleInputChange('imagesInput', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("imagesInput", e.target.value)
+                      }
                       rows={2}
                       placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
                     />
@@ -346,20 +377,22 @@ export default function NewProductPage() {
                       onChange={async (e) => {
                         const files = Array.from(e.target.files || []);
                         if (files.length === 0) return;
-                        const { uploadOptimizedImage } = await import('@/lib/image-upload');
+                        const { uploadOptimizedImage } = await import(
+                          "@/lib/image-upload"
+                        );
                         let uploadedUrls: string[] = [];
                         for (const file of files) {
                           try {
                             const result = await uploadOptimizedImage(file, {
-                              folder: 'products',
+                              folder: "products",
                               generateSizes: true,
-                              uploadProvider: 'supabase',
+                              uploadProvider: "supabase",
                             });
                             if (result.original.publicUrl) {
                               uploadedUrls.push(result.original.publicUrl);
                             }
                           } catch (err) {
-                            toast.error('Failed to upload image');
+                            toast.error("Failed to upload image");
                           }
                         }
                         if (uploadedUrls.length > 0) {
@@ -367,10 +400,12 @@ export default function NewProductPage() {
                             ...prev,
                             images: [...prev.images, ...uploadedUrls],
                             imagesInput: prev.imagesInput
-                              ? prev.imagesInput + ', ' + uploadedUrls.join(', ')
-                              : uploadedUrls.join(', '),
+                              ? prev.imagesInput +
+                                ", " +
+                                uploadedUrls.join(", ")
+                              : uploadedUrls.join(", "),
                           }));
-                          toast.success('Images uploaded!');
+                          toast.success("Images uploaded!");
                         }
                       }}
                     />
@@ -405,7 +440,9 @@ export default function NewProductPage() {
                         type="number"
                         step="0.01"
                         value={formData.price}
-                        onChange={(e) => handleInputChange('price', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("price", e.target.value)
+                        }
                         placeholder="0.00"
                         required
                       />
@@ -418,7 +455,9 @@ export default function NewProductPage() {
                         type="number"
                         step="0.01"
                         value={formData.salePrice}
-                        onChange={(e) => handleInputChange('salePrice', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("salePrice", e.target.value)
+                        }
                         placeholder="0.00"
                       />
                     </div>
@@ -430,12 +469,15 @@ export default function NewProductPage() {
                         type="number"
                         min="0"
                         value={formData.stockQuantity}
-                        onChange={(e) => handleInputChange('stockQuantity', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("stockQuantity", e.target.value)
+                        }
                         placeholder="0"
                         required
                       />
                       <p className="text-xs text-gray-500 mt-1">
-                        Stock will be automatically managed when orders are placed
+                        Stock will be automatically managed when orders are
+                        placed
                       </p>
                     </div>
                   </div>
@@ -445,7 +487,9 @@ export default function NewProductPage() {
                       <Switch
                         id="featured"
                         checked={formData.isFeatured}
-                        onCheckedChange={(checked) => handleInputChange('isFeatured', checked)}
+                        onCheckedChange={(checked) =>
+                          handleInputChange("isFeatured", checked)
+                        }
                       />
                       <Label htmlFor="featured">Featured Product</Label>
                     </div>
@@ -454,7 +498,9 @@ export default function NewProductPage() {
                       <Switch
                         id="flashSale"
                         checked={formData.isFlashSale}
-                        onCheckedChange={(checked) => handleInputChange('isFlashSale', checked)}
+                        onCheckedChange={(checked) =>
+                          handleInputChange("isFlashSale", checked)
+                        }
                       />
                       <Label htmlFor="flashSale">Flash Sale</Label>
                     </div>
@@ -467,7 +513,9 @@ export default function NewProductPage() {
                         id="flashSaleEnd"
                         type="datetime-local"
                         value={formData.flashSaleEnd}
-                        onChange={(e) => handleInputChange('flashSaleEnd', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("flashSaleEnd", e.target.value)
+                        }
                       />
                     </div>
                   )}
@@ -480,7 +528,8 @@ export default function NewProductPage() {
                 <CardHeader>
                   <CardTitle>SEO & Meta Information</CardTitle>
                   <p className="text-sm text-gray-600">
-                    Optimize your product for search engines and social media sharing.
+                    Optimize your product for search engines and social media
+                    sharing.
                   </p>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -490,7 +539,9 @@ export default function NewProductPage() {
                       id="metaTitle"
                       type="text"
                       value={formData.metaTitle}
-                      onChange={(e) => handleInputChange('metaTitle', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("metaTitle", e.target.value)
+                      }
                       placeholder="SEO optimized title"
                       maxLength={60}
                     />
@@ -504,7 +555,9 @@ export default function NewProductPage() {
                     <Textarea
                       id="metaDescription"
                       value={formData.metaDescription}
-                      onChange={(e) => handleInputChange('metaDescription', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("metaDescription", e.target.value)
+                      }
                       placeholder="SEO optimized description"
                       rows={3}
                       maxLength={160}
@@ -515,12 +568,16 @@ export default function NewProductPage() {
                   </div>
 
                   <div>
-                    <Label htmlFor="metaKeywords">Meta Keywords (comma separated)</Label>
+                    <Label htmlFor="metaKeywords">
+                      Meta Keywords (comma separated)
+                    </Label>
                     <Input
                       id="metaKeywords"
                       type="text"
                       value={formData.metaKeywords}
-                      onChange={(e) => handleInputChange('metaKeywords', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("metaKeywords", e.target.value)
+                      }
                       placeholder="keyword1, keyword2, keyword3"
                     />
                   </div>
@@ -531,9 +588,14 @@ export default function NewProductPage() {
 
           <div className="flex gap-4 mt-8">
             <Button type="submit" disabled={loading} size="lg">
-              {loading ? 'Creating...' : 'Create Product'}
+              {loading ? "Creating..." : "Create Product"}
             </Button>
-            <Button type="button" variant="outline" onClick={() => router.back()} size="lg">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.back()}
+              size="lg"
+            >
               Cancel
             </Button>
           </div>

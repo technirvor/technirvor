@@ -1,38 +1,43 @@
-'use client';
+"use client";
 
-import type React from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { ShoppingCart, Heart, Clock } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import type { Product } from '@/lib/types';
-import { useCartStore } from '@/lib/cart-store';
-import { toast } from 'sonner';
+import type React from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { ShoppingCart, Heart, Clock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import type { Product } from "@/lib/types";
+import { useCartStore } from "@/lib/cart-store";
+import { toast } from "sonner";
 
 interface ProductCardProps {
   product: Product;
   className?: string;
 }
 
-export default function ProductCard({ product, className = '' }: ProductCardProps) {
+export default function ProductCard({
+  product,
+  className = "",
+}: ProductCardProps) {
   const addItem = useCartStore((state) => state.addItem);
 
   // Ensure stock is always a number
   const stockQuantity =
-    typeof product.stock === 'number' && !isNaN(product.stock) ? product.stock : 0;
+    typeof product.stock === "number" && !isNaN(product.stock)
+      ? product.stock
+      : 0;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
     if (stockQuantity <= 0) {
-      toast.error('Product is out of stock!');
+      toast.error("Product is out of stock!");
       return;
     }
 
     addItem(product);
-    toast.success('Added to cart!');
+    toast.success("Added to cart!");
   };
 
   const handleBuyNow = (e: React.MouseEvent) => {
@@ -40,12 +45,12 @@ export default function ProductCard({ product, className = '' }: ProductCardProp
     e.stopPropagation();
 
     if (stockQuantity <= 0) {
-      toast.error('Product is out of stock!');
+      toast.error("Product is out of stock!");
       return;
     }
 
     addItem(product);
-    window.location.href = '/checkout';
+    window.location.href = "/checkout";
   };
 
   const currentPrice = product.sale_price || product.price;
@@ -61,7 +66,7 @@ export default function ProductCard({ product, className = '' }: ProductCardProp
       <Link href={`/product/${product.slug}`} className="block">
         <div className="relative group">
           <Image
-            src={product.image_url || '/placeholder.svg?height=240&width=300'}
+            src={product.image_url || "/placeholder.svg?height=240&width=300"}
             alt={product.name}
             width={300}
             height={240}
@@ -85,7 +90,9 @@ export default function ProductCard({ product, className = '' }: ProductCardProp
               </Badge>
             )}
             {product.is_featured && (
-              <Badge className="text-xs font-medium bg-blue-100 text-blue-800">Featured</Badge>
+              <Badge className="text-xs font-medium bg-blue-100 text-blue-800">
+                Featured
+              </Badge>
             )}
             {stockQuantity <= 10 && stockQuantity > 0 && (
               <Badge
@@ -105,7 +112,7 @@ export default function ProductCard({ product, className = '' }: ProductCardProp
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              toast.success('Added to wishlist!');
+              toast.success("Added to wishlist!");
             }}
           >
             <Heart className="w-4 h-4 text-gray-600 hover:text-red-500" />
@@ -131,7 +138,9 @@ export default function ProductCard({ product, className = '' }: ProductCardProp
           {/* Stock Status - Debug info included */}
           <div className="mb-3">
             {stockQuantity > 0 ? (
-              <span className="text-xs text-green-600 font-medium">{stockQuantity} in stock</span>
+              <span className="text-xs text-green-600 font-medium">
+                {stockQuantity} in stock
+              </span>
             ) : (
               <span className="text-xs text-red-600 font-medium">
                 Out of stock (Stock: {stockQuantity})
@@ -150,12 +159,21 @@ export default function ProductCard({ product, className = '' }: ProductCardProp
               >
                 <ShoppingCart className="w-4 h-4" />
               </Button>
-              <Button size="sm" className="flex-1 h-8 text-xs font-medium" onClick={handleBuyNow}>
+              <Button
+                size="sm"
+                className="flex-1 h-8 text-xs font-medium"
+                onClick={handleBuyNow}
+              >
                 Buy Now
               </Button>
             </div>
           ) : (
-            <Button variant="secondary" size="sm" className="w-full h-8 text-xs" disabled>
+            <Button
+              variant="secondary"
+              size="sm"
+              className="w-full h-8 text-xs"
+              disabled
+            >
               Out of Stock
             </Button>
           )}

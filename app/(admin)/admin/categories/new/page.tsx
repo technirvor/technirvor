@@ -1,37 +1,37 @@
-'use client';
+"use client";
 
-import type React from 'react';
+import type React from "react";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Save } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowLeft, Save } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
 
 export default function NewCategoryPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    slug: '',
-    description: '',
-    image_url: '',
+    name: "",
+    slug: "",
+    description: "",
+    image_url: "",
   });
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
     // Auto-generate slug from name
-    if (field === 'name') {
+    if (field === "name") {
       const slug = value
         .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)/g, '');
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
       setFormData((prev) => ({ ...prev, slug }));
     }
   };
@@ -41,7 +41,7 @@ export default function NewCategoryPage() {
     setLoading(true);
 
     try {
-      const { error } = await supabase.from('categories').insert({
+      const { error } = await supabase.from("categories").insert({
         name: formData.name,
         slug: formData.slug,
         image_url: formData.image_url || null,
@@ -49,11 +49,11 @@ export default function NewCategoryPage() {
 
       if (error) throw error;
 
-      toast.success('Category created successfully!');
-      router.push('/admin/categories');
+      toast.success("Category created successfully!");
+      router.push("/admin/categories");
     } catch (error) {
-      console.error('Error creating category:', error);
-      toast.error('Failed to create category');
+      console.error("Error creating category:", error);
+      toast.error("Failed to create category");
     } finally {
       setLoading(false);
     }
@@ -85,7 +85,7 @@ export default function NewCategoryPage() {
                   <Input
                     id="name"
                     value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    onChange={(e) => handleInputChange("name", e.target.value)}
                     required
                     placeholder="Electronics"
                   />
@@ -95,7 +95,7 @@ export default function NewCategoryPage() {
                   <Input
                     id="slug"
                     value={formData.slug}
-                    onChange={(e) => handleInputChange('slug', e.target.value)}
+                    onChange={(e) => handleInputChange("slug", e.target.value)}
                     required
                     placeholder="electronics"
                   />
@@ -107,19 +107,25 @@ export default function NewCategoryPage() {
                 <Textarea
                   id="description"
                   value={formData.description}
-                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("description", e.target.value)
+                  }
                   rows={3}
                   placeholder="Category description..."
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="image_url">Category Image (Upload or URL)</Label>
+                <Label htmlFor="image_url">
+                  Category Image (Upload or URL)
+                </Label>
                 <div className="flex gap-2 items-center">
                   <Input
                     id="image_url"
                     value={formData.image_url}
-                    onChange={(e) => handleInputChange('image_url', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("image_url", e.target.value)
+                    }
                     placeholder="https://example.com/category-image.jpg"
                   />
                   <input
@@ -128,22 +134,24 @@ export default function NewCategoryPage() {
                     onChange={async (e) => {
                       const file = e.target.files?.[0];
                       if (!file) return;
-                      const { uploadOptimizedImage } = await import('@/lib/image-upload');
+                      const { uploadOptimizedImage } = await import(
+                        "@/lib/image-upload"
+                      );
                       try {
                         const result = await uploadOptimizedImage(file, {
-                          folder: 'categories',
+                          folder: "categories",
                           generateSizes: false,
-                          uploadProvider: 'supabase',
+                          uploadProvider: "supabase",
                         });
                         if (result.original.publicUrl) {
                           setFormData((prev) => ({
                             ...prev,
                             image_url: result.original.publicUrl,
                           }));
-                          toast.success('Image uploaded!');
+                          toast.success("Image uploaded!");
                         }
                       } catch (err) {
-                        toast.error('Failed to upload image');
+                        toast.error("Failed to upload image");
                       }
                     }}
                   />
@@ -154,19 +162,23 @@ export default function NewCategoryPage() {
                       src={formData.image_url}
                       alt="Category Preview"
                       className="max-h-32 rounded border"
-                      style={{ objectFit: 'contain', background: '#f3f4f6' }}
+                      style={{ objectFit: "contain", background: "#f3f4f6" }}
                     />
                   </div>
                 )}
               </div>
 
               <div className="flex justify-end gap-4">
-                <Button type="button" variant="outline" onClick={() => router.back()}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => router.back()}
+                >
                   Cancel
                 </Button>
                 <Button type="submit" disabled={loading}>
                   <Save className="w-4 h-4 mr-2" />
-                  {loading ? 'Creating...' : 'Create Category'}
+                  {loading ? "Creating..." : "Create Category"}
                 </Button>
               </div>
             </form>

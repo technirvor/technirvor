@@ -1,6 +1,6 @@
-import { supabase } from '@/lib/supabase';
-import type { Order } from '@/lib/types';
-import { notFound } from 'next/navigation';
+import { supabase } from "@/lib/supabase";
+import type { Order } from "@/lib/types";
+import { notFound } from "next/navigation";
 
 interface Props {
   params: { id: string };
@@ -9,7 +9,7 @@ interface Props {
 async function getOrder(id: string): Promise<Order | null> {
   try {
     const { data, error } = await supabase
-      .from('orders')
+      .from("orders")
       .select(
         `
         *,
@@ -19,27 +19,30 @@ async function getOrder(id: string): Promise<Order | null> {
         )
       `,
       )
-      .eq('id', id)
+      .eq("id", id)
       .single();
 
     if (error) {
-      console.error('Supabase error:', error);
+      console.error("Supabase error:", error);
       return null;
     }
     if (!data) {
-      console.warn('No order found for id:', id);
+      console.warn("No order found for id:", id);
     }
     return data;
   } catch (error) {
-    console.error('Fetch error:', error);
+    console.error("Fetch error:", error);
     return null;
   }
 }
 
 async function getTrackingNotes(orderId: string) {
-  const { data, error } = await supabase.from('tracking_notes').select('*').eq('order_id', orderId);
+  const { data, error } = await supabase
+    .from("tracking_notes")
+    .select("*")
+    .eq("order_id", orderId);
   if (error) {
-    console.error('Tracking notes error:', error);
+    console.error("Tracking notes error:", error);
     return [];
   }
   return data || [];
@@ -55,7 +58,8 @@ export default async function OrderDetailsPage({ params }: Props) {
       <main className="max-w-3xl mx-auto p-6">
         <h1 className="text-2xl font-bold mb-4">Order Not Found</h1>
         <p className="text-gray-600">
-          The order with ID <span className="font-mono">{resolvedParams.id}</span> does not exist.
+          The order with ID{" "}
+          <span className="font-mono">{resolvedParams.id}</span> does not exist.
         </p>
       </main>
     );
@@ -71,7 +75,8 @@ export default async function OrderDetailsPage({ params }: Props) {
         <span className="font-semibold">Customer:</span> {order.customer_name}
       </div>
       <div className="mb-4">
-        <span className="font-semibold">Total Amount:</span> ${order.total_amount}
+        <span className="font-semibold">Total Amount:</span> $
+        {order.total_amount}
       </div>
       <div className="mb-4">
         <span className="font-semibold">Status:</span> {order.status}

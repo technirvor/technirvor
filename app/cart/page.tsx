@@ -1,14 +1,15 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useCartStore } from '@/lib/cart-store';
+import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useCartStore } from "@/lib/cart-store";
 
 export default function CartPage() {
-  const { items, updateQuantity, removeItem, getTotalPrice, clearCart } = useCartStore();
+  const { items, updateQuantity, removeItem, getTotalPrice, clearCart } =
+    useCartStore();
   const [isClearing, setIsClearing] = useState(false);
 
   const handleClearCart = async () => {
@@ -24,7 +25,9 @@ export default function CartPage() {
         <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
           <div className="text-center py-12 sm:py-16">
             <ShoppingBag className="w-20 h-20 sm:w-24 sm:h-24 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Your cart is empty</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+              Your cart is empty
+            </h2>
             <p className="text-gray-600 mb-6 text-sm sm:text-base">
               Add some products to get started
             </p>
@@ -43,14 +46,16 @@ export default function CartPage() {
     <div className="min-h-screen bg-gray-50 py-6 sm:py-8">
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Shopping Cart</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+            Shopping Cart
+          </h1>
           <Button
             variant="outline"
             onClick={handleClearCart}
             disabled={isClearing}
             className="w-full sm:w-auto"
           >
-            {isClearing ? 'Clearing...' : 'Clear Cart'}
+            {isClearing ? "Clearing..." : "Clear Cart"}
           </Button>
         </div>
 
@@ -64,7 +69,7 @@ export default function CartPage() {
                   className="p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-4"
                 >
                   <Image
-                    src={item.product.image_url || '/placeholder.svg'}
+                    src={item.product.image_url || "/placeholder.svg"}
                     alt={item.product.name}
                     width={80}
                     height={80}
@@ -76,7 +81,10 @@ export default function CartPage() {
                       {item.product.name}
                     </h3>
                     <p className="text-gray-600 text-sm sm:text-base">
-                      ৳{(item.product.sale_price || item.product.price).toLocaleString()}
+                      ৳
+                      {(
+                        item.product.sale_price || item.product.price
+                      ).toLocaleString()}
                     </p>
                   </div>
 
@@ -84,16 +92,22 @@ export default function CartPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                      onClick={() =>
+                        updateQuantity(item.product.id, item.quantity - 1)
+                      }
                       className="px-2"
                     >
                       <Minus className="w-4 h-4" />
                     </Button>
-                    <span className="w-10 sm:w-12 text-center font-medium">{item.quantity}</span>
+                    <span className="w-10 sm:w-12 text-center font-medium">
+                      {item.quantity}
+                    </span>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                      onClick={() =>
+                        updateQuantity(item.product.id, item.quantity + 1)
+                      }
                       className="px-2"
                     >
                       <Plus className="w-4 h-4" />
@@ -104,7 +118,8 @@ export default function CartPage() {
                     <p className="text-base sm:text-lg font-semibold text-gray-900">
                       ৳
                       {(
-                        (item.product.sale_price || item.product.price) * item.quantity
+                        (item.product.sale_price || item.product.price) *
+                        item.quantity
                       ).toLocaleString()}
                     </p>
                     <Button
@@ -132,7 +147,9 @@ export default function CartPage() {
               <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
                 <div className="flex justify-between text-sm sm:text-base">
                   <span className="text-gray-600">Subtotal</span>
-                  <span className="font-medium">৳{getTotalPrice().toLocaleString()}</span>
+                  <span className="font-medium">
+                    ৳{getTotalPrice().toLocaleString()}
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm sm:text-base">
                   <span className="text-gray-600">Delivery</span>
@@ -153,7 +170,11 @@ export default function CartPage() {
               </Link>
 
               <Link href="/products">
-                <Button variant="outline" size="lg" className="w-full mt-2 sm:mt-3 bg-transparent">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="w-full mt-2 sm:mt-3 bg-transparent"
+                >
                   Continue Shopping
                 </Button>
               </Link>

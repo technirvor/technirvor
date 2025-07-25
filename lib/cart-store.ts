@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import type { CartItem, Product } from './types';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import type { CartItem, Product } from "./types";
 
 interface CartStore {
   items: CartItem[];
@@ -20,7 +20,9 @@ export const useCartStore = create<CartStore>()(
       items: [],
       addItem: (product, quantity = 1) => {
         const items = get().items;
-        const existingItem = items.find((item) => item.product.id === product.id);
+        const existingItem = items.find(
+          (item) => item.product.id === product.id,
+        );
 
         if (existingItem) {
           set({
@@ -54,7 +56,8 @@ export const useCartStore = create<CartStore>()(
         });
       },
       clearCart: () => set({ items: [] }),
-      getTotalItems: () => get().items.reduce((total, item) => total + item.quantity, 0),
+      getTotalItems: () =>
+        get().items.reduce((total, item) => total + item.quantity, 0),
       getTotalPrice: () =>
         get().items.reduce((total, item) => {
           const price = item.product.sale_price || item.product.price;
@@ -62,7 +65,7 @@ export const useCartStore = create<CartStore>()(
         }, 0),
     }),
     {
-      name: 'cart-storage',
+      name: "cart-storage",
     },
   ),
 );

@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Search, X } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Search, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 interface SearchResult {
   products: Array<{
@@ -27,7 +27,7 @@ interface SearchResult {
 }
 
 export default function RealTimeSearch() {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult>({
     products: [],
     categories: [],
@@ -39,13 +39,16 @@ export default function RealTimeSearch() {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
         setShowResults(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   useEffect(() => {
@@ -62,12 +65,14 @@ export default function RealTimeSearch() {
     debounceRef.current = setTimeout(async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&limit=8`);
+        const response = await fetch(
+          `/api/search?q=${encodeURIComponent(query)}&limit=8`,
+        );
         const data = await response.json();
         setResults(data.results || { products: [], categories: [] });
         setShowResults(true);
       } catch (error) {
-        console.error('Search error:', error);
+        console.error("Search error:", error);
       } finally {
         setIsLoading(false);
       }
@@ -81,12 +86,13 @@ export default function RealTimeSearch() {
   }, [query]);
 
   const clearSearch = () => {
-    setQuery('');
+    setQuery("");
     setResults({ products: [], categories: [] });
     setShowResults(false);
   };
 
-  const hasResults = results.products.length > 0 || results.categories.length > 0;
+  const hasResults =
+    results.products.length > 0 || results.categories.length > 0;
 
   return (
     <div ref={searchRef} className="relative w-full max-w-lg">
@@ -97,7 +103,9 @@ export default function RealTimeSearch() {
           placeholder="Search products, categories..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          onFocus={() => query.length >= 2 && hasResults && setShowResults(true)}
+          onFocus={() =>
+            query.length >= 2 && hasResults && setShowResults(true)
+          }
           className="pl-10 pr-10 w-full"
         />
         {query && (
@@ -157,7 +165,7 @@ export default function RealTimeSearch() {
                         className="flex items-center space-x-3 px-2 py-2 hover:bg-gray-100 rounded"
                       >
                         <Image
-                          src={product.image_url || '/placeholder.svg'}
+                          src={product.image_url || "/placeholder.svg"}
                           alt={product.name}
                           width={40}
                           height={40}
@@ -169,7 +177,10 @@ export default function RealTimeSearch() {
                           </p>
                           <div className="flex items-center space-x-2">
                             <span className="text-sm font-semibold text-gray-900">
-                              ৳{(product.sale_price || product.price).toLocaleString()}
+                              ৳
+                              {(
+                                product.sale_price || product.price
+                              ).toLocaleString()}
                             </span>
                             {product.sale_price && (
                               <span className="text-xs text-gray-500 line-through">
@@ -201,7 +212,9 @@ export default function RealTimeSearch() {
               <div className="p-4 text-center text-gray-500">
                 <Search className="w-8 h-8 mx-auto mb-2 text-gray-300" />
                 <p className="text-sm">No results found for "{query}"</p>
-                <p className="text-xs text-gray-400 mt-1">Try different keywords</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  Try different keywords
+                </p>
               </div>
             )}
           </CardContent>

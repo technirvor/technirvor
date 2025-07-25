@@ -1,33 +1,37 @@
-'use client';
+"use client";
 
-import type React from 'react';
+import type React from "react";
 
-import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
-import ProductCard from '@/components/product-card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import ProductCard from "@/components/product-card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Search, Filter, SlidersHorizontal } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
-import type { Product, Category } from '@/lib/types';
+} from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Search, Filter, SlidersHorizontal } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import type { Product, Category } from "@/lib/types";
 
 export default function ProductsPage() {
   const searchParams = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
-  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
-  const [sortBy, setSortBy] = useState('newest');
-  const [priceRange, setPriceRange] = useState('all');
+  const [searchQuery, setSearchQuery] = useState(
+    searchParams.get("search") || "",
+  );
+  const [selectedCategory, setSelectedCategory] = useState(
+    searchParams.get("category") || "all",
+  );
+  const [sortBy, setSortBy] = useState("newest");
+  const [priceRange, setPriceRange] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
@@ -37,11 +41,14 @@ export default function ProductsPage() {
 
   const fetchCategories = async () => {
     try {
-      const { data, error } = await supabase.from('categories').select('*').order('name');
+      const { data, error } = await supabase
+        .from("categories")
+        .select("*")
+        .order("name");
       if (error) throw error;
       setCategories(data || []);
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error("Error fetching categories:", error);
     }
   };
 
@@ -49,48 +56,48 @@ export default function ProductsPage() {
     setLoading(true);
     try {
       let query = supabase
-        .from('products')
+        .from("products")
         .select(
           `
           *,
           category:categories(*)
         `,
         )
-        .gt('stock', 0);
+        .gt("stock", 0);
 
       // Apply category filter
-      if (selectedCategory !== 'all') {
-        query = query.eq('category_id', selectedCategory);
+      if (selectedCategory !== "all") {
+        query = query.eq("category_id", selectedCategory);
       }
 
       // Apply search filter
       if (searchQuery) {
-        query = query.ilike('name', `%${searchQuery}%`);
+        query = query.ilike("name", `%${searchQuery}%`);
       }
 
       // Apply price range filter
-      if (priceRange !== 'all') {
-        const [min, max] = priceRange.split('-').map(Number);
+      if (priceRange !== "all") {
+        const [min, max] = priceRange.split("-").map(Number);
         if (max) {
-          query = query.gte('price', min).lte('price', max);
+          query = query.gte("price", min).lte("price", max);
         } else {
-          query = query.gte('price', min);
+          query = query.gte("price", min);
         }
       }
 
       // Apply sorting
       switch (sortBy) {
-        case 'price-low':
-          query = query.order('price', { ascending: true });
+        case "price-low":
+          query = query.order("price", { ascending: true });
           break;
-        case 'price-high':
-          query = query.order('price', { ascending: false });
+        case "price-high":
+          query = query.order("price", { ascending: false });
           break;
-        case 'name':
-          query = query.order('name', { ascending: true });
+        case "name":
+          query = query.order("name", { ascending: true });
           break;
         default:
-          query = query.order('created_at', { ascending: false });
+          query = query.order("created_at", { ascending: false });
       }
 
       const { data, error } = await query;
@@ -98,7 +105,7 @@ export default function ProductsPage() {
       if (error) throw error;
       setProducts(data || []);
     } catch (error) {
-      console.error('Error fetching products:', error);
+      console.error("Error fetching products:", error);
     } finally {
       setLoading(false);
     }
@@ -110,17 +117,19 @@ export default function ProductsPage() {
   };
 
   const clearFilters = () => {
-    setSearchQuery('');
-    setSelectedCategory('all');
-    setSortBy('newest');
-    setPriceRange('all');
+    setSearchQuery("");
+    setSelectedCategory("all");
+    setSortBy("newest");
+    setPriceRange("all");
   };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">All Products</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">
+            All Products
+          </h1>
 
           {/* Search Bar */}
           <form onSubmit={handleSearch} className="mb-6">
@@ -146,13 +155,17 @@ export default function ProductsPage() {
               <SlidersHorizontal className="w-4 h-4 mr-2" />
               Filters
             </Button>
-            <div className="text-sm text-gray-600">{products.length} products found</div>
+            <div className="text-sm text-gray-600">
+              {products.length} products found
+            </div>
           </div>
         </div>
 
         <div className="grid lg:grid-cols-4 gap-8">
           {/* Filters Sidebar */}
-          <div className={`lg:col-span-1 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+          <div
+            className={`lg:col-span-1 ${showFilters ? "block" : "hidden lg:block"}`}
+          >
             <Card className="sticky top-8">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
@@ -165,8 +178,13 @@ export default function ProductsPage() {
               <CardContent className="space-y-6">
                 {/* Category Filter */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Category
+                  </label>
+                  <Select
+                    value={selectedCategory}
+                    onValueChange={setSelectedCategory}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="All Categories" />
                     </SelectTrigger>
@@ -194,8 +212,12 @@ export default function ProductsPage() {
                       <SelectItem value="all">All Prices</SelectItem>
                       <SelectItem value="0-1000">৳0 - ৳1,000</SelectItem>
                       <SelectItem value="1000-5000">৳1,000 - ৳5,000</SelectItem>
-                      <SelectItem value="5000-10000">৳5,000 - ৳10,000</SelectItem>
-                      <SelectItem value="10000-50000">৳10,000 - ৳50,000</SelectItem>
+                      <SelectItem value="5000-10000">
+                        ৳5,000 - ৳10,000
+                      </SelectItem>
+                      <SelectItem value="10000-50000">
+                        ৳10,000 - ৳50,000
+                      </SelectItem>
                       <SelectItem value="50000">৳50,000+</SelectItem>
                     </SelectContent>
                   </Select>
@@ -203,15 +225,21 @@ export default function ProductsPage() {
 
                 {/* Sort By */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Sort By
+                  </label>
                   <Select value={sortBy} onValueChange={setSortBy}>
                     <SelectTrigger>
                       <SelectValue placeholder="Sort by" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="newest">Newest First</SelectItem>
-                      <SelectItem value="price-low">Price: Low to High</SelectItem>
-                      <SelectItem value="price-high">Price: High to Low</SelectItem>
+                      <SelectItem value="price-low">
+                        Price: Low to High
+                      </SelectItem>
+                      <SelectItem value="price-high">
+                        Price: High to Low
+                      </SelectItem>
                       <SelectItem value="name">Name: A to Z</SelectItem>
                     </SelectContent>
                   </Select>
@@ -225,7 +253,10 @@ export default function ProductsPage() {
             {loading ? (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                 {[...Array(9)].map((_, i) => (
-                  <div key={i} className="h-64 bg-gray-200 rounded-lg animate-pulse"></div>
+                  <div
+                    key={i}
+                    className="h-64 bg-gray-200 rounded-lg animate-pulse"
+                  ></div>
                 ))}
               </div>
             ) : products.length > 0 ? (
@@ -239,8 +270,12 @@ export default function ProductsPage() {
                 <div className="text-gray-400 mb-4">
                   <Filter className="w-16 h-16 mx-auto" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">No products found</h3>
-                <p className="text-gray-600 mb-4">Try adjusting your search or filter criteria</p>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  No products found
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Try adjusting your search or filter criteria
+                </p>
                 <Button onClick={clearFilters}>Clear Filters</Button>
               </div>
             )}

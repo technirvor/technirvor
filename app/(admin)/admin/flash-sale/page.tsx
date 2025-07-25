@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -13,11 +13,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Edit, Trash2, Plus, Eye, Clock, Zap } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
-import type { Product } from '@/lib/types';
-import { toast } from 'sonner';
+} from "@/components/ui/table";
+import { Edit, Trash2, Plus, Eye, Clock, Zap } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import type { Product } from "@/lib/types";
+import { toast } from "sonner";
 
 export default function AdminFlashSalePage() {
   const [flashSaleProducts, setFlashSaleProducts] = useState<Product[]>([]);
@@ -30,21 +30,21 @@ export default function AdminFlashSalePage() {
   const fetchFlashSaleProducts = async () => {
     try {
       const { data, error } = await supabase
-        .from('products')
+        .from("products")
         .select(
           `
           *,
           category:categories(*)
         `,
         )
-        .eq('is_flash_sale', true)
-        .order('created_at', { ascending: false });
+        .eq("is_flash_sale", true)
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
       setFlashSaleProducts(data || []);
     } catch (error) {
-      console.error('Error fetching flash sale products:', error);
-      toast.error('Failed to fetch flash sale products');
+      console.error("Error fetching flash sale products:", error);
+      toast.error("Failed to fetch flash sale products");
     } finally {
       setLoading(false);
     }
@@ -55,20 +55,20 @@ export default function AdminFlashSalePage() {
 
     try {
       const { error } = await supabase
-        .from('products')
+        .from("products")
         .update({
           is_flash_sale: false,
           flash_sale_end: null,
         })
-        .eq('id', id);
+        .eq("id", id);
 
       if (error) throw error;
 
       setFlashSaleProducts(flashSaleProducts.filter((p) => p.id !== id));
-      toast.success('Product removed from flash sale');
+      toast.success("Product removed from flash sale");
     } catch (error) {
-      console.error('Error removing from flash sale:', error);
-      toast.error('Failed to remove from flash sale');
+      console.error("Error removing from flash sale:", error);
+      toast.error("Failed to remove from flash sale");
     }
   };
 
@@ -78,16 +78,18 @@ export default function AdminFlashSalePage() {
   };
 
   const getTimeRemaining = (endDate: string | null) => {
-    if (!endDate) return 'No end date';
+    if (!endDate) return "No end date";
 
     const now = new Date().getTime();
     const end = new Date(endDate).getTime();
     const distance = end - now;
 
-    if (distance < 0) return 'Expired';
+    if (distance < 0) return "Expired";
 
     const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const hours = Math.floor(
+      (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+    );
     const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
 
     if (days > 0) return `${days}d ${hours}h`;
@@ -114,7 +116,9 @@ export default function AdminFlashSalePage() {
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
             <Zap className="w-8 h-8 text-red-500" />
-            <h1 className="text-3xl font-bold text-gray-900">Flash Sale Management</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Flash Sale Management
+            </h1>
           </div>
           <Link href="/admin/flash-sale/new">
             <Button className="bg-red-600 hover:bg-red-700">
@@ -130,8 +134,12 @@ export default function AdminFlashSalePage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Total Flash Sale Products</p>
-                  <p className="text-2xl font-bold text-gray-900">{flashSaleProducts.length}</p>
+                  <p className="text-sm font-medium text-gray-600">
+                    Total Flash Sale Products
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {flashSaleProducts.length}
+                  </p>
                 </div>
                 <Zap className="w-8 h-8 text-red-500" />
               </div>
@@ -142,9 +150,15 @@ export default function AdminFlashSalePage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Active Sales</p>
+                  <p className="text-sm font-medium text-gray-600">
+                    Active Sales
+                  </p>
                   <p className="text-2xl font-bold text-green-600">
-                    {flashSaleProducts.filter((p) => isFlashSaleActive(p.flash_sale_end)).length}
+                    {
+                      flashSaleProducts.filter((p) =>
+                        isFlashSaleActive(p.flash_sale_end),
+                      ).length
+                    }
                   </p>
                 </div>
                 <Clock className="w-8 h-8 text-green-500" />
@@ -156,9 +170,15 @@ export default function AdminFlashSalePage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Expired Sales</p>
+                  <p className="text-sm font-medium text-gray-600">
+                    Expired Sales
+                  </p>
                   <p className="text-2xl font-bold text-red-600">
-                    {flashSaleProducts.filter((p) => !isFlashSaleActive(p.flash_sale_end)).length}
+                    {
+                      flashSaleProducts.filter(
+                        (p) => !isFlashSaleActive(p.flash_sale_end),
+                      ).length
+                    }
                   </p>
                 </div>
                 <Clock className="w-8 h-8 text-red-500" />
@@ -169,7 +189,9 @@ export default function AdminFlashSalePage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Flash Sale Products ({flashSaleProducts.length})</CardTitle>
+            <CardTitle>
+              Flash Sale Products ({flashSaleProducts.length})
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -190,7 +212,11 @@ export default function AdminFlashSalePage() {
                 <TableBody>
                   {flashSaleProducts.map((product) => {
                     const discount = product.sale_price
-                      ? Math.round(((product.price - product.sale_price) / product.price) * 100)
+                      ? Math.round(
+                          ((product.price - product.sale_price) /
+                            product.price) *
+                            100,
+                        )
                       : 0;
                     const isActive = isFlashSaleActive(product.flash_sale_end);
 
@@ -198,32 +224,43 @@ export default function AdminFlashSalePage() {
                       <TableRow key={product.id}>
                         <TableCell>
                           <Image
-                            src={product.image_url || '/placeholder.svg'}
+                            src={product.image_url || "/placeholder.svg"}
                             alt={product.name}
                             width={50}
                             height={50}
                             className="rounded-lg object-cover"
                           />
                         </TableCell>
-                        <TableCell className="font-medium">{product.name}</TableCell>
-                        <TableCell>{product.category?.name || 'No Category'}</TableCell>
+                        <TableCell className="font-medium">
+                          {product.name}
+                        </TableCell>
+                        <TableCell>
+                          {product.category?.name || "No Category"}
+                        </TableCell>
                         <TableCell className="line-through text-gray-500">
                           ৳{product.price.toLocaleString()}
                         </TableCell>
                         <TableCell className="font-semibold text-red-600">
-                          ৳{(product.sale_price || product.price).toLocaleString()}
+                          ৳
+                          {(
+                            product.sale_price || product.price
+                          ).toLocaleString()}
                         </TableCell>
                         <TableCell>
                           <Badge variant="destructive">{discount}% OFF</Badge>
                         </TableCell>
                         <TableCell>
-                          <span className={isActive ? 'text-green-600' : 'text-red-600'}>
+                          <span
+                            className={
+                              isActive ? "text-green-600" : "text-red-600"
+                            }
+                          >
                             {getTimeRemaining(product.flash_sale_end)}
                           </span>
                         </TableCell>
                         <TableCell>
-                          <Badge variant={isActive ? 'default' : 'secondary'}>
-                            {isActive ? 'Active' : 'Expired'}
+                          <Badge variant={isActive ? "default" : "secondary"}>
+                            {isActive ? "Active" : "Expired"}
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -241,7 +278,9 @@ export default function AdminFlashSalePage() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => removeFromFlashSale(product.id, product.name)}
+                              onClick={() =>
+                                removeFromFlashSale(product.id, product.name)
+                              }
                               className="text-red-600 hover:text-red-800"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -258,8 +297,12 @@ export default function AdminFlashSalePage() {
             {flashSaleProducts.length === 0 && (
               <div className="text-center py-8">
                 <Zap className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">No Flash Sale Products</h3>
-                <p className="text-gray-600 mb-4">Add products to flash sale to boost sales</p>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  No Flash Sale Products
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Add products to flash sale to boost sales
+                </p>
                 <Link href="/admin/flash-sale/new">
                   <Button className="bg-red-600 hover:bg-red-700">
                     Add First Flash Sale Product

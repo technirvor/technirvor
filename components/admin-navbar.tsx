@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { useState, useEffect, useCallback, useRef } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Menu,
   Home,
@@ -22,21 +22,21 @@ import {
   BarChart3,
   Tag,
   Zap,
-} from 'lucide-react';
-import AdminNotifications from './admin-notifications';
-import { checkAdminAccess } from '@/lib/auth';
-import { supabase } from '@/lib/supabase';
-import { toast } from 'sonner';
+} from "lucide-react";
+import AdminNotifications from "./admin-notifications";
+import { checkAdminAccess } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
 
 const navigation = [
-  { name: 'Dashboard', href: '/admin', icon: Home },
-  { name: 'Products', href: '/admin/products', icon: Package },
-  { name: 'Categories', href: '/admin/categories', icon: Tag },
-  { name: 'Orders', href: '/admin/orders', icon: ShoppingCart },
-  { name: 'Flash Sale', href: '/admin/flash-sale', icon: Zap },
-  { name: 'Combo Products', href: '/admin/combo-products', icon: Package },
-  { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
-  { name: 'Settings', href: '/admin/settings', icon: Settings },
+  { name: "Dashboard", href: "/admin", icon: Home },
+  { name: "Products", href: "/admin/products", icon: Package },
+  { name: "Categories", href: "/admin/categories", icon: Tag },
+  { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
+  { name: "Flash Sale", href: "/admin/flash-sale", icon: Zap },
+  { name: "Combo Products", href: "/admin/combo-products", icon: Package },
+  { name: "Analytics", href: "/admin/analytics", icon: BarChart3 },
+  { name: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
 export default function AdminNavbar() {
@@ -59,16 +59,16 @@ export default function AdminNavbar() {
     try {
       const { isAdmin, user } = await checkAdminAccess();
       if (!isAdmin) {
-        router.replace('/admin/login');
+        router.replace("/admin/login");
         return;
       }
       setAdminUser(user);
     } catch (error) {
       // Only log in dev
-      if (process.env.NODE_ENV !== 'production') {
-        console.error('Auth check failed:', error);
+      if (process.env.NODE_ENV !== "production") {
+        console.error("Auth check failed:", error);
       }
-      router.replace('/admin/login');
+      router.replace("/admin/login");
     } finally {
       setLoading(false);
     }
@@ -79,13 +79,13 @@ export default function AdminNavbar() {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      toast.success('Signed out successfully');
-      router.replace('/admin/login');
+      toast.success("Signed out successfully");
+      router.replace("/admin/login");
     } catch (error) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.error('Sign out error:', error);
+      if (process.env.NODE_ENV !== "production") {
+        console.error("Sign out error:", error);
       }
-      toast.error('Failed to sign out');
+      toast.error("Failed to sign out");
     } finally {
       setLoading(false);
     }
@@ -130,15 +130,17 @@ export default function AdminNavbar() {
             <div className="hidden md:flex gap-2 lg:gap-4 ml-2">
               {navigation.map((item) => {
                 const Icon = item.icon;
-                const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+                const isActive =
+                  pathname === item.href ||
+                  pathname.startsWith(item.href + "/");
                 return (
                   <Link
                     key={item.name}
                     href={item.href}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-150 ${
                       isActive
-                        ? 'bg-blue-100 text-blue-900 shadow'
-                        : 'text-blue-700 hover:text-blue-900 hover:bg-blue-50'
+                        ? "bg-blue-100 text-blue-900 shadow"
+                        : "text-blue-700 hover:text-blue-900 hover:bg-blue-50"
                     }`}
                   >
                     <Icon className="w-5 h-5" />
@@ -159,7 +161,7 @@ export default function AdminNavbar() {
                 >
                   <Avatar className="h-10 w-10">
                     <AvatarFallback className="bg-blue-200 text-blue-900 font-bold">
-                      {adminUser?.email?.charAt(0).toUpperCase() || 'A'}
+                      {adminUser?.email?.charAt(0).toUpperCase() || "A"}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
@@ -172,11 +174,13 @@ export default function AdminNavbar() {
                 <div className="flex items-center gap-3 p-3 border-b border-blue-50">
                   <Avatar className="h-10 w-10">
                     <AvatarFallback className="bg-blue-100 text-blue-900 font-bold">
-                      {adminUser?.email?.charAt(0).toUpperCase() || 'A'}
+                      {adminUser?.email?.charAt(0).toUpperCase() || "A"}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col">
-                    <span className="font-semibold text-blue-900">{adminUser?.email}</span>
+                    <span className="font-semibold text-blue-900">
+                      {adminUser?.email}
+                    </span>
                     <span className="text-xs text-blue-600">Super Admin</span>
                   </div>
                 </div>
@@ -192,24 +196,35 @@ export default function AdminNavbar() {
             {/* Mobile menu */}
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden border border-blue-100">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="md:hidden border border-blue-100"
+                >
                   <Menu className="h-6 w-6 text-blue-700" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-72 bg-white border-l border-blue-50">
+              <SheetContent
+                side="right"
+                className="w-72 bg-white border-l border-blue-50"
+              >
                 <div className="flex flex-col space-y-4 mt-6">
-                  <div className="px-2 py-1 text-base font-bold text-blue-900">Navigation</div>
+                  <div className="px-2 py-1 text-base font-bold text-blue-900">
+                    Navigation
+                  </div>
                   {navigation.map((item) => {
                     const Icon = item.icon;
-                    const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+                    const isActive =
+                      pathname === item.href ||
+                      pathname.startsWith(item.href + "/");
                     return (
                       <Link
                         key={item.name}
                         href={item.href}
                         className={`flex items-center gap-3 px-4 py-3 rounded-lg text-base font-semibold transition-all duration-150 ${
                           isActive
-                            ? 'bg-blue-100 text-blue-900 shadow'
-                            : 'text-blue-700 hover:text-blue-900 hover:bg-blue-50'
+                            ? "bg-blue-100 text-blue-900 shadow"
+                            : "text-blue-700 hover:text-blue-900 hover:bg-blue-50"
                         }`}
                       >
                         <Icon className="w-5 h-5" />

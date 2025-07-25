@@ -1,28 +1,28 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
-import Link from 'next/link';
-import Image from 'next/image';
-import ProductCard from '@/components/product-card';
-import { Button } from '@/components/ui/button';
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import ProductCard from "@/components/product-card";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { ArrowLeft } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
-import type { Product, Category } from '@/lib/types';
+} from "@/components/ui/select";
+import { ArrowLeft } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import type { Product, Category } from "@/lib/types";
 
 export default function CategoryPage() {
   const params = useParams();
   const [category, setCategory] = useState<Category | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sortBy, setSortBy] = useState('newest');
+  const [sortBy, setSortBy] = useState("newest");
 
   useEffect(() => {
     if (params.slug) {
@@ -35,9 +35,9 @@ export default function CategoryPage() {
     try {
       // Fetch category
       const { data: categoryData, error: categoryError } = await supabase
-        .from('categories')
-        .select('*')
-        .eq('slug', slug)
+        .from("categories")
+        .select("*")
+        .eq("slug", slug)
         .single();
 
       if (categoryError) throw categoryError;
@@ -45,29 +45,29 @@ export default function CategoryPage() {
 
       // Fetch products in this category
       let query = supabase
-        .from('products')
+        .from("products")
         .select(
           `
           *,
           category:categories(*)
         `,
         )
-        .eq('category_id', categoryData.id)
-        .gt('stock', 0);
+        .eq("category_id", categoryData.id)
+        .gt("stock", 0);
 
       // Apply sorting
       switch (sortBy) {
-        case 'price-low':
-          query = query.order('price', { ascending: true });
+        case "price-low":
+          query = query.order("price", { ascending: true });
           break;
-        case 'price-high':
-          query = query.order('price', { ascending: false });
+        case "price-high":
+          query = query.order("price", { ascending: false });
           break;
-        case 'name':
-          query = query.order('name', { ascending: true });
+        case "name":
+          query = query.order("name", { ascending: true });
           break;
         default:
-          query = query.order('created_at', { ascending: false });
+          query = query.order("created_at", { ascending: false });
       }
 
       const { data: productsData, error: productsError } = await query;
@@ -75,7 +75,7 @@ export default function CategoryPage() {
       if (productsError) throw productsError;
       setProducts(productsData || []);
     } catch (error) {
-      console.error('Error fetching category and products:', error);
+      console.error("Error fetching category and products:", error);
     } finally {
       setLoading(false);
     }
@@ -103,8 +103,12 @@ export default function CategoryPage() {
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center py-16">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Category not found</h2>
-            <p className="text-gray-600 mb-6">The category you're looking for doesn't exist</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Category not found
+            </h2>
+            <p className="text-gray-600 mb-6">
+              The category you're looking for doesn't exist
+            </p>
             <Link href="/categories">
               <Button>Browse Categories</Button>
             </Link>
@@ -145,7 +149,7 @@ export default function CategoryPage() {
             <div className="flex items-center gap-3 sm:gap-4">
               {category.image_url ? (
                 <Image
-                  src={category.image_url || '/placeholder.svg'}
+                  src={category.image_url || "/placeholder.svg"}
                   alt={category.name}
                   width={80}
                   height={80}
@@ -153,7 +157,9 @@ export default function CategoryPage() {
                 />
               ) : (
                 <div className="w-20 h-20 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold text-2xl">{category.name.charAt(0)}</span>
+                  <span className="text-white font-bold text-2xl">
+                    {category.name.charAt(0)}
+                  </span>
                 </div>
               )}
 
@@ -162,7 +168,8 @@ export default function CategoryPage() {
                   {category.name}
                 </h1>
                 <p className="text-gray-600 mt-1 text-sm sm:text-base">
-                  {products.length} {products.length === 1 ? 'product' : 'products'} available
+                  {products.length}{" "}
+                  {products.length === 1 ? "product" : "products"} available
                 </p>
               </div>
             </div>
@@ -198,7 +205,9 @@ export default function CategoryPage() {
           </div>
         ) : (
           <div className="text-center py-16">
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No products found</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              No products found
+            </h3>
             <p className="text-gray-600 mb-6">
               There are no products available in this category at the moment
             </p>

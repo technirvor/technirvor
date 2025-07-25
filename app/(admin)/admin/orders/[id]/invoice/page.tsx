@@ -1,7 +1,7 @@
-import { supabase } from '@/lib/supabase';
-import type { Order } from '@/lib/types';
-import InvoicePrint from './invoice-print';
-import { notFound } from 'next/navigation';
+import { supabase } from "@/lib/supabase";
+import type { Order } from "@/lib/types";
+import InvoicePrint from "./invoice-print";
+import { notFound } from "next/navigation";
 
 interface Props {
   params: { id: string };
@@ -10,7 +10,7 @@ interface Props {
 async function getOrder(id: string): Promise<Order | null> {
   try {
     const { data, error } = await supabase
-      .from('orders')
+      .from("orders")
       .select(
         `
         *,
@@ -21,7 +21,7 @@ async function getOrder(id: string): Promise<Order | null> {
         tracking_notes(*)
       `,
       )
-      .eq('id', id)
+      .eq("id", id)
       .single();
 
     if (error) return null;

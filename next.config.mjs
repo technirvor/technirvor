@@ -2,9 +2,9 @@
 
 const nextConfig = {
   allowedDevOrigins: [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'http://192.168.0.102:3000',
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://192.168.0.102:3000",
   ],
   eslint: {
     ignoreDuringBuilds: true,
@@ -15,7 +15,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  output: 'standalone',
+  output: "standalone",
   // swcMinify: true, // Not needed in Next.js 15+
   reactStrictMode: true,
   productionBrowserSourceMaps: false,
@@ -25,7 +25,7 @@ const nextConfig = {
   },
   webpack: (config) => {
     config.cache = {
-      type: 'memory',
+      type: "memory",
     };
     return config;
   },
@@ -33,32 +33,32 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/(.*)',
+        source: "/(.*)",
         headers: [
           {
-            key: 'Content-Security-Policy',
+            key: "Content-Security-Policy",
             value:
               "default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';",
           },
           {
-            key: 'X-Frame-Options',
-            value: 'DENY',
+            key: "X-Frame-Options",
+            value: "DENY",
           },
           {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
+            key: "X-Content-Type-Options",
+            value: "nosniff",
           },
           {
-            key: 'Referrer-Policy',
-            value: 'strict-origin-when-cross-origin',
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
           },
           {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=63072000; includeSubDomains; preload',
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
           },
           {
-            key: 'Permissions-Policy',
-            value: 'geolocation=(), microphone=(), camera=()',
+            key: "Permissions-Policy",
+            value: "geolocation=(), microphone=(), camera=()",
           },
         ],
       },

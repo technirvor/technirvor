@@ -48,7 +48,13 @@ export interface Order {
   address: string;
   payment_method: string;
   total_amount: number;
-  status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  status:
+    | "pending"
+    | "confirmed"
+    | "processing"
+    | "shipped"
+    | "delivered"
+    | "cancelled";
   items: OrderItem[];
   tracking_notes: TrackingNote[];
   created_at: string;
@@ -110,7 +116,7 @@ export interface ComboProductItem {
 
 export interface AdminNotification {
   id: string;
-  type: 'new_order' | 'order_update' | 'low_stock' | 'system';
+  type: "new_order" | "order_update" | "low_stock" | "system";
   title: string;
   message: string;
   order_id?: string;

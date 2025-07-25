@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -13,10 +13,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Edit, Trash2, Plus, Eye } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
-import { toast } from 'sonner';
+} from "@/components/ui/table";
+import { Edit, Trash2, Plus, Eye } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
 
 interface ComboProduct {
   id: string;
@@ -51,7 +51,7 @@ export default function AdminComboProductsPage() {
   const fetchComboProducts = async () => {
     try {
       const { data, error } = await supabase
-        .from('combo_products')
+        .from("combo_products")
         .select(
           `
           *,
@@ -61,13 +61,13 @@ export default function AdminComboProductsPage() {
           )
         `,
         )
-        .order('created_at', { ascending: false });
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
       setComboProducts(data || []);
     } catch (error) {
-      console.error('Error fetching combo products:', error);
-      toast.error('Failed to fetch combo products');
+      console.error("Error fetching combo products:", error);
+      toast.error("Failed to fetch combo products");
     } finally {
       setLoading(false);
     }
@@ -77,33 +77,40 @@ export default function AdminComboProductsPage() {
     if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
 
     try {
-      const { error } = await supabase.from('combo_products').delete().eq('id', id);
+      const { error } = await supabase
+        .from("combo_products")
+        .delete()
+        .eq("id", id);
       if (error) throw error;
 
       setComboProducts(comboProducts.filter((c) => c.id !== id));
-      toast.success('Combo product deleted successfully');
+      toast.success("Combo product deleted successfully");
     } catch (error) {
-      console.error('Error deleting combo product:', error);
-      toast.error('Failed to delete combo product');
+      console.error("Error deleting combo product:", error);
+      toast.error("Failed to delete combo product");
     }
   };
 
   const toggleActive = async (id: string, currentStatus: boolean) => {
     try {
       const { error } = await supabase
-        .from('combo_products')
+        .from("combo_products")
         .update({ is_active: !currentStatus })
-        .eq('id', id);
+        .eq("id", id);
 
       if (error) throw error;
 
       setComboProducts(
-        comboProducts.map((c) => (c.id === id ? { ...c, is_active: !currentStatus } : c)),
+        comboProducts.map((c) =>
+          c.id === id ? { ...c, is_active: !currentStatus } : c,
+        ),
       );
-      toast.success(`Combo product ${!currentStatus ? 'activated' : 'deactivated'} successfully`);
+      toast.success(
+        `Combo product ${!currentStatus ? "activated" : "deactivated"} successfully`,
+      );
     } catch (error) {
-      console.error('Error updating combo product:', error);
-      toast.error('Failed to update combo product');
+      console.error("Error updating combo product:", error);
+      toast.error("Failed to update combo product");
     }
   };
 
@@ -128,7 +135,9 @@ export default function AdminComboProductsPage() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Combo Products Management</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Combo Products Management
+          </h1>
           <Link href="/admin/combo-products/new">
             <Button>
               <Plus className="w-4 h-4 mr-2" />
@@ -161,18 +170,23 @@ export default function AdminComboProductsPage() {
                     <TableRow key={combo.id}>
                       <TableCell>
                         <Image
-                          src={combo.image_url || '/placeholder.svg'}
+                          src={combo.image_url || "/placeholder.svg"}
                           alt={combo.name}
                           width={50}
                           height={50}
                           className="rounded-lg object-cover"
                         />
                       </TableCell>
-                      <TableCell className="font-medium">{combo.name}</TableCell>
+                      <TableCell className="font-medium">
+                        {combo.name}
+                      </TableCell>
                       <TableCell>
                         <div className="flex flex-col gap-1">
                           {combo.items?.slice(0, 2).map((item) => (
-                            <div key={item.id} className="text-sm text-gray-600">
+                            <div
+                              key={item.id}
+                              className="text-sm text-gray-600"
+                            >
                               {item.quantity}x {item.product.name}
                             </div>
                           ))}
@@ -191,12 +205,18 @@ export default function AdminComboProductsPage() {
                       </TableCell>
                       <TableCell>
                         <Badge variant="secondary">
-                          {calculateSavings(combo.original_price, combo.combo_price)}% OFF
+                          {calculateSavings(
+                            combo.original_price,
+                            combo.combo_price,
+                          )}
+                          % OFF
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={combo.is_active ? 'default' : 'secondary'}>
-                          {combo.is_active ? 'Active' : 'Inactive'}
+                        <Badge
+                          variant={combo.is_active ? "default" : "secondary"}
+                        >
+                          {combo.is_active ? "Active" : "Inactive"}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -214,10 +234,16 @@ export default function AdminComboProductsPage() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => toggleActive(combo.id, combo.is_active)}
-                            className={combo.is_active ? 'text-orange-600' : 'text-green-600'}
+                            onClick={() =>
+                              toggleActive(combo.id, combo.is_active)
+                            }
+                            className={
+                              combo.is_active
+                                ? "text-orange-600"
+                                : "text-green-600"
+                            }
                           >
-                            {combo.is_active ? 'Deactivate' : 'Activate'}
+                            {combo.is_active ? "Deactivate" : "Activate"}
                           </Button>
                           <Button
                             variant="ghost"

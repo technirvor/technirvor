@@ -1,16 +1,24 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { ShoppingCart, Heart, Share2, Minus, Plus, Star, Clock } from 'lucide-react';
-import { useCartStore } from '@/lib/cart-store';
-import type { Product } from '@/lib/types';
-import { toast } from 'sonner';
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import {
+  ShoppingCart,
+  Heart,
+  Share2,
+  Minus,
+  Plus,
+  Star,
+  Clock,
+} from "lucide-react";
+import { useCartStore } from "@/lib/cart-store";
+import type { Product } from "@/lib/types";
+import { toast } from "sonner";
 
 interface Props {
   product: Product;
@@ -28,7 +36,7 @@ export default function ProductPageClient({ product }: Props) {
 
   const handleBuyNow = () => {
     addItem(product, quantity);
-    window.location.href = '/checkout';
+    window.location.href = "/checkout";
   };
 
   const handleShare = async () => {
@@ -39,7 +47,8 @@ export default function ProductPageClient({ product }: Props) {
     };
     if (
       navigator.share &&
-      (typeof navigator.canShare !== 'function' || navigator.canShare(shareData))
+      (typeof navigator.canShare !== "function" ||
+        navigator.canShare(shareData))
     ) {
       try {
         await navigator.share(shareData);
@@ -47,29 +56,29 @@ export default function ProductPageClient({ product }: Props) {
         // If user cancels or share fails, fallback to clipboard
         try {
           await navigator.clipboard.writeText(window.location.href);
-          toast.success('Product link copied to clipboard!');
+          toast.success("Product link copied to clipboard!");
         } catch {
-          toast.error('Unable to share or copy link.');
+          toast.error("Unable to share or copy link.");
         }
       }
     } else if (navigator.clipboard) {
       try {
         await navigator.clipboard.writeText(window.location.href);
-        toast.success('Product link copied to clipboard!');
+        toast.success("Product link copied to clipboard!");
       } catch {
-        toast.error('Unable to copy link to clipboard.');
+        toast.error("Unable to copy link to clipboard.");
       }
     } else {
       // Fallback for very old browsers
-      const textArea = document.createElement('textarea');
+      const textArea = document.createElement("textarea");
       textArea.value = window.location.href;
       document.body.appendChild(textArea);
       textArea.select();
       try {
-        document.execCommand('copy');
-        toast.success('Product link copied to clipboard!');
+        document.execCommand("copy");
+        toast.success("Product link copied to clipboard!");
       } catch {
-        toast.error('Unable to share or copy link.');
+        toast.error("Unable to share or copy link.");
       }
       document.body.removeChild(textArea);
     }
@@ -80,7 +89,10 @@ export default function ProductPageClient({ product }: Props) {
   const discountPercentage = hasDiscount
     ? Math.round(((product.price - product.sale_price!) / product.price) * 100)
     : 0;
-  const images = product.images && product.images.length > 0 ? product.images : [product.image_url];
+  const images =
+    product.images && product.images.length > 0
+      ? product.images
+      : [product.image_url];
 
   return (
     <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
@@ -98,7 +110,10 @@ export default function ProductPageClient({ product }: Props) {
             <span>/</span>
             {product.category && (
               <>
-                <Link href={`/category/${product.category.slug}`} className="hover:text-gray-900">
+                <Link
+                  href={`/category/${product.category.slug}`}
+                  className="hover:text-gray-900"
+                >
                   {product.category.name}
                 </Link>
                 <span>/</span>
@@ -113,7 +128,7 @@ export default function ProductPageClient({ product }: Props) {
           <div className="space-y-3 sm:space-y-4">
             <div className="aspect-square relative overflow-hidden rounded-lg bg-white w-full max-w-md mx-auto lg:mx-0">
               <Image
-                src={images[selectedImage] || '/placeholder.svg'}
+                src={images[selectedImage] || "/placeholder.svg"}
                 alt={product.name}
                 fill
                 className="object-cover"
@@ -127,7 +142,9 @@ export default function ProductPageClient({ product }: Props) {
                     Flash Sale
                   </Badge>
                 )}
-                {hasDiscount && <Badge variant="secondary">-{discountPercentage}% OFF</Badge>}
+                {hasDiscount && (
+                  <Badge variant="secondary">-{discountPercentage}% OFF</Badge>
+                )}
                 {product.is_featured && <Badge>Featured</Badge>}
               </div>
             </div>
@@ -140,12 +157,14 @@ export default function ProductPageClient({ product }: Props) {
                     key={index}
                     onClick={() => setSelectedImage(index)}
                     className={`flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 snap-center focus:outline-none ${
-                      selectedImage === index ? 'border-blue-500' : 'border-gray-200'
+                      selectedImage === index
+                        ? "border-blue-500"
+                        : "border-gray-200"
                     }`}
                     aria-label={`Show image ${index + 1}`}
                   >
                     <Image
-                      src={image || '/placeholder.svg'}
+                      src={image || "/placeholder.svg"}
                       alt={`${product.name} ${index + 1}`}
                       width={80}
                       height={80}
@@ -168,10 +187,15 @@ export default function ProductPageClient({ product }: Props) {
               <div className="flex items-center space-x-2 mb-2 sm:mb-4">
                 <div className="flex items-center">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    <Star
+                      key={i}
+                      className="w-4 h-4 fill-yellow-400 text-yellow-400"
+                    />
                   ))}
                 </div>
-                <span className="text-xs sm:text-sm text-gray-600">(4.5) • 123 reviews</span>
+                <span className="text-xs sm:text-sm text-gray-600">
+                  (4.5) • 123 reviews
+                </span>
               </div>
 
               {/* Price */}
@@ -189,7 +213,10 @@ export default function ProductPageClient({ product }: Props) {
               {/* Stock Status */}
               <div className="mb-4 sm:mb-6">
                 {product.stock > 0 ? (
-                  <Badge variant="default" className="bg-green-100 text-green-800">
+                  <Badge
+                    variant="default"
+                    className="bg-green-100 text-green-800"
+                  >
                     In Stock ({product.stock} available)
                   </Badge>
                 ) : (
@@ -228,11 +255,15 @@ export default function ProductPageClient({ product }: Props) {
                     >
                       <Minus className="w-4 h-4" />
                     </Button>
-                    <span className="w-10 sm:w-12 text-center font-medium">{quantity}</span>
+                    <span className="w-10 sm:w-12 text-center font-medium">
+                      {quantity}
+                    </span>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                      onClick={() =>
+                        setQuantity(Math.min(product.stock, quantity + 1))
+                      }
                       disabled={quantity >= product.stock}
                     >
                       <Plus className="w-4 h-4" />
@@ -262,7 +293,12 @@ export default function ProductPageClient({ product }: Props) {
                 <Heart className="w-4 h-4 mr-2" />
                 Add to Wishlist
               </Button>
-              <Button variant="outline" size="sm" onClick={handleShare} className="bg-transparent">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleShare}
+                className="bg-transparent"
+              >
                 <Share2 className="w-4 h-4 mr-2" />
                 Share
               </Button>
@@ -277,7 +313,9 @@ export default function ProductPageClient({ product }: Props) {
                 <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Category:</span>
-                    <span className="font-medium">{product.category?.name || 'Uncategorized'}</span>
+                    <span className="font-medium">
+                      {product.category?.name || "Uncategorized"}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">SKU:</span>
@@ -288,7 +326,9 @@ export default function ProductPageClient({ product }: Props) {
                   <div className="flex justify-between">
                     <span className="text-gray-600">Availability:</span>
                     <span className="font-medium">
-                      {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
+                      {product.stock > 0
+                        ? `${product.stock} in stock`
+                        : "Out of stock"}
                     </span>
                   </div>
                 </div>

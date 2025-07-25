@@ -1,7 +1,8 @@
 // Analytics and tracking integration for Meta Pixel, Meta CAPI, and Google Analytics
 
 // Google Analytics (gtag.js)
-export const googleAnalyticsId = process.env.NEXT_PUBLIC_GA_ID || 'G-XXXXXXXXXX';
+export const googleAnalyticsId =
+  process.env.NEXT_PUBLIC_GA_ID || "G-XXXXXXXXXX";
 
 export function googleAnalyticsScriptTags() {
   if (!googleAnalyticsId) return [];
@@ -12,7 +13,7 @@ export function googleAnalyticsScriptTags() {
 }
 
 // Meta Pixel
-export const metaPixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID || '';
+export const metaPixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID || "";
 
 export function metaPixelScriptTags() {
   if (!metaPixelId) return [];
@@ -27,11 +28,14 @@ export function metaPixelScriptTags() {
 // For client-side, you can send events to your backend endpoint here if needed.
 
 // Example: send conversion event to backend
-export async function sendMetaConversionEvent(eventName: string, eventData: any) {
+export async function sendMetaConversionEvent(
+  eventName: string,
+  eventData: any,
+) {
   try {
-    await fetch('/api/meta-capi', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    await fetch("/api/meta-capi", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ eventName, eventData }),
     });
   } catch (e) {

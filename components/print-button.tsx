@@ -1,8 +1,8 @@
-'use client';
-import { Printer } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import React, { useState } from 'react';
-import { toast } from 'sonner';
+"use client";
+import { Printer } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import React, { useState } from "react";
+import { toast } from "sonner";
 
 interface PrintButtonProps {
   targetId?: string; // Optional: print a specific DOM element by id
@@ -13,8 +13,8 @@ interface PrintButtonProps {
 
 export function PrintButton({
   targetId,
-  label = 'Print',
-  className = '',
+  label = "Print",
+  className = "",
   disabled = false,
 }: PrintButtonProps) {
   const [loading, setLoading] = React.useState(false);
@@ -27,9 +27,9 @@ export function PrintButton({
         if (targetId) {
           const printContents = document.getElementById(targetId);
           if (printContents) {
-            const printWindow = window.open('', '_blank');
+            const printWindow = window.open("", "_blank");
             if (printWindow) {
-              printWindow.document.write('<html><head><title>Print</title>');
+              printWindow.document.write("<html><head><title>Print</title>");
               printWindow.document.write(`
                 <style>
                   @media print {
@@ -77,24 +77,24 @@ export function PrintButton({
                   body { font-family: "Inter", Arial, sans-serif; padding: 24px; background: #fff; color: #222; }
                 </style>
               `);
-              printWindow.document.write('</head><body>');
+              printWindow.document.write("</head><body>");
               printWindow.document.write(printContents.innerHTML);
-              printWindow.document.write('</body></html>');
+              printWindow.document.write("</body></html>");
               printWindow.document.close();
               printWindow.focus();
               printWindow.print();
               printWindow.close();
             } else {
-              toast.error('Unable to open print window.');
+              toast.error("Unable to open print window.");
             }
           } else {
-            toast.error('Content not found for printing.');
+            toast.error("Content not found for printing.");
           }
         } else {
           window.print();
         }
       } catch (err) {
-        toast.error('Print failed.');
+        toast.error("Print failed.");
       } finally {
         setLoading(false);
       }
@@ -109,7 +109,7 @@ export function PrintButton({
       disabled={loading || disabled}
     >
       <Printer className="w-4 h-4" />
-      {loading ? 'Printing...' : label}
+      {loading ? "Printing..." : label}
     </Button>
   );
 }

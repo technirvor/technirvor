@@ -1,7 +1,7 @@
-import { notFound } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
-import type { Category } from '@/lib/types';
-import CategoryEditForm from './category-edit-form';
+import { notFound } from "next/navigation";
+import { supabase } from "@/lib/supabase";
+import type { Category } from "@/lib/types";
+import CategoryEditForm from "./category-edit-form";
 
 interface Props {
   params: { id: string };
@@ -9,7 +9,11 @@ interface Props {
 
 async function getCategory(id: string): Promise<Category | null> {
   try {
-    const { data, error } = await supabase.from('categories').select('*').eq('id', id).single();
+    const { data, error } = await supabase
+      .from("categories")
+      .select("*")
+      .eq("id", id)
+      .single();
     if (error) return null;
     return data;
   } catch (error) {

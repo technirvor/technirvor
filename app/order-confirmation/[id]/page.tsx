@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { sendMetaConversionEvent } from '@/lib/analytics';
+import { useState, useEffect } from "react";
+import { sendMetaConversionEvent } from "@/lib/analytics";
 // Google Analytics purchase event
 type OrderType = {
   id: string;
@@ -21,11 +21,12 @@ declare global {
 }
 
 function fireGAPurchase(order: OrderType) {
-  if (typeof window === 'undefined' || typeof window.gtag !== 'function') return;
-  window.gtag('event', 'purchase', {
+  if (typeof window === "undefined" || typeof window.gtag !== "function")
+    return;
+  window.gtag("event", "purchase", {
     transaction_id: order.id,
     value: order.total_amount,
-    currency: 'BDT',
+    currency: "BDT",
     items:
       order.items?.map((item) => ({
         item_id: item.product.id,
@@ -38,28 +39,28 @@ function fireGAPurchase(order: OrderType) {
 
 // Meta Pixel purchase event
 function fireMetaPixelPurchase(order: OrderType) {
-  if (typeof window === 'undefined' || typeof window.fbq !== 'function') return;
-  window.fbq('track', 'Purchase', {
+  if (typeof window === "undefined" || typeof window.fbq !== "function") return;
+  window.fbq("track", "Purchase", {
     value: order.total_amount,
-    currency: 'BDT',
+    currency: "BDT",
     contents:
       order.items?.map((item) => ({
         id: item.product.id,
         quantity: item.quantity,
       })) || [],
-    content_type: 'product',
+    content_type: "product",
     order_id: order.id,
   });
 }
-import { useParams } from 'next/navigation';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Package, Phone, MapPin } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
-import type { Order } from '@/lib/types';
+import { useParams } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { CheckCircle, Package, Phone, MapPin } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import type { Order } from "@/lib/types";
 
 export default function OrderConfirmationPage() {
   const params = useParams();
@@ -75,7 +76,7 @@ export default function OrderConfirmationPage() {
   const fetchOrder = async (orderId: string) => {
     try {
       const { data, error } = await supabase
-        .from('orders')
+        .from("orders")
         .select(
           `
           *,
@@ -85,13 +86,13 @@ export default function OrderConfirmationPage() {
           )
         `,
         )
-        .eq('order_number', orderId)
+        .eq("order_number", orderId)
         .single();
 
       if (error) throw error;
       setOrder(data);
     } catch (error) {
-      console.error('Error fetching order:', error);
+      console.error("Error fetching order:", error);
     } finally {
       setLoading(false);
     }
@@ -115,8 +116,12 @@ export default function OrderConfirmationPage() {
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center py-16">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Order not found</h2>
-            <p className="text-gray-600 mb-6">The order you're looking for doesn't exist</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Order not found
+            </h2>
+            <p className="text-gray-600 mb-6">
+              The order you're looking for doesn't exist
+            </p>
             <Link href="/">
               <Button>Go Home</Button>
             </Link>
@@ -131,16 +136,16 @@ export default function OrderConfirmationPage() {
     if (order) {
       fireGAPurchase(order);
       fireMetaPixelPurchase(order);
-      sendMetaConversionEvent('Purchase', {
+      sendMetaConversionEvent("Purchase", {
         event_id: order.id,
         value: order.total_amount,
-        currency: 'BDT',
+        currency: "BDT",
         contents:
           order.items?.map((item) => ({
             id: item.product.id,
             quantity: item.quantity,
           })) || [],
-        content_type: 'product',
+        content_type: "product",
         order_id: order.id,
       });
     }
@@ -155,8 +160,12 @@ export default function OrderConfirmationPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
             <CheckCircle className="w-8 h-8 text-green-600" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Order Confirmed!</h1>
-          <p className="text-gray-600">Thank you for your order. We'll process it shortly.</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Order Confirmed!
+          </h1>
+          <p className="text-gray-600">
+            Thank you for your order. We'll process it shortly.
+          </p>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
@@ -168,7 +177,8 @@ export default function OrderConfirmationPage() {
                 <CardTitle className="flex items-center justify-between">
                   <span>Order #{order.id.slice(0, 8).toUpperCase()}</span>
                   <Badge className="bg-green-100 text-green-800">
-                    {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                    {order.status.charAt(0).toUpperCase() +
+                      order.status.slice(1)}
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -177,7 +187,9 @@ export default function OrderConfirmationPage() {
                   <div className="flex items-start space-x-3">
                     <Phone className="w-5 h-5 text-gray-400 mt-1" />
                     <div>
-                      <h4 className="font-medium text-gray-900">Contact Information</h4>
+                      <h4 className="font-medium text-gray-900">
+                        Contact Information
+                      </h4>
                       <p className="text-gray-600">{order.customer_name}</p>
                       <p className="text-gray-600">{order.customer_phone}</p>
                     </div>
@@ -185,9 +197,13 @@ export default function OrderConfirmationPage() {
                   <div className="flex items-start space-x-3">
                     <MapPin className="w-5 h-5 text-gray-400 mt-1" />
                     <div>
-                      <h4 className="font-medium text-gray-900">Delivery Address</h4>
+                      <h4 className="font-medium text-gray-900">
+                        Delivery Address
+                      </h4>
                       <p className="text-gray-600">{order.address}</p>
-                      <p className="text-gray-600">{order.district}, Bangladesh</p>
+                      <p className="text-gray-600">
+                        {order.district}, Bangladesh
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -210,16 +226,22 @@ export default function OrderConfirmationPage() {
                       className="flex items-center space-x-4 p-4 border rounded-lg"
                     >
                       <Image
-                        src={item.product.image_url || '/placeholder.svg'}
+                        src={item.product.image_url || "/placeholder.svg"}
                         alt={item.product.name}
                         width={60}
                         height={60}
                         className="rounded-lg object-cover"
                       />
                       <div className="flex-1">
-                        <h4 className="font-medium text-gray-900">{item.product.name}</h4>
-                        <p className="text-gray-600">Quantity: {item.quantity}</p>
-                        <p className="text-gray-600">Price: ৳{item.price.toLocaleString()}</p>
+                        <h4 className="font-medium text-gray-900">
+                          {item.product.name}
+                        </h4>
+                        <p className="text-gray-600">
+                          Quantity: {item.quantity}
+                        </p>
+                        <p className="text-gray-600">
+                          Price: ৳{item.price.toLocaleString()}
+                        </p>
                       </div>
                       <div className="text-right">
                         <p className="font-semibold">
@@ -260,10 +282,12 @@ export default function OrderConfirmationPage() {
                 <div className="mt-6 space-y-3">
                   <div className="text-sm text-gray-600">
                     <p>
-                      <strong>Payment Method:</strong> {order.payment_method.toUpperCase()}
+                      <strong>Payment Method:</strong>{" "}
+                      {order.payment_method.toUpperCase()}
                     </p>
                     <p>
-                      <strong>Order Date:</strong> {new Date(order.created_at).toLocaleDateString()}
+                      <strong>Order Date:</strong>{" "}
+                      {new Date(order.created_at).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
@@ -294,7 +318,9 @@ export default function OrderConfirmationPage() {
                 <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mb-3">
                   <span className="text-blue-600 font-bold">1</span>
                 </div>
-                <h4 className="font-medium text-gray-900 mb-2">Order Processing</h4>
+                <h4 className="font-medium text-gray-900 mb-2">
+                  Order Processing
+                </h4>
                 <p className="text-sm text-gray-600">
                   We'll review and confirm your order within 24 hours
                 </p>

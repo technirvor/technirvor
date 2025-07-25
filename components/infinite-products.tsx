@@ -1,15 +1,17 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import type { Product } from '@/lib/types';
-import ProductCard from './product-card';
-import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { useState, useEffect, useCallback } from "react";
+import type { Product } from "@/lib/types";
+import ProductCard from "./product-card";
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 interface InfiniteProductsProps {
   initialProducts: Product[];
   hasMore: boolean;
-  onLoadMore: (offset: number) => Promise<{ products: Product[]; hasMore: boolean }>;
+  onLoadMore: (
+    offset: number,
+  ) => Promise<{ products: Product[]; hasMore: boolean }>;
 }
 
 export default function InfiniteProducts({
@@ -30,7 +32,7 @@ export default function InfiniteProducts({
       setProducts((prev) => [...prev, ...result.products]);
       setHasMore(result.hasMore);
     } catch (error) {
-      console.error('Error loading more products:', error);
+      console.error("Error loading more products:", error);
     } finally {
       setLoading(false);
     }
@@ -47,8 +49,8 @@ export default function InfiniteProducts({
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [loadMore]);
 
   return (

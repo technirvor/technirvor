@@ -1,28 +1,28 @@
-'use client';
+"use client";
 
-import type React from 'react';
+import type React from "react";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Save, Trash2 } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
-import type { Product, Category } from '@/lib/types';
-import { toast } from 'sonner';
-import { uploadOptimizedImage } from '@/lib/image-upload';
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, Save, Trash2 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import type { Product, Category } from "@/lib/types";
+import { toast } from "sonner";
+import { uploadOptimizedImage } from "@/lib/image-upload";
 
 interface Props {
   product: Product;
@@ -43,23 +43,23 @@ export default function ProductEditForm({ product, categories }: Props) {
     try {
       // Use the optimized upload function
       const result = await uploadOptimizedImage(file, {
-        folder: 'products',
+        folder: "products",
         generateSizes: true,
-        uploadProvider: 'supabase',
+        uploadProvider: "supabase",
       });
       if (result.original.publicUrl) {
         setFormData((prev) => ({
           ...prev,
           image_url: result.original.publicUrl,
         }));
-        toast.success('Image uploaded and optimized!');
+        toast.success("Image uploaded and optimized!");
       } else {
-        setUploadError('Could not retrieve public URL.');
-        toast.error('Could not retrieve public URL.');
+        setUploadError("Could not retrieve public URL.");
+        toast.error("Could not retrieve public URL.");
       }
     } catch (err) {
-      setUploadError('Unexpected error during upload.');
-      toast.error('Unexpected error during upload.');
+      setUploadError("Unexpected error during upload.");
+      toast.error("Unexpected error during upload.");
     } finally {
       setUploading(false);
     }
@@ -68,44 +68,46 @@ export default function ProductEditForm({ product, categories }: Props) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState(() => {
     if (!product) {
-      console.error('Product prop is missing or null.', product);
-      toast.error('Product data is missing. Please reload the page or check the product ID.');
+      console.error("Product prop is missing or null.", product);
+      toast.error(
+        "Product data is missing. Please reload the page or check the product ID.",
+      );
       return {
-        name: '',
-        slug: '',
-        description: '',
+        name: "",
+        slug: "",
+        description: "",
         price: 0,
-        sale_price: '',
-        image_url: '',
-        images: '',
-        category_id: '',
+        sale_price: "",
+        image_url: "",
+        images: "",
+        category_id: "",
         stock: 0,
         is_featured: false,
         is_flash_sale: false,
-        flash_sale_end: '',
-        tags: '',
-        meta_title: '',
-        meta_description: '',
-        meta_keywords: '',
+        flash_sale_end: "",
+        tags: "",
+        meta_title: "",
+        meta_description: "",
+        meta_keywords: "",
       };
     }
     return {
       name: product.name,
       slug: product.slug,
-      description: product.description || '',
+      description: product.description || "",
       price: product.price,
-      sale_price: product.sale_price || '',
-      image_url: product.image_url || '',
-      images: product.images?.join(', ') || '',
-      category_id: product.category_id || '',
+      sale_price: product.sale_price || "",
+      image_url: product.image_url || "",
+      images: product.images?.join(", ") || "",
+      category_id: product.category_id || "",
       stock: product.stock,
       is_featured: product.is_featured,
       is_flash_sale: product.is_flash_sale,
-      flash_sale_end: product.flash_sale_end || '',
-      tags: product.tags?.join(', ') || '',
-      meta_title: product.meta_title || '',
-      meta_description: product.meta_description || '',
-      meta_keywords: product.meta_keywords?.join(', ') || '',
+      flash_sale_end: product.flash_sale_end || "",
+      tags: product.tags?.join(", ") || "",
+      meta_title: product.meta_title || "",
+      meta_description: product.meta_description || "",
+      meta_keywords: product.meta_keywords?.join(", ") || "",
     };
   });
 
@@ -113,11 +115,11 @@ export default function ProductEditForm({ product, categories }: Props) {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
     // Auto-generate slug from name
-    if (field === 'name') {
+    if (field === "name") {
       const slug = value
         .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)/g, '');
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
       setFormData((prev) => ({ ...prev, slug }));
     }
   };
@@ -128,7 +130,7 @@ export default function ProductEditForm({ product, categories }: Props) {
 
     try {
       if (!product || !product.id) {
-        toast.error('Product ID is missing. Cannot update product.');
+        toast.error("Product ID is missing. Cannot update product.");
         setLoading(false);
         return;
       }
@@ -141,7 +143,7 @@ export default function ProductEditForm({ product, categories }: Props) {
         image_url: formData.image_url || null,
         images: formData.images
           ? formData.images
-              .split(',')
+              .split(",")
               .map((img) => img.trim())
               .filter(Boolean)
           : [],
@@ -152,7 +154,7 @@ export default function ProductEditForm({ product, categories }: Props) {
         flash_sale_end: formData.flash_sale_end || null,
         tags: formData.tags
           ? formData.tags
-              .split(',')
+              .split(",")
               .map((tag) => tag.trim())
               .filter(Boolean)
           : [],
@@ -160,7 +162,7 @@ export default function ProductEditForm({ product, categories }: Props) {
         meta_description: formData.meta_description || null,
         meta_keywords: formData.meta_keywords
           ? formData.meta_keywords
-              .split(',')
+              .split(",")
               .map((kw) => kw.trim())
               .filter(Boolean)
           : [],
@@ -168,22 +170,23 @@ export default function ProductEditForm({ product, categories }: Props) {
       };
 
       const { error, data } = await supabase
-        .from('products')
+        .from("products")
         .update(updateData)
-        .eq('id', product.id);
+        .eq("id", product.id);
 
       if (error) {
-        console.error('Supabase update error:', error, { data });
-        toast.error('Failed to update product: ' + error.message);
+        console.error("Supabase update error:", error, { data });
+        toast.error("Failed to update product: " + error.message);
         setLoading(false);
         return;
       }
-      toast.success('Product updated successfully!');
-      router.push('/admin/products');
+      toast.success("Product updated successfully!");
+      router.push("/admin/products");
     } catch (error) {
-      console.error('Error updating product:', error);
+      console.error("Error updating product:", error);
       toast.error(
-        'Failed to update product: ' + (error instanceof Error ? error.message : String(error)),
+        "Failed to update product: " +
+          (error instanceof Error ? error.message : String(error)),
       );
     } finally {
       setLoading(false);
@@ -192,21 +195,26 @@ export default function ProductEditForm({ product, categories }: Props) {
 
   const handleDelete = async () => {
     if (
-      !confirm(`Are you sure you want to delete "${product.name}"? This action cannot be undone.`)
+      !confirm(
+        `Are you sure you want to delete "${product.name}"? This action cannot be undone.`,
+      )
     ) {
       return;
     }
 
     setLoading(true);
     try {
-      const { error } = await supabase.from('products').delete().eq('id', product.id);
+      const { error } = await supabase
+        .from("products")
+        .delete()
+        .eq("id", product.id);
       if (error) throw error;
 
-      toast.success('Product deleted successfully!');
-      router.push('/admin/products');
+      toast.success("Product deleted successfully!");
+      router.push("/admin/products");
     } catch (error) {
-      console.error('Error deleting product:', error);
-      toast.error('Failed to delete product');
+      console.error("Error deleting product:", error);
+      toast.error("Failed to delete product");
     } finally {
       setLoading(false);
     }
@@ -227,7 +235,11 @@ export default function ProductEditForm({ product, categories }: Props) {
             </div>
           </div>
           <div className="flex gap-2">
-            <Button variant="destructive" onClick={handleDelete} disabled={loading}>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={loading}
+            >
               <Trash2 className="w-4 h-4 mr-2" />
               Delete
             </Button>
@@ -255,7 +267,9 @@ export default function ProductEditForm({ product, categories }: Props) {
                       <Input
                         id="name"
                         value={formData.name}
-                        onChange={(e) => handleInputChange('name', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("name", e.target.value)
+                        }
                         required
                       />
                     </div>
@@ -264,7 +278,9 @@ export default function ProductEditForm({ product, categories }: Props) {
                       <Input
                         id="slug"
                         value={formData.slug}
-                        onChange={(e) => handleInputChange('slug', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("slug", e.target.value)
+                        }
                         required
                       />
                     </div>
@@ -275,7 +291,9 @@ export default function ProductEditForm({ product, categories }: Props) {
                     <Textarea
                       id="description"
                       value={formData.description}
-                      onChange={(e) => handleInputChange('description', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("description", e.target.value)
+                      }
                       rows={4}
                     />
                   </div>
@@ -284,7 +302,9 @@ export default function ProductEditForm({ product, categories }: Props) {
                     <Label htmlFor="category">Category</Label>
                     <Select
                       value={formData.category_id}
-                      onValueChange={(value) => handleInputChange('category_id', value)}
+                      onValueChange={(value) =>
+                        handleInputChange("category_id", value)
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select a category" />
@@ -304,7 +324,9 @@ export default function ProductEditForm({ product, categories }: Props) {
                     <Input
                       id="tags"
                       value={formData.tags}
-                      onChange={(e) => handleInputChange('tags', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("tags", e.target.value)
+                      }
                       placeholder="electronics, smartphone, android"
                     />
                   </div>
@@ -325,7 +347,9 @@ export default function ProductEditForm({ product, categories }: Props) {
                         id="price"
                         type="number"
                         value={formData.price}
-                        onChange={(e) => handleInputChange('price', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("price", e.target.value)
+                        }
                         required
                       />
                     </div>
@@ -335,7 +359,9 @@ export default function ProductEditForm({ product, categories }: Props) {
                         id="sale_price"
                         type="number"
                         value={formData.sale_price}
-                        onChange={(e) => handleInputChange('sale_price', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("sale_price", e.target.value)
+                        }
                       />
                     </div>
                     <div className="space-y-2">
@@ -344,7 +370,9 @@ export default function ProductEditForm({ product, categories }: Props) {
                         id="stock"
                         type="number"
                         value={formData.stock}
-                        onChange={(e) => handleInputChange('stock', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("stock", e.target.value)
+                        }
                         required
                         min="0"
                       />
@@ -362,30 +390,40 @@ export default function ProductEditForm({ product, categories }: Props) {
                       <Switch
                         id="is_featured"
                         checked={formData.is_featured}
-                        onCheckedChange={(checked) => handleInputChange('is_featured', checked)}
+                        onCheckedChange={(checked) =>
+                          handleInputChange("is_featured", checked)
+                        }
                       />
                     </div>
 
                     <div className="flex items-center justify-between">
                       <div>
                         <Label htmlFor="is_flash_sale">Flash Sale</Label>
-                        <p className="text-sm text-gray-600">Include in flash sale promotions</p>
+                        <p className="text-sm text-gray-600">
+                          Include in flash sale promotions
+                        </p>
                       </div>
                       <Switch
                         id="is_flash_sale"
                         checked={formData.is_flash_sale}
-                        onCheckedChange={(checked) => handleInputChange('is_flash_sale', checked)}
+                        onCheckedChange={(checked) =>
+                          handleInputChange("is_flash_sale", checked)
+                        }
                       />
                     </div>
 
                     {formData.is_flash_sale && (
                       <div className="space-y-2">
-                        <Label htmlFor="flash_sale_end">Flash Sale End Date</Label>
+                        <Label htmlFor="flash_sale_end">
+                          Flash Sale End Date
+                        </Label>
                         <Input
                           id="flash_sale_end"
                           type="datetime-local"
                           value={formData.flash_sale_end}
-                          onChange={(e) => handleInputChange('flash_sale_end', e.target.value)}
+                          onChange={(e) =>
+                            handleInputChange("flash_sale_end", e.target.value)
+                          }
                         />
                       </div>
                     )}
@@ -405,7 +443,9 @@ export default function ProductEditForm({ product, categories }: Props) {
                     <Input
                       id="image_url"
                       value={formData.image_url}
-                      onChange={(e) => handleInputChange('image_url', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("image_url", e.target.value)
+                      }
                       placeholder="https://example.com/image.jpg"
                     />
                     <div className="mt-2">
@@ -416,10 +456,14 @@ export default function ProductEditForm({ product, categories }: Props) {
                         disabled={uploading}
                       />
                       {uploading && (
-                        <span className="text-sm text-gray-500 ml-2">Uploading...</span>
+                        <span className="text-sm text-gray-500 ml-2">
+                          Uploading...
+                        </span>
                       )}
                       {uploadError && (
-                        <span className="text-sm text-red-500 ml-2">{uploadError}</span>
+                        <span className="text-sm text-red-500 ml-2">
+                          {uploadError}
+                        </span>
                       )}
                       {formData.image_url && (
                         <div className="mt-2">
@@ -435,12 +479,15 @@ export default function ProductEditForm({ product, categories }: Props) {
 
                   <div className="space-y-2">
                     <Label htmlFor="images">
-                      Additional Images (comma-separated URLs or upload multiple)
+                      Additional Images (comma-separated URLs or upload
+                      multiple)
                     </Label>
                     <Textarea
                       id="images"
                       value={formData.images}
-                      onChange={(e) => handleInputChange('images', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("images", e.target.value)
+                      }
                       rows={3}
                       placeholder="Paste URLs or upload multiple images separated by commas"
                     />
@@ -461,7 +508,9 @@ export default function ProductEditForm({ product, categories }: Props) {
                     <Input
                       id="meta_title"
                       value={formData.meta_title}
-                      onChange={(e) => handleInputChange('meta_title', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("meta_title", e.target.value)
+                      }
                       placeholder="SEO optimized title"
                     />
                   </div>
@@ -471,18 +520,24 @@ export default function ProductEditForm({ product, categories }: Props) {
                     <Textarea
                       id="meta_description"
                       value={formData.meta_description}
-                      onChange={(e) => handleInputChange('meta_description', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("meta_description", e.target.value)
+                      }
                       rows={3}
                       placeholder="SEO optimized description"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="meta_keywords">Meta Keywords (comma-separated)</Label>
+                    <Label htmlFor="meta_keywords">
+                      Meta Keywords (comma-separated)
+                    </Label>
                     <Input
                       id="meta_keywords"
                       value={formData.meta_keywords}
-                      onChange={(e) => handleInputChange('meta_keywords', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("meta_keywords", e.target.value)
+                      }
                       placeholder="keyword1, keyword2, keyword3"
                     />
                   </div>
@@ -492,12 +547,16 @@ export default function ProductEditForm({ product, categories }: Props) {
           </Tabs>
 
           <div className="flex justify-end gap-4 mt-8">
-            <Button type="button" variant="outline" onClick={() => router.back()}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.back()}
+            >
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>
               <Save className="w-4 h-4 mr-2" />
-              {loading ? 'Updating...' : 'Update Product'}
+              {loading ? "Updating..." : "Update Product"}
             </Button>
           </div>
         </form>

@@ -1,17 +1,24 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { ShoppingCart, Heart, Share2, Gift, ArrowLeft, Star } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
-import { useCartStore } from '@/lib/cart-store';
-import { toast } from 'sonner';
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import {
+  ShoppingCart,
+  Heart,
+  Share2,
+  Gift,
+  ArrowLeft,
+  Star,
+} from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { useCartStore } from "@/lib/cart-store";
+import { toast } from "sonner";
 
 interface ComboProduct {
   id: string;
@@ -53,7 +60,7 @@ export default function ComboProductPage() {
   const fetchCombo = async (slug: string) => {
     try {
       const { data, error } = await supabase
-        .from('combo_products')
+        .from("combo_products")
         .select(
           `
           *,
@@ -63,14 +70,14 @@ export default function ComboProductPage() {
           )
         `,
         )
-        .eq('slug', slug)
-        .eq('is_active', true)
+        .eq("slug", slug)
+        .eq("is_active", true)
         .single();
 
       if (error) throw error;
       setCombo(data);
     } catch (error) {
-      console.error('Error fetching combo:', error);
+      console.error("Error fetching combo:", error);
     } finally {
       setLoading(false);
     }
@@ -87,7 +94,7 @@ export default function ComboProductPage() {
   const handleBuyNow = () => {
     if (!combo) return;
     handleAddToCart();
-    window.location.href = '/checkout';
+    window.location.href = "/checkout";
   };
 
   const handleShare = async () => {
@@ -99,17 +106,19 @@ export default function ComboProductPage() {
           url: window.location.href,
         });
       } catch (error) {
-        console.log('Error sharing:', error);
+        console.log("Error sharing:", error);
       }
     } else {
       navigator.clipboard.writeText(window.location.href);
-      toast.success('Combo link copied to clipboard!');
+      toast.success("Combo link copied to clipboard!");
     }
   };
 
   const calculateSavings = () => {
     if (!combo) return 0;
-    return Math.round(((combo.original_price - combo.combo_price) / combo.original_price) * 100);
+    return Math.round(
+      ((combo.original_price - combo.combo_price) / combo.original_price) * 100,
+    );
   };
 
   if (loading) {
@@ -137,8 +146,12 @@ export default function ComboProductPage() {
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center py-16">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Combo not found</h2>
-            <p className="text-gray-600 mb-6">The combo offer you're looking for doesn't exist</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Combo not found
+            </h2>
+            <p className="text-gray-600 mb-6">
+              The combo offer you're looking for doesn't exist
+            </p>
             <Link href="/combo-offers">
               <Button>Browse Combo Offers</Button>
             </Link>
@@ -173,7 +186,11 @@ export default function ComboProductPage() {
           <div className="space-y-4">
             <div className="aspect-square relative overflow-hidden rounded-lg bg-white">
               <Image
-                src={combo.image_url || combo.items[0]?.product.image_url || '/placeholder.svg'}
+                src={
+                  combo.image_url ||
+                  combo.items[0]?.product.image_url ||
+                  "/placeholder.svg"
+                }
                 alt={combo.name}
                 fill
                 className="object-cover"
@@ -202,16 +219,23 @@ export default function ComboProductPage() {
                 </Button>
               </Link>
 
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">{combo.name}</h1>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                {combo.name}
+              </h1>
 
               {/* Rating */}
               <div className="flex items-center space-x-2 mb-4">
                 <div className="flex items-center">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    <Star
+                      key={i}
+                      className="w-4 h-4 fill-yellow-400 text-yellow-400"
+                    />
                   ))}
                 </div>
-                <span className="text-sm text-gray-600">(4.8) • Combo Deal</span>
+                <span className="text-sm text-gray-600">
+                  (4.8) • Combo Deal
+                </span>
               </div>
 
               {/* Price */}
@@ -227,9 +251,14 @@ export default function ComboProductPage() {
               {/* Savings Highlight */}
               <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-green-800">You save with this combo:</span>
+                  <span className="font-medium text-green-800">
+                    You save with this combo:
+                  </span>
                   <span className="text-xl font-bold text-green-600">
-                    ৳{(combo.original_price - combo.combo_price).toLocaleString()}
+                    ৳
+                    {(
+                      combo.original_price - combo.combo_price
+                    ).toLocaleString()}
                   </span>
                 </div>
               </div>
@@ -238,8 +267,12 @@ export default function ComboProductPage() {
             {/* Description */}
             {combo.description && (
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">About This Combo</h3>
-                <p className="text-gray-600 leading-relaxed">{combo.description}</p>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  About This Combo
+                </h3>
+                <p className="text-gray-600 leading-relaxed">
+                  {combo.description}
+                </p>
               </div>
             )}
 
@@ -257,18 +290,25 @@ export default function ComboProductPage() {
                     className="flex items-center space-x-4 p-4 border rounded-lg bg-white"
                   >
                     <Image
-                      src={item.product.image_url || '/placeholder.svg'}
+                      src={item.product.image_url || "/placeholder.svg"}
                       alt={item.product.name}
                       width={60}
                       height={60}
                       className="rounded-lg object-cover"
                     />
                     <div className="flex-1">
-                      <h4 className="font-medium text-gray-900">{item.product.name}</h4>
-                      <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                      <h4 className="font-medium text-gray-900">
+                        {item.product.name}
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        Quantity: {item.quantity}
+                      </p>
                       <p className="text-sm text-gray-600">
                         Individual price: ৳
-                        {(item.product.sale_price || item.product.price).toLocaleString()} each
+                        {(
+                          item.product.sale_price || item.product.price
+                        ).toLocaleString()}{" "}
+                        each
                       </p>
                     </div>
                     <Link href={`/product/${item.product.slug}`}>
@@ -290,7 +330,11 @@ export default function ComboProductPage() {
                   <ShoppingCart className="w-4 h-4 mr-2" />
                   Add Combo to Cart
                 </Button>
-                <Button onClick={handleBuyNow} variant="outline" className="flex-1 bg-transparent">
+                <Button
+                  onClick={handleBuyNow}
+                  variant="outline"
+                  className="flex-1 bg-transparent"
+                >
                   Buy Now
                 </Button>
               </div>
@@ -315,13 +359,18 @@ export default function ComboProductPage() {
             {/* Combo Benefits */}
             <Card>
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Combo Benefits</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Combo Benefits
+                </h3>
                 <div className="space-y-3">
                   <div className="flex items-center space-x-3">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     <span className="text-sm text-gray-700">
-                      Save ৳{(combo.original_price - combo.combo_price).toLocaleString()} compared
-                      to buying individually
+                      Save ৳
+                      {(
+                        combo.original_price - combo.combo_price
+                      ).toLocaleString()}{" "}
+                      compared to buying individually
                     </span>
                   </div>
                   <div className="flex items-center space-x-3">

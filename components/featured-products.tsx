@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import type { Product } from '@/lib/types';
-import ProductCard from './product-card';
+import type { Product } from "@/lib/types";
+import ProductCard from "./product-card";
 
 interface FeaturedProductsProps {
   products: Product[];
@@ -14,8 +14,13 @@ export default function FeaturedProducts({ products }: FeaturedProductsProps) {
     <section className="py-8 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Featured Products</h2>
-          <a href="/products" className="text-blue-600 hover:text-blue-800 font-medium">
+          <h2 className="text-2xl font-bold text-gray-900">
+            Featured Products
+          </h2>
+          <a
+            href="/products"
+            className="text-blue-600 hover:text-blue-800 font-medium"
+          >
             View All
           </a>
         </div>
@@ -25,7 +30,7 @@ export default function FeaturedProducts({ products }: FeaturedProductsProps) {
             <ProductCard
               key={product.id}
               product={product}
-              className={`${index >= 4 ? 'hidden md:block' : ''} ${index >= 10 ? 'hidden xl:block' : ''}`}
+              className={`${index >= 4 ? "hidden md:block" : ""} ${index >= 10 ? "hidden xl:block" : ""}`}
             />
           ))}
         </div>

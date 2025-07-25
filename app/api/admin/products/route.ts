@@ -1,6 +1,6 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-import { validateRequest } from '@/lib/api-security';
+import { type NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+import { validateRequest } from "@/lib/api-security";
 
 // Use validateRequest for admin access
 async function validateAdminAccess(request: NextRequest) {
@@ -31,25 +31,28 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const page = Number.parseInt(searchParams.get('page') || '1');
-    const limit = Math.min(Number.parseInt(searchParams.get('limit') || '20'), 100); // Max 100 items
-    const search = searchParams.get('search') || '';
-    const category = searchParams.get('category') || '';
+    const page = Number.parseInt(searchParams.get("page") || "1");
+    const limit = Math.min(
+      Number.parseInt(searchParams.get("limit") || "20"),
+      100,
+    ); // Max 100 items
+    const search = searchParams.get("search") || "";
+    const category = searchParams.get("category") || "";
 
-    let query = supabase.from('products').select(
+    let query = supabase.from("products").select(
       `
         *,
         category:categories(*)
       `,
-      { count: 'exact' },
+      { count: "exact" },
     );
 
     if (search) {
-      query = query.ilike('name', `%${search}%`);
+      query = query.ilike("name", `%${search}%`);
     }
 
-    if (category && category !== 'all') {
-      query = query.eq('category_id', category);
+    if (category && category !== "all") {
+      query = query.eq("category_id", category);
     }
 
     const {
@@ -57,7 +60,7 @@ export async function GET(request: NextRequest) {
       error: fetchError,
       count,
     } = await query
-      .order('created_at', { ascending: false })
+      .order("created_at", { ascending: false })
       .range((page - 1) * limit, page * limit - 1);
 
     if (fetchError) throw fetchError;
@@ -72,8 +75,11 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('API Error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error("API Error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -89,11 +95,14 @@ export async function POST(request: NextRequest) {
 
     const { isValid: isDataValid, errors } = validateProductData(sanitizedData);
     if (!isDataValid) {
-      return NextResponse.json({ error: 'Validation failed', details: errors }, { status: 400 });
+      return NextResponse.json(
+        { error: "Validation failed", details: errors },
+        { status: 400 },
+      );
     }
 
     const { data, error: insertError } = await supabase
-      .from('products')
+      .from("products")
       .insert(sanitizedData)
       .select()
       .single();
@@ -102,7 +111,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ product: data }, { status: 201 });
   } catch (error) {
-    console.error('API Error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error("API Error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

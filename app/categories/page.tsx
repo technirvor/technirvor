@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { supabase } from '@/lib/supabase';
-import type { Category } from '@/lib/types';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/lib/supabase";
+import type { Category } from "@/lib/types";
 
 interface CategoryWithCount extends Category {
   product_count: number;
@@ -24,9 +24,9 @@ export default function CategoriesPage() {
     try {
       // First get categories
       const { data: categoriesData, error: categoriesError } = await supabase
-        .from('categories')
-        .select('*')
-        .order('name');
+        .from("categories")
+        .select("*")
+        .order("name");
 
       if (categoriesError) throw categoriesError;
 
@@ -34,10 +34,10 @@ export default function CategoriesPage() {
       const categoriesWithCounts = await Promise.all(
         (categoriesData || []).map(async (category) => {
           const { count } = await supabase
-            .from('products')
-            .select('*', { count: 'exact', head: true })
-            .eq('category_id', category.id)
-            .gt('stock', 0);
+            .from("products")
+            .select("*", { count: "exact", head: true })
+            .eq("category_id", category.id)
+            .gt("stock", 0);
 
           return {
             ...category,
@@ -48,7 +48,7 @@ export default function CategoriesPage() {
 
       setCategories(categoriesWithCounts);
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error("Error fetching categories:", error);
     } finally {
       setLoading(false);
     }
@@ -75,8 +75,12 @@ export default function CategoriesPage() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Shop by Category</h1>
-          <p className="text-gray-600">Browse our wide range of product categories</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Shop by Category
+          </h1>
+          <p className="text-gray-600">
+            Browse our wide range of product categories
+          </p>
         </div>
 
         {categories.length > 0 ? (
@@ -89,7 +93,7 @@ export default function CategoriesPage() {
                       <div className="relative w-20 h-20 mx-auto mb-4">
                         {category.image_url ? (
                           <Image
-                            src={category.image_url || '/placeholder.svg'}
+                            src={category.image_url || "/placeholder.svg"}
                             alt={category.name}
                             fill
                             className="rounded-full object-cover group-hover:scale-110 transition-transform duration-300"
@@ -108,8 +112,8 @@ export default function CategoriesPage() {
                       </h3>
 
                       <Badge variant="secondary" className="text-xs">
-                        {category.product_count}{' '}
-                        {category.product_count === 1 ? 'product' : 'products'}
+                        {category.product_count}{" "}
+                        {category.product_count === 1 ? "product" : "products"}
                       </Badge>
                     </div>
                   </CardContent>
@@ -119,8 +123,12 @@ export default function CategoriesPage() {
           </div>
         ) : (
           <div className="text-center py-16">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">No categories found</h2>
-            <p className="text-gray-600">Categories will appear here once they are added</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              No categories found
+            </h2>
+            <p className="text-gray-600">
+              Categories will appear here once they are added
+            </p>
           </div>
         )}
       </div>

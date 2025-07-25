@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { ShoppingCart, Menu, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useCartStore } from '@/lib/cart-store';
-import { Badge } from '@/components/ui/badge';
-import RealTimeSearch from './real-time-search';
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { ShoppingCart, Menu, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useCartStore } from "@/lib/cart-store";
+import { Badge } from "@/components/ui/badge";
+import RealTimeSearch from "./real-time-search";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -19,7 +19,12 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex-shrink-0">
-            <Image src="/logo/logo-black.png" alt="Tech Nirvor" width={220} height={60} />
+            <Image
+              src="/logo/logo-black.png"
+              alt="Tech Nirvor"
+              width={220}
+              height={60}
+            />
           </Link>
 
           {/* Desktop Search */}
@@ -29,16 +34,28 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
-            <Link href="/products" className="text-gray-700 hover:text-gray-900">
+            <Link
+              href="/products"
+              className="text-gray-700 hover:text-gray-900"
+            >
               Products
             </Link>
-            <Link href="/categories" className="text-gray-700 hover:text-gray-900">
+            <Link
+              href="/categories"
+              className="text-gray-700 hover:text-gray-900"
+            >
               Categories
             </Link>
-            <Link href="/combo-offers" className="text-gray-700 hover:text-gray-900">
+            <Link
+              href="/combo-offers"
+              className="text-gray-700 hover:text-gray-900"
+            >
               Combo Offers
             </Link>
-            <Link href="/track-order" className="text-gray-700 hover:text-gray-900">
+            <Link
+              href="/track-order"
+              className="text-gray-700 hover:text-gray-900"
+            >
               Track Order
             </Link>
             <Link href="/cart" className="relative">
@@ -61,8 +78,16 @@ export default function Navbar() {
                 </Badge>
               )}
             </Link>
-            <Button variant="ghost" size="sm" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
             </Button>
           </div>
         </div>

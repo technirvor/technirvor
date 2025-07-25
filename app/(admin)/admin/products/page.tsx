@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -14,16 +14,24 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Edit, Trash2, Plus, Search, Eye, AlertTriangle, Package } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
-import type { Product } from '@/lib/types';
-import { toast } from 'sonner';
+} from "@/components/ui/table";
+import {
+  Edit,
+  Trash2,
+  Plus,
+  Search,
+  Eye,
+  AlertTriangle,
+  Package,
+} from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import type { Product } from "@/lib/types";
+import { toast } from "sonner";
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
 
   useEffect(() => {
@@ -34,7 +42,9 @@ export default function AdminProductsPage() {
     const filtered = products.filter(
       (product) =>
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.category?.name.toLowerCase().includes(searchQuery.toLowerCase()),
+        product.category?.name
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()),
     );
     setFilteredProducts(filtered);
   }, [products, searchQuery]);
@@ -42,20 +52,20 @@ export default function AdminProductsPage() {
   const fetchProducts = async () => {
     try {
       const { data, error } = await supabase
-        .from('products')
+        .from("products")
         .select(
           `
           *,
           category:categories(*)
         `,
         )
-        .order('created_at', { ascending: false });
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
       setProducts(data || []);
     } catch (error) {
-      console.error('Error fetching products:', error);
-      toast.error('Failed to fetch products');
+      console.error("Error fetching products:", error);
+      toast.error("Failed to fetch products");
     } finally {
       setLoading(false);
     }
@@ -65,65 +75,76 @@ export default function AdminProductsPage() {
     if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
 
     try {
-      const { error } = await supabase.from('products').delete().eq('id', id);
+      const { error } = await supabase.from("products").delete().eq("id", id);
       if (error) throw error;
 
       setProducts(products.filter((p) => p.id !== id));
-      toast.success('Product deleted successfully');
+      toast.success("Product deleted successfully");
     } catch (error) {
-      console.error('Error deleting product:', error);
-      toast.error('Failed to delete product');
+      console.error("Error deleting product:", error);
+      toast.error("Failed to delete product");
     }
   };
 
   const toggleFeatured = async (id: string, currentStatus: boolean) => {
     try {
       const { error } = await supabase
-        .from('products')
+        .from("products")
         .update({ is_featured: !currentStatus })
-        .eq('id', id);
+        .eq("id", id);
 
       if (error) throw error;
 
-      setProducts(products.map((p) => (p.id === id ? { ...p, is_featured: !currentStatus } : p)));
-      toast.success(`Product ${!currentStatus ? 'featured' : 'unfeatured'} successfully`);
+      setProducts(
+        products.map((p) =>
+          p.id === id ? { ...p, is_featured: !currentStatus } : p,
+        ),
+      );
+      toast.success(
+        `Product ${!currentStatus ? "featured" : "unfeatured"} successfully`,
+      );
     } catch (error) {
-      console.error('Error updating product:', error);
-      toast.error('Failed to update product');
+      console.error("Error updating product:", error);
+      toast.error("Failed to update product");
     }
   };
 
   const updateStock = async (id: string, newStock: number) => {
     try {
-      const { error } = await supabase.from('products').update({ stock: newStock }).eq('id', id);
+      const { error } = await supabase
+        .from("products")
+        .update({ stock: newStock })
+        .eq("id", id);
 
       if (error) throw error;
 
-      setProducts(products.map((p) => (p.id === id ? { ...p, stock: newStock } : p)));
-      toast.success('Stock updated successfully');
+      setProducts(
+        products.map((p) => (p.id === id ? { ...p, stock: newStock } : p)),
+      );
+      toast.success("Stock updated successfully");
     } catch (error) {
-      console.error('Error updating stock:', error);
-      toast.error('Failed to update stock');
+      console.error("Error updating stock:", error);
+      toast.error("Failed to update stock");
     }
   };
 
   const getStockStatus = (stock: number) => {
     if (stock === 0)
       return {
-        variant: 'destructive' as const,
-        text: 'Out of Stock',
-        color: 'text-red-600',
+        variant: "destructive" as const,
+        text: "Out of Stock",
+        color: "text-red-600",
       };
     if (stock <= 10)
       return {
-        variant: 'secondary' as const,
+        variant: "secondary" as const,
         text: `Low Stock (${stock})`,
-        color: 'text-orange-600',
+        color: "text-orange-600",
       };
     return {
-      variant: 'default' as const,
+      variant: "default" as const,
       text: `${stock} units`,
-      color: 'text-green-600',
+      color: "text-green-600",
     };
   };
 
@@ -148,7 +169,9 @@ export default function AdminProductsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Products Management</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Products Management
+            </h1>
             <div className="flex gap-4 mt-2">
               {lowStockProducts.length > 0 && (
                 <Badge variant="secondary" className="text-orange-600">
@@ -157,7 +180,9 @@ export default function AdminProductsPage() {
                 </Badge>
               )}
               {outOfStockProducts.length > 0 && (
-                <Badge variant="destructive">{outOfStockProducts.length} Out of Stock</Badge>
+                <Badge variant="destructive">
+                  {outOfStockProducts.length} Out of Stock
+                </Badge>
               )}
               <Badge variant="outline" className="text-blue-600">
                 Total: {products.length} Products
@@ -215,7 +240,10 @@ export default function AdminProductsPage() {
                       <TableRow key={product.id}>
                         <TableCell>
                           <Image
-                            src={product.image_url || '/placeholder.svg?height=50&width=50'}
+                            src={
+                              product.image_url ||
+                              "/placeholder.svg?height=50&width=50"
+                            }
                             alt={product.name}
                             width={50}
                             height={50}
@@ -225,7 +253,9 @@ export default function AdminProductsPage() {
                         <TableCell className="font-medium max-w-xs">
                           <div className="truncate">{product.name}</div>
                         </TableCell>
-                        <TableCell>{product.category?.name || 'No Category'}</TableCell>
+                        <TableCell>
+                          {product.category?.name || "No Category"}
+                        </TableCell>
                         <TableCell>
                           <div>
                             {product.sale_price && (
@@ -236,8 +266,8 @@ export default function AdminProductsPage() {
                             <span
                               className={
                                 product.sale_price
-                                  ? 'text-gray-500 line-through ml-2'
-                                  : 'font-semibold'
+                                  ? "text-gray-500 line-through ml-2"
+                                  : "font-semibold"
                               }
                             >
                               ৳{product.price.toLocaleString()}
@@ -246,7 +276,10 @@ export default function AdminProductsPage() {
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <Badge variant={stockStatus.variant} className={stockStatus.color}>
+                            <Badge
+                              variant={stockStatus.variant}
+                              className={stockStatus.color}
+                            >
                               {stockStatus.text}
                             </Badge>
                             {product.stock <= 10 && product.stock > 0 && (
@@ -254,11 +287,15 @@ export default function AdminProductsPage() {
                             )}
                           </div>
                           {/* Debug info */}
-                          <div className="text-xs text-gray-500 mt-1">Raw: {product.stock}</div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            Raw: {product.stock}
+                          </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex flex-col gap-1">
-                            {product.is_featured && <Badge variant="secondary">Featured</Badge>}
+                            {product.is_featured && (
+                              <Badge variant="secondary">Featured</Badge>
+                            )}
                             {product.is_flash_sale && (
                               <Badge variant="destructive">Flash Sale</Badge>
                             )}
@@ -270,23 +307,37 @@ export default function AdminProductsPage() {
                         <TableCell>
                           <div className="flex items-center gap-1">
                             <Link href={`/product/${product.slug}`}>
-                              <Button variant="ghost" size="sm" title="View Product">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                title="View Product"
+                              >
                                 <Eye className="w-4 h-4" />
                               </Button>
                             </Link>
                             <Link href={`/admin/products/${product.id}/edit`}>
-                              <Button variant="ghost" size="sm" title="Edit Product">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                title="Edit Product"
+                              >
                                 <Edit className="w-4 h-4" />
                               </Button>
                             </Link>
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => toggleFeatured(product.id, product.is_featured)}
-                              className={product.is_featured ? 'text-yellow-600' : 'text-gray-600'}
+                              onClick={() =>
+                                toggleFeatured(product.id, product.is_featured)
+                              }
+                              className={
+                                product.is_featured
+                                  ? "text-yellow-600"
+                                  : "text-gray-600"
+                              }
                               title="Toggle Featured"
                             >
-                              {product.is_featured ? '★' : '☆'}
+                              {product.is_featured ? "★" : "☆"}
                             </Button>
                             <Button
                               variant="ghost"
@@ -296,7 +347,10 @@ export default function AdminProductsPage() {
                                   `Update stock for ${product.name}:`,
                                   product.stock.toString(),
                                 );
-                                if (newStock !== null && !isNaN(Number(newStock))) {
+                                if (
+                                  newStock !== null &&
+                                  !isNaN(Number(newStock))
+                                ) {
                                   updateStock(product.id, Number(newStock));
                                 }
                               }}
@@ -308,7 +362,9 @@ export default function AdminProductsPage() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleDelete(product.id, product.name)}
+                              onClick={() =>
+                                handleDelete(product.id, product.name)
+                              }
                               className="text-red-600 hover:text-red-800"
                               title="Delete Product"
                             >

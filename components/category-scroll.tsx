@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useEffect, useRef } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import type { Category } from '@/lib/types';
+import { useEffect, useRef } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import type { Category } from "@/lib/types";
 
 interface CategoryScrollProps {
   categories: Category[];
@@ -18,7 +18,7 @@ export default function CategoryScroll({ categories }: CategoryScrollProps) {
 
     // Only auto-scroll on desktop devices
     const isTouchDevice = () => {
-      return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      return "ontouchstart" in window || navigator.maxTouchPoints > 0;
     };
 
     if (isTouchDevice()) {
@@ -57,19 +57,19 @@ export default function CategoryScroll({ categories }: CategoryScrollProps) {
       paused = false;
     };
 
-    scrollContainer.addEventListener('mouseenter', handleMouseEnter);
-    scrollContainer.addEventListener('mouseleave', handleMouseLeave);
-    scrollContainer.addEventListener('focusin', handleFocusIn);
-    scrollContainer.addEventListener('focusout', handleFocusOut);
+    scrollContainer.addEventListener("mouseenter", handleMouseEnter);
+    scrollContainer.addEventListener("mouseleave", handleMouseLeave);
+    scrollContainer.addEventListener("focusin", handleFocusIn);
+    scrollContainer.addEventListener("focusout", handleFocusOut);
 
     animationFrameId = window.requestAnimationFrame(scroll);
 
     return () => {
       window.cancelAnimationFrame(animationFrameId);
-      scrollContainer.removeEventListener('mouseenter', handleMouseEnter);
-      scrollContainer.removeEventListener('mouseleave', handleMouseLeave);
-      scrollContainer.removeEventListener('focusin', handleFocusIn);
-      scrollContainer.removeEventListener('focusout', handleFocusOut);
+      scrollContainer.removeEventListener("mouseenter", handleMouseEnter);
+      scrollContainer.removeEventListener("mouseleave", handleMouseLeave);
+      scrollContainer.removeEventListener("focusin", handleFocusIn);
+      scrollContainer.removeEventListener("focusout", handleFocusOut);
     };
   }, [categories.length]);
 
@@ -81,15 +81,17 @@ export default function CategoryScroll({ categories }: CategoryScrollProps) {
   return (
     <div className="py-6 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Shop by Category</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          Shop by Category
+        </h2>
         <div
           ref={scrollRef}
           className="flex space-x-4 overflow-x-auto touch-pan-x"
           style={{
-            scrollBehavior: 'auto',
-            WebkitOverflowScrolling: 'touch',
-            msOverflowStyle: 'none', // IE and Edge
-            scrollbarWidth: 'none', // Firefox
+            scrollBehavior: "auto",
+            WebkitOverflowScrolling: "touch",
+            msOverflowStyle: "none", // IE and Edge
+            scrollbarWidth: "none", // Firefox
           }}
           tabIndex={0}
         >
@@ -107,7 +109,7 @@ export default function CategoryScroll({ categories }: CategoryScrollProps) {
               <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden bg-white shadow-md group-hover:shadow-lg transition-shadow">
                 {category.image_url ? (
                   <Image
-                    src={category.image_url || '/placeholder.svg'}
+                    src={category.image_url || "/placeholder.svg"}
                     alt={category.name}
                     width={96}
                     height={96}
@@ -115,7 +117,9 @@ export default function CategoryScroll({ categories }: CategoryScrollProps) {
                   />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
-                    <span className="text-white font-bold text-lg">{category.name.charAt(0)}</span>
+                    <span className="text-white font-bold text-lg">
+                      {category.name.charAt(0)}
+                    </span>
                   </div>
                 )}
               </div>

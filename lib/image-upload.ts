@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from "@supabase/supabase-js";
 
 // Use only public keys for client-side compatibility
 const supabase = createClient(
@@ -10,7 +10,7 @@ export interface ImageUploadOptions {
   maxWidth?: number;
   maxHeight?: number;
   quality?: number;
-  format?: 'webp' | 'jpeg' | 'png';
+  format?: "webp" | "jpeg" | "png";
   folder?: string;
 }
 
@@ -28,11 +28,16 @@ export async function compressImage(
   file: File,
   options: ImageUploadOptions = {},
 ): Promise<{ blob: Blob; width: number; height: number }> {
-  const { maxWidth = 1200, maxHeight = 1200, quality = 0.8, format = 'webp' } = options;
+  const {
+    maxWidth = 1200,
+    maxHeight = 1200,
+    quality = 0.8,
+    format = "webp",
+  } = options;
 
   return new Promise((resolve, reject) => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
     const img = new Image();
 
     img.onload = () => {
@@ -56,7 +61,7 @@ export async function compressImage(
           if (blob) {
             resolve({ blob, width, height });
           } else {
-            reject(new Error('Failed to compress image'));
+            reject(new Error("Failed to compress image"));
           }
         },
         `image/${format}`,
@@ -64,7 +69,7 @@ export async function compressImage(
       );
     };
 
-    img.onerror = () => reject(new Error('Failed to load image'));
+    img.onerror = () => reject(new Error("Failed to load image"));
     img.src = URL.createObjectURL(file);
   });
 }
@@ -73,10 +78,10 @@ export async function compressImage(
 export async function generateImageSizes(
   file: File,
   sizes: { name: string; width: number; height: number }[] = [
-    { name: 'thumbnail', width: 150, height: 150 },
-    { name: 'small', width: 300, height: 300 },
-    { name: 'medium', width: 600, height: 600 },
-    { name: 'large', width: 1200, height: 1200 },
+    { name: "thumbnail", width: 150, height: 150 },
+    { name: "small", width: 300, height: 300 },
+    { name: "medium", width: 600, height: 600 },
+    { name: "large", width: 1200, height: 1200 },
   ],
 ): Promise<{ [key: string]: { blob: Blob; width: number; height: number } }> {
   const results: {
@@ -89,7 +94,7 @@ export async function generateImageSizes(
         maxWidth: size.width,
         maxHeight: size.height,
         quality: 0.8,
-        format: 'webp',
+        format: "webp",
       });
       results[size.name] = compressed;
     } catch (error) {
@@ -108,15 +113,19 @@ export async function uploadToSupabase(
 ): Promise<ImageUploadResult> {
   try {
     // Use the correct bucket for product images
-    const bucket = 'product-images';
-    const { data, error } = await supabase.storage.from(bucket).upload(path, file, {
-      cacheControl: '3600',
-      upsert: options.upsert || false,
-    });
+    const bucket = "product-images";
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .upload(path, file, {
+        cacheControl: "3600",
+        upsert: options.upsert || false,
+      });
 
     if (error) throw error;
 
-    const { data: publicUrlData } = supabase.storage.from(bucket).getPublicUrl(data.path);
+    const { data: publicUrlData } = supabase.storage
+      .from(bucket)
+      .getPublicUrl(data.path);
 
     // Get file info
     const fileSize = file instanceof File ? file.size : file.size;
@@ -130,7 +139,7 @@ export async function uploadToSupabase(
       height: 0, // Will be set by caller
     };
   } catch (error) {
-    console.error('Supabase upload error:', error);
+    console.error("Supabase upload error:", error);
     throw error;
   }
 }
@@ -142,9 +151,9 @@ export async function uploadToVercelBlob(
 ): Promise<ImageUploadResult> {
   try {
     const response = await fetch(`/api/upload/blob`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         filename,
@@ -152,20 +161,20 @@ export async function uploadToVercelBlob(
       }),
     });
 
-    if (!response.ok) throw new Error('Failed to get upload URL');
+    if (!response.ok) throw new Error("Failed to get upload URL");
 
     const { uploadUrl, downloadUrl } = await response.json();
 
     // Upload file to Vercel Blob
     const uploadResponse = await fetch(uploadUrl, {
-      method: 'PUT',
+      method: "PUT",
       body: file,
       headers: {
-        'Content-Type': file.type,
+        "Content-Type": file.type,
       },
     });
 
-    if (!uploadResponse.ok) throw new Error('Failed to upload to Vercel Blob');
+    if (!uploadResponse.ok) throw new Error("Failed to upload to Vercel Blob");
 
     return {
       url: downloadUrl,
@@ -176,7 +185,7 @@ export async function uploadToVercelBlob(
       height: 0,
     };
   } catch (error) {
-    console.error('Vercel Blob upload error:', error);
+    console.error("Vercel Blob upload error:", error);
     throw error;
   }
 }
@@ -186,27 +195,31 @@ export async function uploadOptimizedImage(
   file: File,
   options: ImageUploadOptions & {
     generateSizes?: boolean;
-    uploadProvider?: 'supabase' | 'vercel';
+    uploadProvider?: "supabase" | "vercel";
   } = {},
 ): Promise<{
   original: ImageUploadResult;
   sizes?: { [key: string]: ImageUploadResult };
 }> {
-  const { folder = 'products', generateSizes = true, uploadProvider = 'supabase' } = options;
+  const {
+    folder = "products",
+    generateSizes = true,
+    uploadProvider = "supabase",
+  } = options;
 
   try {
     // Validate file
-    if (!file.type.startsWith('image/')) {
-      throw new Error('File must be an image');
+    if (!file.type.startsWith("image/")) {
+      throw new Error("File must be an image");
     }
 
     if (file.size > 10 * 1024 * 1024) {
       // 10MB limit
-      throw new Error('File size must be less than 10MB');
+      throw new Error("File size must be less than 10MB");
     }
 
     const timestamp = Date.now();
-    const fileExtension = 'webp'; // Always convert to WebP
+    const fileExtension = "webp"; // Always convert to WebP
     const baseFilename = `${folder}/${timestamp}-${Math.random().toString(36).substring(7)}`;
 
     // Compress original image
@@ -215,7 +228,7 @@ export async function uploadOptimizedImage(
     // Upload original
     const originalPath = `${baseFilename}.${fileExtension}`;
     const originalUpload =
-      uploadProvider === 'supabase'
+      uploadProvider === "supabase"
         ? await uploadToSupabase(compressed.blob, originalPath)
         : await uploadToVercelBlob(compressed.blob, originalPath);
 
@@ -238,7 +251,7 @@ export async function uploadOptimizedImage(
         const sizePath = `${baseFilename}-${sizeName}.${fileExtension}`;
 
         const sizeUpload =
-          uploadProvider === 'supabase'
+          uploadProvider === "supabase"
             ? await uploadToSupabase(sizeData.blob, sizePath)
             : await uploadToVercelBlob(sizeData.blob, sizePath);
 
@@ -252,7 +265,7 @@ export async function uploadOptimizedImage(
 
     return result;
   } catch (error) {
-    console.error('Image upload error:', error);
+    console.error("Image upload error:", error);
     throw error;
   }
 }
@@ -260,21 +273,21 @@ export async function uploadOptimizedImage(
 // Delete image from storage
 export async function deleteImage(
   path: string,
-  provider: 'supabase' | 'vercel' = 'supabase',
+  provider: "supabase" | "vercel" = "supabase",
 ): Promise<void> {
   try {
-    if (provider === 'supabase') {
-      const { error } = await supabase.storage.from('images').remove([path]);
+    if (provider === "supabase") {
+      const { error } = await supabase.storage.from("images").remove([path]);
 
       if (error) throw error;
     } else {
       // For Vercel Blob, you'd need to implement deletion via their API
       await fetch(`/api/upload/blob?path=${encodeURIComponent(path)}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
     }
   } catch (error) {
-    console.error('Image deletion error:', error);
+    console.error("Image deletion error:", error);
     throw error;
   }
 }

@@ -1,7 +1,7 @@
-import { notFound } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
-import type { Category, Product } from '@/lib/types';
-import ProductEditForm from './product-edit-form';
+import { notFound } from "next/navigation";
+import { supabase } from "@/lib/supabase";
+import type { Category, Product } from "@/lib/types";
+import ProductEditForm from "./product-edit-form";
 
 interface Props {
   params: { id: string };
@@ -10,14 +10,14 @@ interface Props {
 async function getProduct(id: string): Promise<Product | null> {
   try {
     const { data, error } = await supabase
-      .from('products')
+      .from("products")
       .select(
         `
         *,
         category:categories(*)
       `,
       )
-      .eq('id', id)
+      .eq("id", id)
       .single();
 
     if (error) return null;
@@ -29,7 +29,10 @@ async function getProduct(id: string): Promise<Product | null> {
 
 async function getCategories(): Promise<Category[]> {
   try {
-    const { data, error } = await supabase.from('categories').select('*').order('name');
+    const { data, error } = await supabase
+      .from("categories")
+      .select("*")
+      .order("name");
 
     if (error) return [];
     return data || [];
@@ -40,7 +43,10 @@ async function getCategories(): Promise<Category[]> {
 
 export default async function EditProductPage({ params }: Props) {
   const awaitedParams = await params;
-  const [product, categories] = await Promise.all([getProduct(awaitedParams.id), getCategories()]);
+  const [product, categories] = await Promise.all([
+    getProduct(awaitedParams.id),
+    getCategories(),
+  ]);
 
   if (!product) {
     notFound();

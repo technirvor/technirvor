@@ -1,4 +1,4 @@
-import { Separator } from '@/components/ui/separator';
+import { Separator } from "@/components/ui/separator";
 
 interface OrderLabelProps {
   order: any; // Use your Order type if available
@@ -17,7 +17,9 @@ export default function OrderLabel({ order }: OrderLabelProps) {
             TN
           </div>
           <div>
-            <h2 className="text-xl font-extrabold text-blue-700 tracking-wide">Tech Nirvor</h2>
+            <h2 className="text-xl font-extrabold text-blue-700 tracking-wide">
+              Tech Nirvor
+            </h2>
             <p className="text-xs text-gray-500">123 Business Street, Dhaka</p>
             <p className="text-xs text-gray-500">+880 1234-567890</p>
           </div>
@@ -28,7 +30,7 @@ export default function OrderLabel({ order }: OrderLabelProps) {
             {order.id.slice(0, 8).toUpperCase()}
           </div>
           <div className="text-xs text-gray-400">
-            {new Date(order.created_at).toLocaleDateString('en-GB')}
+            {new Date(order.created_at).toLocaleDateString("en-GB")}
           </div>
         </div>
       </div>
@@ -36,7 +38,9 @@ export default function OrderLabel({ order }: OrderLabelProps) {
       {/* Recipient */}
       <div className="mb-6">
         <div className="font-semibold text-gray-900 mb-1">Recipient</div>
-        <div className="text-gray-900 text-base font-bold">{order.customer_name}</div>
+        <div className="text-gray-900 text-base font-bold">
+          {order.customer_name}
+        </div>
         <div className="text-gray-700 text-sm">{order.customer_phone}</div>
         <div className="text-gray-700 text-sm">{order.address}</div>
         <div className="text-gray-700 text-sm">{order.district}</div>

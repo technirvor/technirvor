@@ -1,26 +1,26 @@
-'use client';
+"use client";
 
-import type React from 'react';
+import type React from "react";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { useCartStore } from '@/lib/cart-store';
-import { supabase } from '@/lib/supabase';
-import type { District } from '@/lib/types';
-import { toast } from 'sonner';
+} from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useCartStore } from "@/lib/cart-store";
+import { supabase } from "@/lib/supabase";
+import type { District } from "@/lib/types";
+import { toast } from "sonner";
 
 export default function CheckoutPage() {
   const [hydrated, setHydrated] = useState(false);
@@ -31,12 +31,14 @@ export default function CheckoutPage() {
   const { items, getTotalPrice, clearCart } = useCartStore();
   const [loading, setLoading] = useState(false);
   const [districts, setDistricts] = useState<District[]>([]);
-  const [selectedDistrict, setSelectedDistrict] = useState<District | null>(null);
+  const [selectedDistrict, setSelectedDistrict] = useState<District | null>(
+    null,
+  );
   const [formData, setFormData] = useState({
-    customerName: '',
-    customerPhone: '',
-    address: '',
-    paymentMethod: 'cod',
+    customerName: "",
+    customerPhone: "",
+    address: "",
+    paymentMethod: "cod",
   });
 
   useEffect(() => {
@@ -45,20 +47,27 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     if (items.length === 0) {
-      router.push('/cart');
+      router.push("/cart");
       return;
     }
     // Validate products in cart exist in DB
     const validateProducts = async () => {
       const productIds = items.map((item) => item.product.id);
-      const { data, error } = await supabase.from('products').select('id').in('id', productIds);
+      const { data, error } = await supabase
+        .from("products")
+        .select("id")
+        .in("id", productIds);
       if (error) return;
       const validIds = (data || []).map((p) => p.id);
-      const invalidItems = items.filter((item) => !validIds.includes(item.product.id));
+      const invalidItems = items.filter(
+        (item) => !validIds.includes(item.product.id),
+      );
       if (invalidItems.length > 0) {
         clearCart();
-        toast.error('Some products in your cart are no longer available. Cart has been cleared.');
-        router.push('/cart');
+        toast.error(
+          "Some products in your cart are no longer available. Cart has been cleared.",
+        );
+        router.push("/cart");
       }
     };
     validateProducts();
@@ -66,12 +75,15 @@ export default function CheckoutPage() {
 
   const fetchDistricts = async () => {
     try {
-      const { data, error } = await supabase.from('districts').select('*').order('name');
+      const { data, error } = await supabase
+        .from("districts")
+        .select("*")
+        .order("name");
       if (error) throw error;
       setDistricts(data || []);
     } catch (error) {
-      console.error('Error fetching districts:', error);
-      toast.error('Failed to load districts');
+      console.error("Error fetching districts:", error);
+      toast.error("Failed to load districts");
     }
   };
 
@@ -93,23 +105,23 @@ export default function CheckoutPage() {
 
   const validateForm = () => {
     if (!formData.customerName.trim()) {
-      toast.error('Customer name is required');
+      toast.error("Customer name is required");
       return false;
     }
     if (!formData.customerPhone.trim()) {
-      toast.error('Phone number is required');
+      toast.error("Phone number is required");
       return false;
     }
     if (!isValidBangladeshiPhone(formData.customerPhone)) {
-      toast.error('Please enter a valid phone number');
+      toast.error("Please enter a valid phone number");
       return false;
     }
     if (!selectedDistrict) {
-      toast.error('Please select a district');
+      toast.error("Please select a district");
       return false;
     }
     if (!formData.address.trim()) {
-      toast.error('Address is required');
+      toast.error("Address is required");
       return false;
     }
     return true;
@@ -142,10 +154,10 @@ export default function CheckoutPage() {
         total_amount: totalAmount,
       };
 
-      const response = await fetch('/api/orders', {
-        method: 'POST',
+      const response = await fetch("/api/orders", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(orderData),
       });
@@ -153,16 +165,18 @@ export default function CheckoutPage() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to place order');
+        throw new Error(result.error || "Failed to place order");
       }
 
       // Clear cart and redirect to confirmation
       clearCart();
-      toast.success('Order placed successfully!');
+      toast.success("Order placed successfully!");
       router.push(`/order-confirmation/${result.order.id}`);
     } catch (error) {
-      console.error('Order submission error:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to place order');
+      console.error("Order submission error:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to place order",
+      );
     } finally {
       setLoading(false);
     }
@@ -195,7 +209,9 @@ export default function CheckoutPage() {
                     id="customerName"
                     type="text"
                     value={formData.customerName}
-                    onChange={(e) => handleInputChange('customerName', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("customerName", e.target.value)
+                    }
                     placeholder="Enter your full name"
                     required
                   />
@@ -207,7 +223,9 @@ export default function CheckoutPage() {
                     id="customerPhone"
                     type="tel"
                     value={formData.customerPhone}
-                    onChange={(e) => handleInputChange('customerPhone', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("customerPhone", e.target.value)
+                    }
                     placeholder="01XXXXXXXXX"
                     required
                   />
@@ -235,7 +253,9 @@ export default function CheckoutPage() {
                     id="address"
                     type="text"
                     value={formData.address}
-                    onChange={(e) => handleInputChange('address', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("address", e.target.value)
+                    }
                     placeholder="House/Flat, Road, Area"
                     required
                   />
@@ -245,7 +265,9 @@ export default function CheckoutPage() {
                   <Label>Payment Method</Label>
                   <RadioGroup
                     value={formData.paymentMethod}
-                    onValueChange={(value) => handleInputChange('paymentMethod', value)}
+                    onValueChange={(value) =>
+                      handleInputChange("paymentMethod", value)
+                    }
                     className="mt-2"
                   >
                     <div className="flex items-center space-x-2">
@@ -264,7 +286,7 @@ export default function CheckoutPage() {
                 </div>
 
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? 'Placing Order...' : 'Place Order'}
+                  {loading ? "Placing Order..." : "Place Order"}
                 </Button>
               </form>
             </CardContent>
@@ -277,18 +299,25 @@ export default function CheckoutPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               {items.map((item) => (
-                <div key={item.id} className="flex items-center justify-between">
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between"
+                >
                   <div className="flex-1">
                     <h4 className="font-medium">{item.product.name}</h4>
                     <p className="text-sm text-gray-600">
-                      ৳{(item.product.sale_price || item.product.price).toLocaleString()} ×{' '}
-                      {item.quantity}
+                      ৳
+                      {(
+                        item.product.sale_price || item.product.price
+                      ).toLocaleString()}{" "}
+                      × {item.quantity}
                     </p>
                   </div>
                   <span className="font-medium">
                     ৳
                     {(
-                      (item.product.sale_price || item.product.price) * item.quantity
+                      (item.product.sale_price || item.product.price) *
+                      item.quantity
                     ).toLocaleString()}
                   </span>
                 </div>

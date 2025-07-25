@@ -1,24 +1,24 @@
-'use client';
+"use client";
 
-import type React from 'react';
+import type React from "react";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, Eye, EyeOff, AlertCircle } from 'lucide-react';
-import { adminAuth } from '@/lib/auth';
-import { toast } from 'sonner';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Shield, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { adminAuth } from "@/lib/auth";
+import { toast } from "sonner";
 
 export default function AdminLoginPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -31,7 +31,7 @@ export default function AdminLoginPage() {
     try {
       const hasAccess = await adminAuth.checkAdminAccess();
       if (hasAccess) {
-        router.push('/admin');
+        router.push("/admin");
       }
     } catch (error) {
       // User not authenticated, stay on login page
@@ -42,7 +42,7 @@ export default function AdminLoginPage() {
     setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: '' }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
@@ -50,15 +50,15 @@ export default function AdminLoginPage() {
     const newErrors: { [key: string]: string } = {};
 
     if (!formData.email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email';
+      newErrors.email = "Please enter a valid email";
     }
 
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = "Password must be at least 6 characters";
     }
 
     setErrors(newErrors);
@@ -74,17 +74,17 @@ export default function AdminLoginPage() {
 
     try {
       await adminAuth.signIn(formData.email, formData.password);
-      toast.success('Login successful!');
-      router.push('/admin');
+      toast.success("Login successful!");
+      router.push("/admin");
     } catch (error: any) {
-      console.error('Login error:', error);
-      toast.error(error.message || 'Login failed');
+      console.error("Login error:", error);
+      toast.error(error.message || "Login failed");
 
       // Handle specific error cases
-      if (error.message?.includes('Invalid login credentials')) {
-        setErrors({ email: 'Invalid email or password' });
-      } else if (error.message?.includes('Admin privileges required')) {
-        setErrors({ email: 'Admin access required' });
+      if (error.message?.includes("Invalid login credentials")) {
+        setErrors({ email: "Invalid email or password" });
+      } else if (error.message?.includes("Admin privileges required")) {
+        setErrors({ email: "Admin access required" });
       }
     } finally {
       setLoading(false);
@@ -114,9 +114,9 @@ export default function AdminLoginPage() {
                   id="email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  onChange={(e) => handleInputChange("email", e.target.value)}
                   placeholder="admin@example.com"
-                  className={errors.email ? 'border-red-500' : ''}
+                  className={errors.email ? "border-red-500" : ""}
                   required
                 />
                 {errors.email && (
@@ -132,11 +132,13 @@ export default function AdminLoginPage() {
                 <div className="relative">
                   <Input
                     id="password"
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     value={formData.password}
-                    onChange={(e) => handleInputChange('password', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("password", e.target.value)
+                    }
                     placeholder="Enter your password"
-                    className={errors.password ? 'border-red-500' : ''}
+                    className={errors.password ? "border-red-500" : ""}
                     required
                   />
                   <Button
@@ -168,7 +170,7 @@ export default function AdminLoginPage() {
                     Authenticating...
                   </div>
                 ) : (
-                  'Sign In'
+                  "Sign In"
                 )}
               </Button>
             </form>
@@ -178,9 +180,12 @@ export default function AdminLoginPage() {
               <div className="flex items-start">
                 <Shield className="w-5 h-5 text-yellow-600 mt-0.5 mr-2" />
                 <div>
-                  <h4 className="text-sm font-semibold text-yellow-800">Security Notice</h4>
+                  <h4 className="text-sm font-semibold text-yellow-800">
+                    Security Notice
+                  </h4>
                   <p className="text-sm text-yellow-700 mt-1">
-                    This is a secure admin area. All activities are logged and monitored.
+                    This is a secure admin area. All activities are logged and
+                    monitored.
                   </p>
                 </div>
               </div>

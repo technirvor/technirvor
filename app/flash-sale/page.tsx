@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Clock } from 'lucide-react';
-import ProductCard from '@/components/product-card';
-import { supabase } from '@/lib/supabase';
-import type { Product } from '@/lib/types';
+import { useState, useEffect } from "react";
+import { Clock } from "lucide-react";
+import ProductCard from "@/components/product-card";
+import { supabase } from "@/lib/supabase";
+import type { Product } from "@/lib/types";
 
 export default function FlashSalePage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -29,21 +29,21 @@ export default function FlashSalePage() {
   const fetchFlashSaleProducts = async () => {
     try {
       const { data, error } = await supabase
-        .from('products')
+        .from("products")
         .select(
           `
           *,
           category:categories(*)
         `,
         )
-        .eq('is_flash_sale', true)
-        .gt('stock', 0)
-        .order('created_at', { ascending: false });
+        .eq("is_flash_sale", true)
+        .gt("stock", 0)
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
       setProducts(data || []);
     } catch (error) {
-      console.error('Error fetching flash sale products:', error);
+      console.error("Error fetching flash sale products:", error);
     } finally {
       setLoading(false);
     }
@@ -59,7 +59,9 @@ export default function FlashSalePage() {
 
     if (distance > 0) {
       setTimeLeft({
-        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        hours: Math.floor(
+          (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+        ),
         minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
         seconds: Math.floor((distance % (1000 * 60)) / 1000),
       });
@@ -99,19 +101,19 @@ export default function FlashSalePage() {
               <div className="flex space-x-2">
                 <div className="bg-white/20 rounded-lg px-3 py-2">
                   <div className="text-2xl font-bold">
-                    {timeLeft.hours.toString().padStart(2, '0')}
+                    {timeLeft.hours.toString().padStart(2, "0")}
                   </div>
                   <div className="text-xs">Hours</div>
                 </div>
                 <div className="bg-white/20 rounded-lg px-3 py-2">
                   <div className="text-2xl font-bold">
-                    {timeLeft.minutes.toString().padStart(2, '0')}
+                    {timeLeft.minutes.toString().padStart(2, "0")}
                   </div>
                   <div className="text-xs">Minutes</div>
                 </div>
                 <div className="bg-white/20 rounded-lg px-3 py-2">
                   <div className="text-2xl font-bold">
-                    {timeLeft.seconds.toString().padStart(2, '0')}
+                    {timeLeft.seconds.toString().padStart(2, "0")}
                   </div>
                   <div className="text-xs">Seconds</div>
                 </div>
@@ -129,8 +131,12 @@ export default function FlashSalePage() {
           </div>
         ) : (
           <div className="text-center py-16">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">No Flash Sale Products</h2>
-            <p className="text-gray-600 mb-6">Check back later for amazing deals!</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              No Flash Sale Products
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Check back later for amazing deals!
+            </p>
           </div>
         )}
       </div>

@@ -1,71 +1,76 @@
-import type React from 'react';
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import './globals.css';
+import type React from "react";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
 
-import Navbar from '@/components/navbar';
-import { Toaster } from 'sonner';
-import { googleAnalyticsScriptTags, metaPixelScriptTags } from '@/lib/analytics';
+import Navbar from "@/components/navbar";
+import { Toaster } from "sonner";
+import {
+  googleAnalyticsScriptTags,
+  metaPixelScriptTags,
+} from "@/lib/analytics";
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: {
-    default: 'Tech Nirvor - Best Online Shopping in Bangladesh',
-    template: '%s | Tech Nirvor',
+    default: "Tech Nirvor - Best Online Shopping in Bangladesh",
+    template: "%s | Tech Nirvor",
   },
   description:
-    'Shop the best products online in Bangladesh. Fast delivery, cash on delivery, authentic products. Electronics, Fashion, Home & Garden, Sports, Books, Beauty products at best prices.',
+    "Shop the best products online in Bangladesh. Fast delivery, cash on delivery, authentic products. Electronics, Fashion, Home & Garden, Sports, Books, Beauty products at best prices.",
   keywords: [
-    'online shopping bangladesh',
-    'ecommerce bd',
-    'cash on delivery',
-    'electronics bangladesh',
-    'fashion bangladesh',
-    'home garden bangladesh',
-    'sports equipment bangladesh',
-    'books bangladesh',
-    'beauty products bangladesh',
-    'fast delivery dhaka',
-    'authentic products',
-    'best prices bangladesh',
+    "online shopping bangladesh",
+    "ecommerce bd",
+    "cash on delivery",
+    "electronics bangladesh",
+    "fashion bangladesh",
+    "home garden bangladesh",
+    "sports equipment bangladesh",
+    "books bangladesh",
+    "beauty products bangladesh",
+    "fast delivery dhaka",
+    "authentic products",
+    "best prices bangladesh",
   ],
-  authors: [{ name: 'Tech Nirvor' }],
-  creator: 'Tech Nirvor',
-  publisher: 'Tech Nirvor',
+  authors: [{ name: "Tech Nirvor" }],
+  creator: "Tech Nirvor",
+  publisher: "Tech Nirvor",
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://technirvor.com'),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "https://technirvor.com",
+  ),
   alternates: {
-    canonical: '/',
+    canonical: "/",
   },
   openGraph: {
-    type: 'website',
-    locale: 'en_BD',
-    url: '/',
-    title: 'Tech Nirvor - Best Online Shopping in Bangladesh',
+    type: "website",
+    locale: "en_BD",
+    url: "/",
+    title: "Tech Nirvor - Best Online Shopping in Bangladesh",
     description:
-      'Shop the best products online in Bangladesh. Fast delivery, cash on delivery, authentic products at best prices.',
-    siteName: 'Tech Nirvor',
+      "Shop the best products online in Bangladesh. Fast delivery, cash on delivery, authentic products at best prices.",
+    siteName: "Tech Nirvor",
     images: [
       {
-        url: '/og-image.jpg',
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: 'Tech Nirvor - Online Shopping',
+        alt: "Tech Nirvor - Online Shopping",
       },
     ],
   },
   twitter: {
-    card: 'summary_large_image',
-    title: 'Tech Nirvor - Best Online Shopping in Bangladesh',
+    card: "summary_large_image",
+    title: "Tech Nirvor - Best Online Shopping in Bangladesh",
     description:
-      'Shop the best products online in Bangladesh. Fast delivery, cash on delivery, authentic products at best prices.',
-    images: ['/og-image.jpg'],
-    creator: '@technirvor',
+      "Shop the best products online in Bangladesh. Fast delivery, cash on delivery, authentic products at best prices.",
+    images: ["/og-image.jpg"],
+    creator: "@technirvor",
   },
   robots: {
     index: true,
@@ -73,31 +78,36 @@ export const metadata: Metadata = {
     googleBot: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
     },
   },
-  manifest: '/manifest.json',
+  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'default',
-    title: 'Tech Nirvor',
+    statusBarStyle: "default",
+    title: "Tech Nirvor",
   },
   verification: {
-    google: 'your-google-verification-code',
-    yandex: 'your-yandex-verification-code',
-    yahoo: 'your-yahoo-verification-code',
+    google: "your-google-verification-code",
+    yandex: "your-yandex-verification-code",
+    yahoo: "your-yahoo-verification-code",
   },
-  generator: 'v0.dev',
+  generator: "v0.dev",
 };
 
 export const viewport = {
-  themeColor: '#000000',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
+  themeColor: "#000000",
+  viewport:
+    "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en-BD">
       <head>
@@ -113,18 +123,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'WebSite',
-              name: 'Tech Nirvor',
-              url: process.env.NEXT_PUBLIC_SITE_URL || 'https://technirvor.com',
-              description: 'Best online shopping in Bangladesh with cash on delivery',
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "Tech Nirvor",
+              url: process.env.NEXT_PUBLIC_SITE_URL || "https://technirvor.com",
+              description:
+                "Best online shopping in Bangladesh with cash on delivery",
               potentialAction: {
-                '@type': 'SearchAction',
+                "@type": "SearchAction",
                 target: {
-                  '@type': 'EntryPoint',
-                  urlTemplate: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://technirvor.com'}/products?search={search_term_string}`,
+                  "@type": "EntryPoint",
+                  urlTemplate: `${process.env.NEXT_PUBLIC_SITE_URL || "https://technirvor.com"}/products?search={search_term_string}`,
                 },
-                'query-input': 'required name=search_term_string',
+                "query-input": "required name=search_term_string",
               },
             }),
           }}
@@ -134,35 +145,35 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'Organization',
-              name: 'Tech Nirvor',
-              url: process.env.NEXT_PUBLIC_SITE_URL || 'https://technirvor.com',
-              logo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://technirvor.com'}/logo.png`,
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "Tech Nirvor",
+              url: process.env.NEXT_PUBLIC_SITE_URL || "https://technirvor.com",
+              logo: `${process.env.NEXT_PUBLIC_SITE_URL || "https://technirvor.com"}/logo.png`,
               contactPoint: {
-                '@type': 'ContactPoint',
-                telephone: '+880-1410077761',
-                contactType: 'customer service',
-                availableLanguage: ['English', 'Bengali'],
+                "@type": "ContactPoint",
+                telephone: "+880-1410077761",
+                contactType: "customer service",
+                availableLanguage: ["English", "Bengali"],
               },
               sameAs: [
-                'https://facebook.com/technirvor',
-                'https://twitter.com/technirvor',
-                'https://instagram.com/technirvor',
+                "https://facebook.com/technirvor",
+                "https://twitter.com/technirvor",
+                "https://instagram.com/technirvor",
               ],
             }),
           }}
         />
         {/* Google Analytics & Meta Pixel */}
         {googleAnalyticsScriptTags().map((tag, i) => {
-          if (tag.startsWith('<script')) {
+          if (tag.startsWith("<script")) {
             return (
               <script
                 key={`ga-${i}`}
                 dangerouslySetInnerHTML={{
-                  __html: tag.replace(/<script.*?>|<\/script>/g, ''),
+                  __html: tag.replace(/<script.*?>|<\/script>/g, ""),
                 }}
-                async={tag.includes('async')}
+                async={tag.includes("async")}
                 src={tag.match(/src=\\?"([^"]+)\\?"/)?.[1]}
               />
             );
@@ -171,28 +182,28 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <script
                 key={`ga-${i}`}
                 dangerouslySetInnerHTML={{
-                  __html: tag.replace(/<script.*?>|<\/script>/g, ''),
+                  __html: tag.replace(/<script.*?>|<\/script>/g, ""),
                 }}
               />
             );
           }
         })}
         {metaPixelScriptTags().map((tag, i) => {
-          if (tag.startsWith('<script')) {
+          if (tag.startsWith("<script")) {
             return (
               <script
                 key={`mp-${i}`}
                 dangerouslySetInnerHTML={{
-                  __html: tag.replace(/<script.*?>|<\/script>/g, ''),
+                  __html: tag.replace(/<script.*?>|<\/script>/g, ""),
                 }}
               />
             );
-          } else if (tag.startsWith('<noscript')) {
+          } else if (tag.startsWith("<noscript")) {
             return (
               <noscript
                 key={`mp-noscript-${i}`}
                 dangerouslySetInnerHTML={{
-                  __html: tag.replace(/<noscript.*?>|<\/noscript>/g, ''),
+                  __html: tag.replace(/<noscript.*?>|<\/noscript>/g, ""),
                 }}
               />
             );
@@ -200,7 +211,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           return null;
         })}
         {/* Disable right-click and console in production */}
-        {process.env.NODE_ENV === 'production' && (
+        {process.env.NODE_ENV === "production" && (
           <script
             dangerouslySetInnerHTML={{
               __html: `

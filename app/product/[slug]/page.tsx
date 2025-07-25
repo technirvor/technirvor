@@ -1,8 +1,8 @@
-import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
-import ProductPageClient from './client';
-import type { Product } from '@/lib/types';
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { supabase } from "@/lib/supabase";
+import ProductPageClient from "./client";
+import type { Product } from "@/lib/types";
 
 interface Props {
   params: { slug: string };
@@ -11,14 +11,14 @@ interface Props {
 async function getProduct(slug: string): Promise<Product | null> {
   try {
     const { data, error } = await supabase
-      .from('products')
+      .from("products")
       .select(
         `
         *,
         category:categories(*)
       `,
       )
-      .eq('slug', slug)
+      .eq("slug", slug)
       .single();
 
     if (error) return null;
@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!product) {
     return {
-      title: 'Product Not Found',
+      title: "Product Not Found",
       description: "The product you're looking for doesn't exist.",
     };
   }
@@ -47,36 +47,38 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: `${product.name} - Best Price in Bangladesh | Tech Nirvor`,
-    description: `Buy ${product.name} online in Bangladesh. ${product.description || ''} ${hasDiscount ? `${discountPercentage}% OFF! ` : ''}Price: ৳${currentPrice.toLocaleString()}. Cash on delivery available. Fast shipping across Bangladesh.`,
+    description: `Buy ${product.name} online in Bangladesh. ${product.description || ""} ${hasDiscount ? `${discountPercentage}% OFF! ` : ""}Price: ৳${currentPrice.toLocaleString()}. Cash on delivery available. Fast shipping across Bangladesh.`,
     keywords: [
       product.name.toLowerCase(),
-      product.category?.name.toLowerCase() || '',
-      'bangladesh',
-      'online shopping',
-      'cash on delivery',
-      'fast delivery',
-      hasDiscount ? 'discount' : '',
-      hasDiscount ? 'sale' : '',
+      product.category?.name.toLowerCase() || "",
+      "bangladesh",
+      "online shopping",
+      "cash on delivery",
+      "fast delivery",
+      hasDiscount ? "discount" : "",
+      hasDiscount ? "sale" : "",
     ].filter(Boolean),
     openGraph: {
-      title: `${product.name} - ৳${currentPrice.toLocaleString()}${hasDiscount ? ` (${discountPercentage}% OFF)` : ''}`,
+      title: `${product.name} - ৳${currentPrice.toLocaleString()}${hasDiscount ? ` (${discountPercentage}% OFF)` : ""}`,
       description:
-        product.description || `Buy ${product.name} online in Bangladesh with cash on delivery`,
+        product.description ||
+        `Buy ${product.name} online in Bangladesh with cash on delivery`,
       images: [
         {
-          url: product.image_url || '/placeholder.svg',
+          url: product.image_url || "/placeholder.svg",
           width: 800,
           height: 600,
           alt: product.name,
         },
       ],
-      type: 'website',
+      type: "website",
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title: `${product.name} - ৳${currentPrice.toLocaleString()}`,
-      description: product.description || `Buy ${product.name} online in Bangladesh`,
-      images: [product.image_url || '/placeholder.svg'],
+      description:
+        product.description || `Buy ${product.name} online in Bangladesh`,
+      images: [product.image_url || "/placeholder.svg"],
     },
     alternates: {
       canonical: `/product/${product.slug}`,
@@ -97,33 +99,38 @@ export default async function ProductPage({ params }: Props) {
   const hasDiscount = product.sale_price && product.sale_price < product.price;
 
   const structuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
+    "@context": "https://schema.org",
+    "@type": "Product",
     name: product.name,
-    description: product.description || `Buy ${product.name} online in Bangladesh`,
+    description:
+      product.description || `Buy ${product.name} online in Bangladesh`,
     image: product.image_url,
     sku: product.id,
     brand: {
-      '@type': 'Brand',
-      name: 'Tech Nirvor',
+      "@type": "Brand",
+      name: "Tech Nirvor",
     },
     category: product.category?.name,
     offers: {
-      '@type': 'Offer',
+      "@type": "Offer",
       price: currentPrice,
-      priceCurrency: 'BDT',
+      priceCurrency: "BDT",
       availability:
-        product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+        product.stock > 0
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
       seller: {
-        '@type': 'Organization',
-        name: 'Tech Nirvor',
+        "@type": "Organization",
+        name: "Tech Nirvor",
       },
-      priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0],
     },
     aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.5',
-      reviewCount: '123',
+      "@type": "AggregateRating",
+      ratingValue: "4.5",
+      reviewCount: "123",
     },
   };
 
@@ -140,7 +147,10 @@ export default async function ProductPage({ params }: Props) {
 
 export async function generateStaticParams() {
   try {
-    const { data: products } = await supabase.from('products').select('slug').limit(100); // Generate static pages for top 100 products
+    const { data: products } = await supabase
+      .from("products")
+      .select("slug")
+      .limit(100); // Generate static pages for top 100 products
 
     return (
       products?.map((product) => ({
