@@ -27,6 +27,7 @@ interface Props {
 export default function ProductPageClient({ product }: Props) {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [showFullDescription, setShowFullDescription] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
 
   const handleAddToCart = () => {
@@ -231,9 +232,23 @@ export default function ProductPageClient({ product }: Props) {
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
                   Description
                 </h3>
-                <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
-                  {product.description}
+                <p className="text-gray-600 leading-relaxed text-sm sm:text-base whitespace-pre-line transition-all duration-300">
+                  {showFullDescription
+                    ? product.description
+                    : product.description.length > 180
+                      ? product.description.slice(0, 180) + "..."
+                      : product.description}
                 </p>
+                {product.description.length > 180 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="mt-2 px-2 py-1 text-blue-600 hover:underline"
+                    onClick={() => setShowFullDescription((prev) => !prev)}
+                  >
+                    {showFullDescription ? "Show Less" : "Show More"}
+                  </Button>
+                )}
               </div>
             )}
 
