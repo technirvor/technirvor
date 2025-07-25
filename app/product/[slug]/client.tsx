@@ -228,28 +228,32 @@ export default function ProductPageClient({ product }: Props) {
 
             {/* Description */}
             {product.description && (
-              <div>
-                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
-                  Description
-                </h3>
-                <p className="text-gray-600 leading-relaxed text-sm sm:text-base whitespace-pre-line transition-all duration-300">
-                  {showFullDescription
-                    ? product.description
-                    : product.description.length > 180
-                      ? product.description.slice(0, 180) + "..."
-                      : product.description}
-                </p>
-                {product.description.length > 180 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="mt-2 px-2 py-1 text-blue-600 hover:underline"
-                    onClick={() => setShowFullDescription((prev) => !prev)}
+              <Card className="bg-white">
+                <CardContent className="p-4 sm:p-6">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4 border-b pb-2">
+                    What's special about this product?
+                  </h3>
+                  <div
+                    className={`prose prose-sm sm:prose-base max-w-none text-gray-700 leading-relaxed transition-all duration-500 ease-in-out ${
+                      showFullDescription ? "max-h-full" : "max-h-40"
+                    } overflow-hidden`}
                   >
-                    {showFullDescription ? "Show Less" : "Show More"}
-                  </Button>
-                )}
-              </div>
+                    <p className="whitespace-pre-line">
+                      {product.description}
+                    </p>
+                  </div>
+                  {product.description.length > 180 && (
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="mt-2 px-0 text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                      onClick={() => setShowFullDescription((prev) => !prev)}
+                    >
+                      {showFullDescription ? "Show Less" : "Read More..."}
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
             )}
 
             <Separator />
