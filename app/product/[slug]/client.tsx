@@ -238,9 +238,7 @@ export default function ProductPageClient({ product }: Props) {
                       showFullDescription ? "max-h-full" : "max-h-40"
                     } overflow-hidden`}
                   >
-                    <p className="whitespace-pre-line">
-                      {product.description}
-                    </p>
+                    <p className="whitespace-pre-line">{product.description}</p>
                   </div>
                   {product.description.length > 180 && (
                     <Button

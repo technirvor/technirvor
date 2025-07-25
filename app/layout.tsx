@@ -1,6 +1,8 @@
 import type React from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 import Navbar from "@/components/navbar";
@@ -271,6 +273,8 @@ export default function RootLayout({
         <Navbar />
         {children}
         <Toaster position="top-right" />
+        <Analytics mode="production" />;
+        <SpeedInsights />
       </body>
     </html>
   );
