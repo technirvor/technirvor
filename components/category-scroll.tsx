@@ -104,7 +104,7 @@ export default function CategoryScroll({ categories }: CategoryScrollProps) {
             <Link
               key={`${category.id}-${index}`}
               href={`/category/${category.slug}`}
-              className="flex-shrink-0 group"
+              className="flex-shrink-0 group flex flex-col items-center"
             >
               <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden bg-white shadow-md group-hover:shadow-lg transition-shadow">
                 {category.image_url ? (
@@ -123,7 +123,7 @@ export default function CategoryScroll({ categories }: CategoryScrollProps) {
                   </div>
                 )}
               </div>
-              <p className="text-center text-sm font-medium text-gray-900 mt-2 group-hover:text-blue-600">
+              <p className="w-20 md:w-24 text-center text-sm font-medium text-gray-900 mt-2 group-hover:text-blue-600">
                 {category.name}
               </p>
             </Link>
