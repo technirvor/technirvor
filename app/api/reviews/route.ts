@@ -76,11 +76,11 @@ export async function POST(request: Request) {
     reviewImages.some((url: string) => {
       // A simple check, ideally you'd validate the actual file type on upload
       const extension = url.split(".").pop()?.toLowerCase();
-      return !["jpg", "jpeg", "png"].includes(extension || "");
+      return !["jpg", "jpeg", "png", "webp"].includes(extension || "");
     })
   ) {
     return NextResponse.json(
-      { error: "Only JPG and PNG images are allowed." },
+      { error: "Only JPG, PNG, and WebP images are allowed." },
       { status: 400 },
     );
   }

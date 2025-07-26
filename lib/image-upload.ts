@@ -157,7 +157,7 @@ export async function uploadToVercelBlob(
       },
       body: JSON.stringify({
         filename,
-        contentType: file.type,
+        contentType: "image/webp", // Ensure content type matches the compressed format
       }),
     });
 

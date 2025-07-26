@@ -621,7 +621,8 @@ export default function ProductPageClient({ product }: Props) {
                     onChange={(urls) => setReviewImages(urls)}
                     maxFiles={5}
                     maxSize={5 * 1024 * 1024} // 5MB
-                    fileTypes={["image/jpeg", "image/png"]}
+                    fileTypes={["image/*"]}
+                    options={{ folder: "reviews" }} // Specify the folder for review images
                   />
                 </div>
               </div>
