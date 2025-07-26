@@ -14,17 +14,29 @@ export default function Navbar() {
   const totalItems = useCartStore((state) => state.getTotalItems());
 
   return (
-    <nav className="sticky top-0 z-50 bg-white border-b shadow-sm">
+    <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex-shrink-0">
-            <Image
-              src="/logo/logo-black.png"
-              alt="Tech Nirvor"
-              width={220}
-              height={60}
-            />
+            <span className="block dark:hidden">
+              <Image
+                src="/logo/logo-black.png"
+                alt="Tech Nirvor"
+                width={220}
+                height={60}
+                priority
+              />
+            </span>
+            <span className="hidden dark:block">
+              <Image
+                src="/logo/logo-white.png"
+                alt="Tech Nirvor"
+                width={220}
+                height={60}
+                priority
+              />
+            </span>
           </Link>
 
           {/* Desktop Search */}
