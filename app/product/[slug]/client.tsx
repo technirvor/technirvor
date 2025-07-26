@@ -33,6 +33,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import ImageUpload from "@/components/image-upload";
 
+interface Review {
+  id: string;
+  product_id: string;
+  order_number: string;
+  phone_number: string;
+  review_text: string;
+  review_images: string[];
+  rating: number;
+  created_at: string;
+}
+
 interface Props {
   product: Product;
 }
@@ -47,7 +58,10 @@ export default function ProductPageClient({ product }: Props) {
   const [reviewText, setReviewText] = useState("");
   const [reviewImages, setReviewImages] = useState<string[]>([]);
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
-  const [rating, setRating] = useState(0); // New state for rating
+  const [rating, setRating] = useState(0);
+  const [reviews, setReviews] = useState<Review[]>([]); // New state for reviews
+  const [averageRating, setAverageRating] = useState(0);
+  const [totalReviews, setTotalReviews] = useState(0);
 
   const addItem = useCartStore((state) => state.addItem);
 
@@ -59,11 +73,35 @@ export default function ProductPageClient({ product }: Props) {
       currency: "BDT",
       value: product.price,
     });
+
+    fetchReviews(); // Fetch reviews when component mounts or product changes
   }, [product]);
 
+  const fetchReviews = async () => {
+    try {
+      const response = await fetch(`/api/reviews?productId=${product.id}`);
+      if (response.ok) {
+        const data: Review[] = await response.json();
+        setReviews(data);
+        if (data.length > 0) {
+          const sumRatings = data.reduce((sum, review) => sum + review.rating, 0);
+          setAverageRating(sumRatings / data.length);
+          setTotalReviews(data.length);
+        } else {
+          setAverageRating(0);
+          setTotalReviews(0);
+        }
+      } else {
+        console.error("Failed to fetch reviews:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+    }
+  };
+
   const handleSubmitReview = async () => {
-    if (!orderNumber || !phoneNumber || !reviewText) {
-      toast.error("Please fill in all required fields.");
+    if (!orderNumber || !phoneNumber || !reviewText || rating === 0) {
+      toast.error("Please fill in all required fields and provide a rating.");
       return;
     }
 
@@ -80,7 +118,7 @@ export default function ProductPageClient({ product }: Props) {
           phoneNumber,
           reviewText,
           reviewImages,
-          rating, // Include rating in the API call
+          rating,
         }),
       });
 
@@ -93,6 +131,8 @@ export default function ProductPageClient({ product }: Props) {
         setPhoneNumber("");
         setReviewText("");
         setReviewImages([]);
+        setRating(0);
+        fetchReviews(); // Re-fetch reviews after successful submission
       } else {
         toast.error(data.error || "Failed to submit review.");
       }
@@ -282,12 +322,16 @@ export default function ProductPageClient({ product }: Props) {
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className="w-4 h-4 fill-yellow-400 text-yellow-400"
+                      className={`w-4 h-4 ${
+                        i < Math.floor(averageRating)
+                          ? "fill-yellow-400 text-yellow-400"
+                          : "text-gray-300"
+                      }`}
                     />
                   ))}
                 </div>
                 <span className="text-xs sm:text-sm text-gray-600">
-                  (4.5) • 123 reviews
+                  ({averageRating.toFixed(1)}) • {totalReviews} reviews
                 </span>
               </div>
 
@@ -446,8 +490,6 @@ export default function ProductPageClient({ product }: Props) {
 
             {/* Add Review Button */}
             <div className="mt-6 p-4 bg-white rounded-lg shadow-sm">
-              {" "}
-              {/* Added padding and background */}
               <Button
                 onClick={() => setShowReviewForm(true)}
                 className="w-full"
@@ -457,6 +499,60 @@ export default function ProductPageClient({ product }: Props) {
             </div>
           </div>
         </div>
+
+        {/* Reviews Section */}
+        <div className="mt-8 sm:mt-12 max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
+            Customer Reviews ({totalReviews})
+          </h2>
+          {reviews.length === 0 ? (
+            <p className="text-gray-600">No reviews yet. Be the first to review this product!</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {reviews.map((review) => (
+                <Card key={review.id} className="bg-white shadow-sm">
+                  <CardContent className="p-4 sm:p-5">
+                    <div className="flex items-center mb-2">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`w-4 h-4 ${
+                            i < review.rating
+                              ? "fill-yellow-400 text-yellow-400"
+                              : "text-gray-300"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <p className="text-sm sm:text-base text-gray-800 mb-3">
+                      {review.review_text}
+                    </p>
+                    {review.review_images && review.review_images.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {review.review_images.map((image, index) => (
+                          <Image
+                            key={index}
+                            src={image}
+                            alt={`Review image ${index + 1}`}
+                            width={64}
+                            height={64}
+                            className="w-16 h-16 object-cover rounded-md"
+                          />
+                        ))}
+                      </div>
+                    )}
+                    <div className="text-xs text-gray-500">
+                      Reviewed by: {review.phone_number.slice(0, 3)}***
+                      {review.phone_number.slice(-4)} on{" "}
+                      {new Date(review.created_at).toLocaleDateString()}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+
       </div>
 
       {/* Review Form Dialog */}
@@ -469,11 +565,7 @@ export default function ProductPageClient({ product }: Props) {
             </DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4 px-2 sm:px-4">
-            {" "}
-            {/* Two columns for larger screens */}
             <div className="flex flex-col gap-4">
-              {" "}
-              {/* Left column: Order, Phone, Review */}
               <div className="flex flex-col gap-2">
                 <Label htmlFor="orderNumber">Order Number</Label>
                 <Input
@@ -505,8 +597,6 @@ export default function ProductPageClient({ product }: Props) {
               </div>
             </div>
             <div className="flex flex-col gap-4">
-              {" "}
-              {/* Right column: Star Rating, Image Upload */}
               <div className="flex flex-col gap-2">
                 <Label>Your Rating</Label>
                 <div className="flex items-center gap-1">

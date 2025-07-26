@@ -1,6 +1,43 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase";
 
+export async function GET(request: Request) {
+  const supabase = createServerClient();
+  const { searchParams } = new URL(request.url);
+  const productId = searchParams.get("productId");
+
+  if (!productId) {
+    return NextResponse.json(
+      { error: "Product ID is required." },
+      { status: 400 },
+    );
+  }
+
+  try {
+    const { data: reviews, error } = await supabase
+      .from("reviews")
+      .select("*")
+      .eq("product_id", productId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching reviews:", error);
+      return NextResponse.json(
+        { error: "Failed to fetch reviews." },
+        { status: 500 },
+      );
+    }
+
+    return NextResponse.json(reviews, { status: 200 });
+  } catch (error: any) {
+    console.error("Unexpected error in GET reviews API:", error);
+    return NextResponse.json(
+      { error: error.message || "An unexpected error occurred." },
+      { status: 500 },
+    );
+  }
+}
+
 export async function POST(request: Request) {
   const supabase = createServerClient();
 
