@@ -29,7 +29,13 @@ export default function InfiniteProducts({
     setLoading(true);
     try {
       const result = await onLoadMore(products.length);
-      setProducts((prev) => [...prev, ...result.products]);
+      setProducts((prev) => {
+        const existingIds = new Set(prev.map((p) => p.id));
+        const newProducts = result.products.filter(
+          (p) => !existingIds.has(p.id),
+        );
+        return [...prev, ...newProducts];
+      });
       setHasMore(result.hasMore);
     } catch (error) {
       console.error("Error loading more products:", error);

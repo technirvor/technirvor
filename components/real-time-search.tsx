@@ -35,7 +35,7 @@ export default function RealTimeSearch() {
   const [isLoading, setIsLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
-  const debounceRef = useRef<NodeJS.Timeout>();
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -92,7 +92,7 @@ export default function RealTimeSearch() {
   };
 
   const hasResults =
-    results.products.length > 0 || results.categories.length > 0;
+    results.products?.length > 0 || results.categories?.length > 0;
 
   return (
     <div ref={searchRef} className="relative w-full max-w-lg">

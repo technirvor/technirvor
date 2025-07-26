@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ShoppingCart, Menu, X } from "lucide-react";
@@ -12,6 +12,11 @@ import RealTimeSearch from "./real-time-search";
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const totalItems = useCartStore((state) => state.getTotalItems());
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   return (
     <nav className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b shadow-sm">
@@ -72,7 +77,7 @@ export default function Navbar() {
             </Link>
             <Link href="/cart" className="relative">
               <ShoppingCart className="w-6 h-6 text-gray-700" />
-              {totalItems > 0 && (
+              {isClient && totalItems > 0 && (
                 <Badge className="absolute -top-2 -right-2 w-5 h-5 flex items-center justify-center text-xs">
                   {totalItems}
                 </Badge>
@@ -84,7 +89,7 @@ export default function Navbar() {
           <div className="md:hidden flex items-center space-x-2">
             <Link href="/cart" className="relative">
               <ShoppingCart className="w-6 h-6 text-gray-700" />
-              {totalItems > 0 && (
+              {isClient && totalItems > 0 && (
                 <Badge className="absolute -top-2 -right-2 w-5 h-5 flex items-center justify-center text-xs">
                   {totalItems}
                 </Badge>
