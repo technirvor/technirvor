@@ -10,7 +10,7 @@ export interface Product {
   image_sizes?: { [key: string]: string };
   category_id?: string;
   subcategory_id?: string;
-  category?: Category;
+  category?: { name: string } | Category; // Allow partial category for product search
   stock: number;
   is_featured: boolean;
   is_flash_sale: boolean;

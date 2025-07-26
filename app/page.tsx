@@ -7,6 +7,7 @@ import BannerSection from "@/components/banner-section";
 import InfiniteProducts from "@/components/infinite-products";
 import { supabase } from "@/lib/supabase";
 import type { Product, Category, HeroSlide } from "@/lib/types";
+import ChatAgent from "@/components/chat-agent";
 
 async function getHeroSlides(): Promise<HeroSlide[]> {
   try {
@@ -104,6 +105,7 @@ export default async function HomePage() {
           </main>
         </div>
       </Suspense>
+      <ChatAgent />
     </>
   );
 }
