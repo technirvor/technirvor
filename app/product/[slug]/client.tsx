@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ import {
 import { useCartStore } from "@/lib/cart-store";
 import type { Product } from "@/lib/types";
 import { toast } from "sonner";
+import { sendMetaConversionEvent } from "@/lib/analytics";
 
 interface Props {
   product: Product;
@@ -30,13 +31,38 @@ export default function ProductPageClient({ product }: Props) {
   const [showFullDescription, setShowFullDescription] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
 
+  useEffect(() => {
+    sendMetaConversionEvent("ViewContent", {
+      content_ids: [product.id],
+      content_name: product.name,
+      content_type: "product",
+      currency: "BDT",
+      value: product.price,
+    });
+  }, [product]);
+
   const handleAddToCart = () => {
     addItem(product, quantity);
     toast.success(`Added ${quantity} item(s) to cart!`);
+    sendMetaConversionEvent("AddToCart", {
+      content_ids: [product.id],
+      content_name: product.name,
+      content_type: "product",
+      currency: "BDT",
+      value: product.price,
+    });
   };
 
   const handleBuyNow = () => {
     addItem(product, quantity);
+    sendMetaConversionEvent("InitiateCheckout", {
+      content_ids: [product.id],
+      content_name: product.name,
+      content_type: "product",
+      currency: "BDT",
+      value: product.price,
+      num_items: quantity,
+    });
     window.location.href = "/checkout";
   };
 

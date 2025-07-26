@@ -21,6 +21,7 @@ import { useCartStore } from "@/lib/cart-store";
 import { supabase } from "@/lib/supabase";
 import type { District } from "@/lib/types";
 import { toast } from "sonner";
+import { sendMetaConversionEvent } from "@/lib/analytics";
 
 export default function CheckoutPage() {
   const [hydrated, setHydrated] = useState(false);
@@ -44,6 +45,15 @@ export default function CheckoutPage() {
   useEffect(() => {
     fetchDistricts();
   }, []);
+
+  useEffect(() => {
+    if (formData.paymentMethod) {
+      sendMetaConversionEvent("AddPaymentInfo", {
+        currency: "BDT",
+        value: getTotalPrice() + (selectedDistrict?.delivery_charge || 60),
+      });
+    }
+  }, [formData.paymentMethod]);
 
   useEffect(() => {
     if (items.length === 0) {
@@ -167,6 +177,16 @@ export default function CheckoutPage() {
       if (!response.ok) {
         throw new Error(result.error || "Failed to place order");
       }
+
+      // Send purchase event to Meta
+      sendMetaConversionEvent("Purchase", {
+        content_ids: items.map((item) => item.product.id),
+        content_type: "product",
+        currency: "BDT",
+        value: totalAmount,
+        num_items: items.reduce((acc, item) => acc + item.quantity, 0),
+        order_id: result.order.id,
+      });
 
       // Clear cart and redirect to confirmation
       clearCart();
