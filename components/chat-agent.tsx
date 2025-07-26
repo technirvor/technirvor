@@ -97,19 +97,20 @@ export default function ChatAgent() {
     <>
       {!isOpen && (
         <Button
-          className="fixed bottom-4 right-4 rounded-full w-16 h-16 shadow-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 z-50"
+          className="fixed bottom-6 right-6 rounded-full w-16 h-16 shadow-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 ease-in-out transform hover:scale-105 z-50 group"
           onClick={() => setIsOpen(true)}
           aria-label="Open AI chat assistant"
         >
-          <Sparkles size={32} />
+          <Sparkles size={32} className="group-hover:animate-pulse" />
         </Button>
       )}
 
       {isOpen && (
-        <Card className="fixed bottom-4 right-4 w-96 h-[500px] flex flex-col shadow-xl rounded-lg z-50">
-          <CardHeader className="flex flex-row items-center justify-between p-4 border-b bg-primary text-primary-foreground rounded-t-lg">
+        <Card className="fixed bottom-6 right-6 w-96 h-[500px] flex flex-col shadow-2xl rounded-xl backdrop-blur-md bg-card/80 border border-border z-50">
+          <CardHeader className="flex flex-row items-center justify-between p-4 border-b border-border bg-primary text-primary-foreground rounded-t-xl">
             <CardTitle className="text-lg font-semibold flex items-center gap-2">
-              <Sparkles className="w-5 h-5" /> AI Shopping Assistant
+              <Sparkles className="w-5 h-5 text-primary-foreground" /> AI
+              Shopping Assistant
             </CardTitle>
             <div className="flex items-center gap-2">
               <Button
@@ -117,32 +118,32 @@ export default function ChatAgent() {
                 size="icon"
                 onClick={handleClearChat}
                 aria-label="Clear chat"
-                className="text-primary-foreground hover:bg-primary/80"
+                className="text-primary-foreground hover:bg-primary/80 transition-colors duration-200"
               >
-                <Loader2 className="w-4 h-4 rotate-90" />{" "}
-                {/* Using Loader2 for a 'clear' icon, consider a better icon */}
+                <MessageCircle className="w-4 h-4 rotate-90" />{" "}
+                {/* Changed to MessageCircle for 'clear' */}
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsOpen(false)}
                 aria-label="Close chat"
-                className="text-primary-foreground hover:bg-primary/80"
+                className="text-primary-foreground hover:bg-primary/80 transition-colors duration-200"
               >
                 <X className="w-4 h-4" />
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="flex-1 p-4 overflow-hidden flex flex-col">
+          <CardContent className="flex-1 p-4 overflow-hidden flex flex-col bg-transparent">
             <ScrollArea className="flex-1 pr-4 -mr-4">
-              {" "}
-              {/* Added pr-4 and -mr-4 to offset scrollbar */}
               <div className="space-y-4">
                 {chatHistory.length === 0 && (
-                  <div className="text-center text-gray-500 text-sm py-8">
-                    <Sparkles className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                    <p>পণ্য সম্পর্কে আমাকে কিছু জিজ্ঞাসা করুন!</p>
-                    <p>
+                  <div className="text-center text-muted-foreground text-sm py-8">
+                    <Sparkles className="w-8 h-8 mx-auto mb-2 text-primary" />
+                    <p className="font-medium">
+                      পণ্য সম্পর্কে আমাকে কিছু জিজ্ঞাসা করুন!
+                    </p>
+                    <p className="text-xs mt-1">
                       উদাহরণস্বরূপ, "ল্যাপটপ দেখান" অথবা "আপনার সেরা ডিল কি?"
                     </p>
                   </div>
@@ -157,19 +158,19 @@ export default function ChatAgent() {
                   >
                     <div
                       className={cn(
-                        "max-w-[80%] p-3 rounded-lg shadow-sm",
+                        "max-w-[80%] p-3 rounded-2xl shadow-md animate-fade-in",
                         chat.role === "user"
-                          ? "bg-blue-500 text-white rounded-br-none"
-                          : "bg-gray-100 text-gray-800 rounded-bl-none",
+                          ? "bg-primary text-primary-foreground rounded-br-none"
+                          : "bg-muted text-muted-foreground rounded-bl-none",
                       )}
                     >
                       {chat.text && (
-                        <p className="text-sm">
+                        <p className="text-sm leading-relaxed">
                           {renderTextWithLinks(chat.text)}
                         </p>
                       )}
                       {chat.products && chat.products.length > 0 && (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
                           {chat.products.map((product) => (
                             <ProductCard
                               key={product.id}
@@ -184,8 +185,8 @@ export default function ChatAgent() {
                 ))}
                 {loading && (
                   <div className="flex justify-start">
-                    <div className="bg-gray-100 text-gray-800 p-3 rounded-lg rounded-bl-none shadow-sm">
-                      <Loader2 className="w-5 h-5 animate-spin text-gray-500" />
+                    <div className="bg-muted p-3 rounded-2xl rounded-bl-none shadow-md">
+                      <Loader2 className="w-5 h-5 animate-spin text-primary" />
                     </div>
                   </div>
                 )}
@@ -195,16 +196,21 @@ export default function ChatAgent() {
           </CardContent>
           <form
             onSubmit={handleSubmit}
-            className="flex items-center gap-2 p-4 border-t bg-background"
+            className="flex items-center gap-2 p-4 border-t border-border bg-transparent"
           >
             <Input
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Ask about products..."
               disabled={loading}
-              className="flex-1"
+              className="flex-1 rounded-full px-4 py-2 border border-input focus:ring-2 focus:ring-ring focus:border-ring transition-all duration-200 bg-background/70"
             />
-            <Button type="submit" disabled={loading} size="icon">
+            <Button
+              type="submit"
+              disabled={loading}
+              size="icon"
+              className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200"
+            >
               {loading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
