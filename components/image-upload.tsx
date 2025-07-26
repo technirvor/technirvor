@@ -25,13 +25,11 @@ import {
 import { toast } from "sonner";
 
 interface ImageUploadProps {
-  onUpload: (result: {
-    original: ImageUploadResult;
-    sizes?: { [key: string]: ImageUploadResult };
-  }) => void;
-  onRemove?: (url: string) => void;
+  value: string[]; // Array of image URLs
+  onChange: (urls: string[]) => void; // Callback for when images change
   maxFiles?: number;
-  existingImages?: string[];
+  maxSize?: number; // Max file size in bytes
+  fileTypes?: string[]; // Allowed file types, e.g., ["image/jpeg", "image/png"]
   options?: ImageUploadOptions & {
     generateSizes?: boolean;
     uploadProvider?: "supabase" | "vercel";
@@ -43,19 +41,16 @@ interface UploadingFile {
   file: File;
   progress: number;
   status: "uploading" | "success" | "error";
-  result?: {
-    original: ImageUploadResult;
-    sizes?: { [key: string]: ImageUploadResult };
-  };
   error?: string;
   preview: string;
 }
 
 export default function ImageUpload({
-  onUpload,
-  onRemove,
+  value,
+  onChange,
   maxFiles = 5,
-  existingImages = [],
+  maxSize = 10 * 1024 * 1024, // Default to 10MB
+  fileTypes = ["image/*"], // Default to all image types
   options = {},
   className = "",
 }: ImageUploadProps) {
@@ -68,22 +63,23 @@ export default function ImageUpload({
       const fileArray = Array.from(files);
 
       // Check file limits
-      if (
-        existingImages.length + uploadingFiles.length + fileArray.length >
-        maxFiles
-      ) {
+      if (value.length + uploadingFiles.length + fileArray.length > maxFiles) {
         toast.error(`Maximum ${maxFiles} images allowed`);
         return;
       }
 
       // Validate files
       const validFiles = fileArray.filter((file) => {
-        if (!file.type.startsWith("image/")) {
-          toast.error(`${file.name} is not an image file`);
+        if (fileTypes.length > 0 && !fileTypes.includes(file.type)) {
+          toast.error(`${file.name} is not a supported file type.`);
           return false;
         }
-        if (file.size > 10 * 1024 * 1024) {
-          toast.error(`${file.name} is too large (max 10MB)`);
+        if (file.size > maxSize) {
+          toast.error(
+            `${file.name} is too large (max ${Math.round(
+              maxSize / 1024 / 1024,
+            )}MB)`,
+          );
           return false;
         }
         return true;
@@ -127,12 +123,13 @@ export default function ImageUpload({
           setUploadingFiles((prev) =>
             prev.map((f) =>
               f.file === uploadingFile.file
-                ? { ...f, progress: 100, status: "success", result }
+                ? { ...f, progress: 100, status: "success" }
                 : f,
             ),
           );
 
-          onUpload(result);
+          // Add the new image URL to the value array
+          onChange([...value, result.original.url]);
           toast.success(`${uploadingFile.file.name} uploaded successfully`);
         } catch (error: any) {
           setUploadingFiles((prev) =>
@@ -148,7 +145,15 @@ export default function ImageUpload({
         }
       }
     },
-    [existingImages.length, uploadingFiles.length, maxFiles, options, onUpload],
+    [
+      value,
+      uploadingFiles.length,
+      maxFiles,
+      maxSize,
+      fileTypes,
+      options,
+      onChange,
+    ],
   );
 
   const handleDrag = useCallback((e: React.DragEvent) => {
@@ -195,14 +200,13 @@ export default function ImageUpload({
     });
   };
 
-  const removeExistingImage = (url: string) => {
-    if (onRemove) {
-      onRemove(url);
-    }
+  const removeImage = (urlToRemove: string) => {
+    onChange(value.filter((url) => url !== urlToRemove));
   };
 
-  const canUploadMore =
-    existingImages.length + uploadingFiles.length < maxFiles;
+  const canUploadMore = value.length + uploadingFiles.length < maxFiles;
+
+  const acceptedFileTypes = fileTypes.join(",");
 
   return (
     <div className={`space-y-4 ${className}`}>
@@ -236,7 +240,9 @@ export default function ImageUpload({
               <div className="flex items-center justify-center space-x-4 mb-4">
                 <Badge variant="outline">WebP Optimized</Badge>
                 <Badge variant="outline">Multiple Sizes</Badge>
-                <Badge variant="outline">Max 10MB</Badge>
+                <Badge variant="outline">
+                  Max {Math.round(maxSize / 1024 / 1024)}MB
+                </Badge>
               </div>
 
               <Button
@@ -248,15 +254,14 @@ export default function ImageUpload({
               </Button>
 
               <p className="text-sm text-gray-500">
-                {existingImages.length + uploadingFiles.length} of {maxFiles}{" "}
-                images
+                {value.length + uploadingFiles.length} of {maxFiles} images
               </p>
 
               <input
                 ref={fileInputRef}
                 type="file"
                 multiple
-                accept="image/*"
+                accept={acceptedFileTypes}
                 onChange={handleFileInput}
                 className="hidden"
               />
@@ -266,13 +271,13 @@ export default function ImageUpload({
       )}
 
       {/* Existing Images */}
-      {existingImages.length > 0 && (
+      {value.length > 0 && (
         <div>
           <h4 className="text-sm font-medium text-gray-900 mb-3">
             Current Images
           </h4>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {existingImages.map((url, index) => (
+            {value.map((url, index) => (
               <div key={index} className="relative group">
                 <div className="aspect-square relative overflow-hidden rounded-lg bg-gray-100">
                   <Image
@@ -293,7 +298,7 @@ export default function ImageUpload({
                       <Button
                         size="sm"
                         variant="destructive"
-                        onClick={() => removeExistingImage(url)}
+                        onClick={() => removeImage(url)}
                       >
                         <X className="w-4 h-4" />
                       </Button>
@@ -372,12 +377,7 @@ export default function ImageUpload({
                         >
                           Uploaded
                         </Badge>
-                        {uploadingFile.result?.sizes && (
-                          <Badge variant="outline">
-                            {Object.keys(uploadingFile.result.sizes).length}{" "}
-                            sizes generated
-                          </Badge>
-                        )}
+                        {/* Removed uploadingFile.result?.sizes */}
                       </div>
                     )}
 

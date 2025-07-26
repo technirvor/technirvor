@@ -20,6 +20,18 @@ import { useCartStore } from "@/lib/cart-store";
 import type { Product } from "@/lib/types";
 import { toast } from "sonner";
 import { sendMetaConversionEvent } from "@/lib/analytics";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import ImageUpload from "@/components/image-upload";
 
 interface Props {
   product: Product;
@@ -29,6 +41,14 @@ export default function ProductPageClient({ product }: Props) {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
   const [showFullDescription, setShowFullDescription] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [orderNumber, setOrderNumber] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [reviewText, setReviewText] = useState("");
+  const [reviewImages, setReviewImages] = useState<string[]>([]);
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [rating, setRating] = useState(0); // New state for rating
+
   const addItem = useCartStore((state) => state.addItem);
 
   useEffect(() => {
@@ -40,6 +60,49 @@ export default function ProductPageClient({ product }: Props) {
       value: product.price,
     });
   }, [product]);
+
+  const handleSubmitReview = async () => {
+    if (!orderNumber || !phoneNumber || !reviewText) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
+    setIsSubmittingReview(true);
+    try {
+      const response = await fetch("/api/reviews", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productId: product.id,
+          orderNumber,
+          phoneNumber,
+          reviewText,
+          reviewImages,
+          rating, // Include rating in the API call
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success("Review submitted successfully!");
+        setShowReviewForm(false);
+        setOrderNumber("");
+        setPhoneNumber("");
+        setReviewText("");
+        setReviewImages([]);
+      } else {
+        toast.error(data.error || "Failed to submit review.");
+      }
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      toast.error("An unexpected error occurred.");
+    } finally {
+      setIsSubmittingReview(false);
+    }
+  };
 
   const handleAddToCart = () => {
     addItem(product, quantity);
@@ -138,12 +201,15 @@ export default function ProductPageClient({ product }: Props) {
             {product.category && (
               <>
                 <Link
-                  href={`/category/${product.category.slug}`}
+                  href={
+                    "slug" in product.category
+                      ? `/category/${product.category.slug}`
+                      : "#"
+                  }
                   className="hover:text-gray-900"
                 >
                   {product.category.name}
                 </Link>
-                <span>/</span>
               </>
             )}
             <span className="text-gray-900">{product.name}</span>
@@ -377,9 +443,107 @@ export default function ProductPageClient({ product }: Props) {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Add Review Button */}
+            <div className="mt-6 p-4 bg-white rounded-lg shadow-sm">
+              {" "}
+              {/* Added padding and background */}
+              <Button
+                onClick={() => setShowReviewForm(true)}
+                className="w-full"
+              >
+                Add Review
+              </Button>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Review Form Dialog */}
+      <Dialog open={showReviewForm} onOpenChange={setShowReviewForm}>
+        <DialogContent className="sm:max-w-lg md:max-w-2xl lg:max-w-5xl">
+          <DialogHeader>
+            <DialogTitle>Add Your Review</DialogTitle>
+            <DialogDescription>
+              Share your experience with this product.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4 px-2 sm:px-4">
+            {" "}
+            {/* Two columns for larger screens */}
+            <div className="flex flex-col gap-4">
+              {" "}
+              {/* Left column: Order, Phone, Review */}
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="orderNumber">Order Number</Label>
+                <Input
+                  id="orderNumber"
+                  value={orderNumber}
+                  onChange={(e) => setOrderNumber(e.target.value)}
+                  placeholder="Your order number"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="phoneNumber">Phone Number</Label>
+                <Input
+                  id="phoneNumber"
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="Your phone number (will not be shown)"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="reviewText">Review</Label>
+                <Textarea
+                  id="reviewText"
+                  value={reviewText}
+                  onChange={(e) => setReviewText(e.target.value)}
+                  placeholder="Write your review here..."
+                  rows={5}
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-4">
+              {" "}
+              {/* Right column: Star Rating, Image Upload */}
+              <div className="flex flex-col gap-2">
+                <Label>Your Rating</Label>
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((starValue) => (
+                    <Star
+                      key={starValue}
+                      className={`w-6 h-6 cursor-pointer ${
+                        starValue <= rating
+                          ? "fill-yellow-400 text-yellow-400"
+                          : "text-gray-300"
+                      }`}
+                      onClick={() => setRating(starValue)}
+                    />
+                  ))}
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="reviewImages">Images (Max 5)</Label>
+                <div>
+                  <ImageUpload
+                    value={reviewImages}
+                    onChange={(urls) => setReviewImages(urls)}
+                    maxFiles={5}
+                    maxSize={5 * 1024 * 1024} // 5MB
+                    fileTypes={["image/jpeg", "image/png"]}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="px-2 sm:px-4">
+            <Button onClick={handleSubmitReview} disabled={isSubmittingReview}>
+              {isSubmittingReview ? "Submitting..." : "Submit Review"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
