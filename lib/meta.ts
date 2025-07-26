@@ -6,20 +6,26 @@ import {
   CustomData,
 } from "facebook-nodejs-business-sdk";
 
-const accessToken = process.env.META_CAPI_ACCESS_TOKEN;
+const accessToken =
+  process.env.NEXT_PUBLIC_META_CAPI_ACCESS_TOKEN ||
+  "your_meta_capi_access_token_here";
 const pixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 
-if (!accessToken || !pixelId) {
-  throw new Error("Missing Meta Pixel API credentials");
+if (
+  accessToken &&
+  pixelId &&
+  accessToken !== "your_meta_capi_access_token_here"
+) {
+  FacebookAdsApi.init(accessToken);
 }
-
-FacebookAdsApi.init(accessToken);
 
 export const sendServerEvent = async (
   eventName: string,
   eventData: Record<string, any>,
 ) => {
-  const userData = new UserData();
+  const userData = new UserData()
+    .setFbc("fb.1.1554763741205.AbCdEfGhIjKlMnOpQrStUvWxYz1234567890")
+    .setFbp("fb.1.1558571054389.1098115397");
   const customData = new CustomData();
   if (eventData.value) {
     customData.value = eventData.value;
@@ -50,14 +56,16 @@ export const sendServerEvent = async (
   serverEvent.custom_data = customData;
 
   const eventsData = [serverEvent];
+  if (
+    !accessToken ||
+    !pixelId ||
+    accessToken === "your_meta_capi_access_token_here"
+  ) {
+    console.warn("Meta CAPI credentials not configured. Skipping event.");
+    return;
+  }
+
   const eventRequest = new EventRequest(accessToken, pixelId).setEvents(
     eventsData,
   );
-
-  try {
-    const response = await eventRequest.execute();
-    console.log("Meta Pixel API response:", response);
-  } catch (error) {
-    console.error("Error sending event to Meta Pixel API:", error);
-  }
 };

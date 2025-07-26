@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-
+import { MapPin } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -137,6 +137,48 @@ export default function CheckoutPage() {
     return true;
   };
 
+  const handleLocationClick = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          try {
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`,
+            );
+            const data = await response.json();
+            if (data.display_name) {
+              setFormData((prev) => ({
+                ...prev,
+                address: data.display_name,
+              }));
+              toast.success("Location fetched successfully");
+            } else {
+              toast.error("Could not find address details");
+            }
+          } catch (error) {
+            console.error("Error fetching address:", error);
+            toast.error("Failed to fetch address");
+          }
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          if (error.code === error.PERMISSION_DENIED) {
+            toast.error(
+              "Location access denied. Please enable location services in your browser settings.",
+            );
+          } else {
+            toast.error(
+              "Could not access location. Please enable location services.",
+            );
+          }
+        },
+      );
+    } else {
+      toast.error("Geolocation is not supported by this browser.");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -267,7 +309,7 @@ export default function CheckoutPage() {
                   </Select>
                 </div>
 
-                <div>
+                <div className="relative">
                   <Label htmlFor="address">Full Address *</Label>
                   <Input
                     id="address"
@@ -278,6 +320,10 @@ export default function CheckoutPage() {
                     }
                     placeholder="House/Flat, Road, Area"
                     required
+                  />
+                  <MapPin
+                    className="absolute top-8 right-3 h-5 w-5 text-gray-400 cursor-pointer"
+                    onClick={handleLocationClick}
                   />
                 </div>
 

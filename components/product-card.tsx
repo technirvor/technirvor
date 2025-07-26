@@ -66,7 +66,11 @@ export default function ProductCard({
       <Link href={`/product/${product.slug}`} className="block">
         <div className="relative group">
           <Image
-            src={product.image_url || "/placeholder.svg?height=240&width=300"}
+            src={
+              product.image_url
+                ? product.image_url.trimStart()
+                : "/placeholder.svg?height=240&width=300"
+            }
             alt={product.name}
             width={300}
             height={240}
