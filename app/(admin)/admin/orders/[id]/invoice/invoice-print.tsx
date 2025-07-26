@@ -65,7 +65,7 @@ export default function InvoicePrint({ order }: Props) {
                 <div className="mt-4 text-sm text-gray-600">
                   <p>123 Business Street</p>
                   <p>Dhaka, Bangladesh</p>
-                  <p>Phone: +880 1234-567890</p>
+                  <p>Phone: +880 1410-077761</p>
                   <p>Email: info@technirvor.com</p>
                 </div>
               </div>
@@ -227,7 +227,7 @@ export default function InvoicePrint({ order }: Props) {
               <div className="text-center text-sm text-gray-600">
                 <p className="mb-2">Thank you for shopping with Tech Nirvor!</p>
                 <p>
-                  For any queries, contact us at +880 1234-567890 or
+                  For any queries, contact us at +880 1410-077761 or
                   info@technirvor.com
                 </p>
                 <p className="mt-4 text-xs">

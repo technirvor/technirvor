@@ -21,7 +21,7 @@ export default function OrderLabel({ order }: OrderLabelProps) {
               Tech Nirvor
             </h2>
             <p className="text-xs text-gray-500">123 Business Street, Dhaka</p>
-            <p className="text-xs text-gray-500">+880 1234-567890</p>
+            <p className="text-xs text-gray-500">+880 1410-077761</p>
           </div>
         </div>
         <div className="text-right">
