@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import type { Order } from "@/lib/types";
 import { notFound } from "next/navigation";
+import OrderDetailsClient from "./OrderDetailsClient";
 
 interface Props {
   params: { id: string };
@@ -65,36 +66,5 @@ export default async function OrderDetailsPage({ params }: Props) {
     );
   }
 
-  return (
-    <main className="max-w-3xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Order Details</h1>
-      <div className="mb-4">
-        <span className="font-semibold">Order ID:</span> {order.id}
-      </div>
-      <div className="mb-4">
-        <span className="font-semibold">Customer:</span> {order.customer_name}
-      </div>
-      <div className="mb-4">
-        <span className="font-semibold">Total Amount:</span> $
-        {order.total_amount}
-      </div>
-      <div className="mb-4">
-        <span className="font-semibold">Status:</span> {order.status}
-      </div>
-      <h2 className="text-xl font-semibold mt-6 mb-2">Items</h2>
-      <ul className="list-disc pl-6">
-        {order.items?.map((item: any) => (
-          <li key={item.id}>
-            {item.product?.name} x {item.quantity} (${item.product?.price})
-          </li>
-        ))}
-      </ul>
-      <h2 className="text-xl font-semibold mt-6 mb-2">Tracking Notes</h2>
-      <ul className="list-disc pl-6">
-        {trackingNotes.map((note: any) => (
-          <li key={note.id}>{note.note}</li>
-        ))}
-      </ul>
-    </main>
-  );
+  return <OrderDetailsClient order={order} trackingNotes={trackingNotes} />;
 }

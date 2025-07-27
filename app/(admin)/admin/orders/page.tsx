@@ -292,13 +292,13 @@ export default function AdminOrdersPage() {
                     <TableRow key={order.id}>
                       <TableCell
                         className="font-mono text-sm cursor-pointer hover:underline"
-                        title={order.order_number}
+                        title="Click to copy Order ID"
                         onClick={() => {
                           navigator.clipboard.writeText(order.order_number);
                           toast.success("Order ID copied to clipboard");
                         }}
                       >
-                        {order.order_number.slice(0, 8)}...
+                        {order.order_number}
                       </TableCell>
                       <TableCell className="font-medium">
                         {order.customer_name}

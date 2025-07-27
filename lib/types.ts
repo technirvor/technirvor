@@ -43,9 +43,11 @@ export interface Order {
   order_number: any;
   id: string;
   customer_name: string;
+  customer_email?: string;
   customer_phone: string;
   district: string;
   address: string;
+  shipping_address?: string;
   payment_method: string;
   total_amount: number;
   status:
