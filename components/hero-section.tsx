@@ -26,7 +26,7 @@ export default function HeroSection({ slides }: HeroSectionProps) {
 
   if (slides.length === 0) {
     return (
-      <div className="relative h-[60vh] max-h-[400px] md:h-96 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+      <div className="relative h-[50vh] sm:h-[60vh] md:h-96 lg:h-[480px] bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
         <div className="text-center text-white px-4">
           <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-4">
             Welcome to Our Store
@@ -51,7 +51,7 @@ export default function HeroSection({ slides }: HeroSectionProps) {
   };
 
   return (
-    <div className="relative h-[60vh] max-h-[400px] md:h-96 overflow-hidden">
+    <div className="relative h-[50vh] sm:h-[60vh] md:h-96 lg:h-[480px] overflow-hidden">
       {slides.map((slide, index) => (
         <div
           key={slide.id}
@@ -68,6 +68,7 @@ export default function HeroSection({ slides }: HeroSectionProps) {
             alt={slide.title}
             fill
             className="object-cover"
+            sizes="100vw"
             priority={index === 0}
           />
           <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center">
@@ -82,7 +83,11 @@ export default function HeroSection({ slides }: HeroSectionProps) {
               )}
               {slide.link_url && (
                 <Link href={slide.link_url}>
-                  <Button size="lg" variant="secondary" className="text-sm sm:text-base">
+                  <Button
+                    size="lg"
+                    variant="secondary"
+                    className="text-sm sm:text-base"
+                  >
                     Shop Now
                   </Button>
                 </Link>
