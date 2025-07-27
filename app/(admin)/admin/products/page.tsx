@@ -241,7 +241,7 @@ export default function AdminProductsPage() {
                         <TableCell>
                           <Image
                             src={
-                              product.image_url ||
+                              product.image_url?.trim() ||
                               "/placeholder.svg?height=50&width=50"
                             }
                             alt={product.name}

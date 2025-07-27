@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import ImageUpload from "@/components/image-upload"; // Import ImageUpload
 import {
   Select,
   SelectContent,
@@ -43,7 +44,6 @@ export default function NewProductPage() {
     metaTitle: string;
     metaDescription: string;
     metaKeywords: string;
-    imagesInput: string;
   }>({
     name: "",
     slug: "",
@@ -61,7 +61,6 @@ export default function NewProductPage() {
     metaTitle: "",
     metaDescription: "",
     metaKeywords: "",
-    imagesInput: "",
   });
 
   useEffect(() => {
@@ -97,13 +96,6 @@ export default function NewProductPage() {
         // Auto-generate SEO fields
         updated.metaTitle = `${value} - Best Price in Bangladesh | Tech Nirvor`;
         updated.metaDescription = `Buy ${value} online in Bangladesh. Best price guaranteed. Cash on delivery available. Fast shipping across Bangladesh.`;
-      }
-      // If updating imagesInput, also update images array
-      if (field === "imagesInput") {
-        updated.images = (value as string)
-          .split(",")
-          .map((img) => img.trim())
-          .filter(Boolean);
       }
       return updated;
     });
@@ -299,128 +291,39 @@ export default function NewProductPage() {
                   </p>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {/* Main Image: Single upload or URL */}
+                  {/* Main Image */}
                   <div>
-                    <Label htmlFor="imageUrl">
-                      Main Image (Single Upload or URL) *
-                    </Label>
-                    <div className="flex gap-2 items-center">
-                      <Input
-                        id="imageUrl"
-                        type="url"
-                        value={formData.imageUrl}
-                        onChange={(e) =>
-                          handleInputChange("imageUrl", e.target.value)
-                        }
-                        placeholder="https://example.com/image.jpg"
-                        required
-                      />
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={async (e) => {
-                          const file = e.target.files?.[0];
-                          if (!file) return;
-                          const { uploadOptimizedImage } = await import(
-                            "@/lib/image-upload"
-                          );
-                          try {
-                            const result = await uploadOptimizedImage(file, {
-                              folder: "products",
-                              generateSizes: true,
-                              uploadProvider: "supabase",
-                            });
-                            if (result.original.publicUrl) {
-                              setFormData((prev) => ({
-                                ...prev,
-                                imageUrl: result.original.publicUrl,
-                              }));
-                              toast.success("Main image uploaded!");
-                            }
-                          } catch (err) {
-                            toast.error("Failed to upload main image");
-                          }
-                        }}
-                      />
-                    </div>
-                    {formData.imageUrl && (
-                      <div className="mt-2">
-                        <img
-                          src={formData.imageUrl}
-                          alt="Main Product"
-                          className="h-20 rounded border"
-                        />
-                      </div>
-                    )}
-                  </div>
-                  {/* Additional Images: Multiple upload or URLs */}
-                  <div>
-                    <Label htmlFor="imagesInput">
-                      Additional Images (comma-separated URLs or upload below)
-                    </Label>
-                    <Textarea
-                      id="imagesInput"
-                      value={formData.imagesInput}
-                      onChange={(e) =>
-                        handleInputChange("imagesInput", e.target.value)
+                    <Label>Main Product Image *</Label>
+                    <ImageUpload
+                      value={formData.imageUrl ? [formData.imageUrl] : []}
+                      onChange={(urls) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          imageUrl: urls[0] || "",
+                        }))
                       }
-                      rows={2}
-                      placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
-                    />
-                  </div>
-                  <div>
-                    <Label>Upload Additional Images</Label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={async (e) => {
-                        const files = Array.from(e.target.files || []);
-                        if (files.length === 0) return;
-                        const { uploadOptimizedImage } = await import(
-                          "@/lib/image-upload"
-                        );
-                        let uploadedUrls: string[] = [];
-                        for (const file of files) {
-                          try {
-                            const result = await uploadOptimizedImage(file, {
-                              folder: "products",
-                              generateSizes: true,
-                              uploadProvider: "supabase",
-                            });
-                            if (result.original.publicUrl) {
-                              uploadedUrls.push(result.original.publicUrl);
-                            }
-                          } catch (err) {
-                            toast.error("Failed to upload image");
-                          }
-                        }
-                        if (uploadedUrls.length > 0) {
-                          setFormData((prev) => ({
-                            ...prev,
-                            images: [...prev.images, ...uploadedUrls],
-                            imagesInput: prev.imagesInput
-                              ? prev.imagesInput +
-                                ", " +
-                                uploadedUrls.join(", ")
-                              : uploadedUrls.join(", "),
-                          }));
-                          toast.success("Images uploaded!");
-                        }
+                      maxFiles={1}
+                      options={{
+                        folder: "products",
+                        uploadProvider: "supabase",
                       }}
                     />
-                    {formData.images.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {formData.images.map((url, idx) => (
-                          <img
-                            key={idx}
-                            src={url}
-                            alt="Additional Product"
-                            className="h-16 rounded border"
-                          />
-                        ))}
-                      </div>
-                    )}
+                  </div>
+
+                  {/* Additional Images */}
+                  <div>
+                    <Label>Additional Product Images</Label>
+                    <ImageUpload
+                      value={formData.images}
+                      onChange={(urls) =>
+                        setFormData((prev) => ({ ...prev, images: urls }))
+                      }
+                      maxFiles={5} // Example: allow up to 5 additional images
+                      options={{
+                        folder: "products",
+                        uploadProvider: "supabase",
+                      }}
+                    />
                   </div>
                 </CardContent>
               </Card>

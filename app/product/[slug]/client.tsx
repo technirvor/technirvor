@@ -84,7 +84,10 @@ export default function ProductPageClient({ product }: Props) {
         const data: Review[] = await response.json();
         setReviews(data);
         if (data.length > 0) {
-          const sumRatings = data.reduce((sum, review) => sum + review.rating, 0);
+          const sumRatings = data.reduce(
+            (sum, review) => sum + review.rating,
+            0,
+          );
           setAverageRating(sumRatings / data.length);
           setTotalReviews(data.length);
         } else {
@@ -506,7 +509,9 @@ export default function ProductPageClient({ product }: Props) {
             Customer Reviews ({totalReviews})
           </h2>
           {reviews.length === 0 ? (
-            <p className="text-gray-600">No reviews yet. Be the first to review this product!</p>
+            <p className="text-gray-600">
+              No reviews yet. Be the first to review this product!
+            </p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {reviews.map((review) => (
@@ -527,20 +532,21 @@ export default function ProductPageClient({ product }: Props) {
                     <p className="text-sm sm:text-base text-gray-800 mb-3">
                       {review.review_text}
                     </p>
-                    {review.review_images && review.review_images.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {review.review_images.map((image, index) => (
-                          <Image
-                            key={index}
-                            src={image}
-                            alt={`Review image ${index + 1}`}
-                            width={64}
-                            height={64}
-                            className="w-16 h-16 object-cover rounded-md"
-                          />
-                        ))}
-                      </div>
-                    )}
+                    {review.review_images &&
+                      review.review_images.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          {review.review_images.map((image, index) => (
+                            <Image
+                              key={index}
+                              src={image}
+                              alt={`Review image ${index + 1}`}
+                              width={64}
+                              height={64}
+                              className="w-16 h-16 object-cover rounded-md"
+                            />
+                          ))}
+                        </div>
+                      )}
                     <div className="text-xs text-gray-500">
                       Reviewed by: {review.phone_number.slice(0, 3)}***
                       {review.phone_number.slice(-4)} on{" "}
@@ -552,7 +558,6 @@ export default function ProductPageClient({ product }: Props) {
             </div>
           )}
         </div>
-
       </div>
 
       {/* Review Form Dialog */}

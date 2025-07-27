@@ -45,6 +45,8 @@ interface UploadingFile {
   preview: string;
 }
 
+import { useEffect } from "react"; // Import useEffect
+
 export default function ImageUpload({
   value,
   onChange,
@@ -56,27 +58,41 @@ export default function ImageUpload({
 }: ImageUploadProps) {
   const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
   const [dragActive, setDragActive] = useState(false);
+  const [draggedOverIndex, setDraggedOverIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const valueRef = useRef(value); // Create a ref to hold the latest value
+
+  // Keep the ref updated with the latest prop value
+  useEffect(() => {
+    valueRef.current = value;
+  }, [value]);
 
   const handleFiles = useCallback(
     async (files: FileList) => {
       const fileArray = Array.from(files);
 
       // Check file limits
-      if (value.length + uploadingFiles.length + fileArray.length > maxFiles) {
+      // Use valueRef.current for the latest value
+      if (
+        valueRef.current.length + uploadingFiles.length + fileArray.length >
+        maxFiles
+      ) {
         toast.error(`Maximum ${maxFiles} images allowed`);
         return;
       }
 
       // Validate files
       const validFiles = fileArray.filter((file) => {
-        if (fileTypes.length > 0 && !fileTypes.some(type => {
-          if (type.endsWith("/*")) {
-            const baseType = type.slice(0, -2);
-            return file.type.startsWith(baseType);
-          }
-          return file.type === type;
-        })) {
+        if (
+          fileTypes.length > 0 &&
+          !fileTypes.some((type) => {
+            if (type.endsWith("/*")) {
+              const baseType = type.slice(0, -2);
+              return file.type.startsWith(baseType);
+            }
+            return file.type === type;
+          })
+        ) {
           toast.error(`${file.name} is not a supported file type.`);
           return false;
         }
@@ -102,6 +118,8 @@ export default function ImageUpload({
       }));
 
       setUploadingFiles((prev) => [...prev, ...newUploadingFiles]);
+
+      const uploadedUrlsBatch: string[] = [];
 
       // Upload files
       for (let i = 0; i < newUploadingFiles.length; i++) {
@@ -134,8 +152,7 @@ export default function ImageUpload({
             ),
           );
 
-          // Add the new image URL to the value array
-          onChange([...value, result.original.publicUrl]);
+          uploadedUrlsBatch.push(result.original.publicUrl);
           toast.success(`${uploadingFile.file.name} uploaded successfully`);
         } catch (error: any) {
           setUploadingFiles((prev) =>
@@ -150,9 +167,11 @@ export default function ImageUpload({
           );
         }
       }
+      // Call onChange once after all files in the batch are processed
+      onChange([...valueRef.current, ...uploadedUrlsBatch]); // Use valueRef.current here
     },
     [
-      value,
+      // Removed 'value' from dependencies
       uploadingFiles.length,
       maxFiles,
       maxSize,
@@ -284,7 +303,42 @@ export default function ImageUpload({
           </h4>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {value.map((url, index) => (
-              <div key={index} className="relative group">
+              <div
+                key={url} // Use URL as key for stable reordering
+                className={`relative group cursor-grab ${
+                  draggedOverIndex === index ? "border-blue-500 border-2" : ""
+                }`}
+                draggable
+                onDragStart={(e) => {
+                  e.dataTransfer.setData("text/plain", index.toString());
+                  e.currentTarget.style.opacity = "0.5"; // Visual feedback for dragged item
+                }}
+                onDragEnd={(e) => {
+                  e.currentTarget.style.opacity = "1"; // Reset opacity
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDraggedOverIndex(index);
+                }}
+                onDragLeave={() => {
+                  setDraggedOverIndex(null);
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setDraggedOverIndex(null);
+                  const draggedIndex = parseInt(
+                    e.dataTransfer.getData("text/plain"),
+                  );
+                  const droppedIndex = index;
+
+                  if (draggedIndex === droppedIndex) return;
+
+                  const newUrls = [...value];
+                  const [draggedItem] = newUrls.splice(draggedIndex, 1);
+                  newUrls.splice(droppedIndex, 0, draggedItem);
+                  onChange(newUrls);
+                }}
+              >
                 <div className="aspect-square relative overflow-hidden rounded-lg bg-gray-100">
                   <Image
                     src={url || "/placeholder.svg"}
