@@ -75,11 +75,11 @@ export async function sendMetaConversionEvent(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ eventName, eventData }),
     });
-    
+
     if (!response.ok) {
       throw new Error(`Meta CAPI request failed: ${response.status}`);
     }
-    
+
     return await response.json();
   } catch (error) {
     console.warn("Meta Conversion API error:", error);
@@ -89,22 +89,28 @@ export async function sendMetaConversionEvent(
 }
 
 // Safe tracking functions that won't break the app
-export function trackGoogleAnalyticsEvent(eventName: string, parameters: any = {}) {
+export function trackGoogleAnalyticsEvent(
+  eventName: string,
+  parameters: any = {},
+) {
   try {
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', eventName, parameters);
+    if (typeof window !== "undefined" && (window as any).gtag) {
+      (window as any).gtag("event", eventName, parameters);
     }
   } catch (error) {
-    console.warn('Google Analytics tracking error:', error);
+    console.warn("Google Analytics tracking error:", error);
   }
 }
 
-export function trackFacebookPixelEvent(eventName: string, parameters: any = {}) {
+export function trackFacebookPixelEvent(
+  eventName: string,
+  parameters: any = {},
+) {
   try {
-    if (typeof window !== 'undefined' && (window as any).fbq) {
-      (window as any).fbq('track', eventName, parameters);
+    if (typeof window !== "undefined" && (window as any).fbq) {
+      (window as any).fbq("track", eventName, parameters);
     }
   } catch (error) {
-    console.warn('Facebook Pixel tracking error:', error);
+    console.warn("Facebook Pixel tracking error:", error);
   }
 }

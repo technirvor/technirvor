@@ -25,8 +25,8 @@ import {
 import { toast } from "sonner";
 
 interface ImageUploadProps {
-  value: string[]; // Array of image URLs
-  onChange: (urls: string[]) => void; // Callback for when images change
+  value: (string | File)[];
+  onChange: (files: (string | File)[]) => void;
   maxFiles?: number;
   maxSize?: number; // Max file size in bytes
   fileTypes?: string[]; // Allowed file types, e.g., ["image/jpeg", "image/png"]
@@ -35,6 +35,7 @@ interface ImageUploadProps {
     uploadProvider?: "supabase" | "vercel";
   };
   className?: string;
+  manualUpload?: boolean;
 }
 
 interface UploadingFile {
@@ -55,7 +56,7 @@ interface UploadingFile {
   };
 }
 
-import { useEffect } from "react"; // Import useEffect
+import { useEffect, useMemo } from "react"; // Import useEffect and useMemo
 
 export default function ImageUpload({
   value,
@@ -65,6 +66,7 @@ export default function ImageUpload({
   fileTypes = ["image/*"], // Default to all image types
   options = {},
   className = "",
+  manualUpload = false,
 }: ImageUploadProps) {
   const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
   const [dragActive, setDragActive] = useState(false);
@@ -77,12 +79,28 @@ export default function ImageUpload({
     valueRef.current = value;
   }, [value]);
 
+  const objectUrls = useMemo(() => {
+    const map = new Map<File, string>();
+    value.forEach((item) => {
+      if (item instanceof File) {
+        map.set(item, URL.createObjectURL(item));
+      }
+    });
+    return map;
+  }, [value]);
+
+  useEffect(() => {
+    // Clean up object URLs
+    return () => {
+      objectUrls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [objectUrls]);
+
   const handleFiles = useCallback(
     async (files: FileList) => {
       const fileArray = Array.from(files);
 
       // Check file limits
-      // Use valueRef.current for the latest value
       if (
         valueRef.current.length + uploadingFiles.length + fileArray.length >
         maxFiles
@@ -118,6 +136,11 @@ export default function ImageUpload({
       });
 
       if (validFiles.length === 0) return;
+
+      if (manualUpload) {
+        onChange([...value, ...validFiles]);
+        return;
+      }
 
       // Create uploading file objects
       const newUploadingFiles: UploadingFile[] = validFiles.map((file) => ({
@@ -158,13 +181,15 @@ export default function ImageUpload({
           // Calculate optimization info
           const originalSize = uploadingFile.file.size;
           const compressedSize = result.original.size;
-          const compressionRatio = Math.round(((originalSize - compressedSize) / originalSize) * 100);
-          
+          const compressionRatio = Math.round(
+            ((originalSize - compressedSize) / originalSize) * 100,
+          );
+
           const optimizationInfo = {
             originalSize,
             compressedSize,
             compressionRatio,
-            format: 'WebP'
+            format: "WebP",
           };
 
           setUploadingFiles((prev) =>
@@ -175,19 +200,19 @@ export default function ImageUpload({
                     progress: 100,
                     status: "success",
                     result,
-                    optimizationInfo
+                    optimizationInfo,
                   }
                 : f,
             ),
           );
 
           uploadedUrlsBatch.push(result.original.publicUrl);
-          
+
           // Enhanced success message with optimization info
           const sizeSaved = originalSize - compressedSize;
           const sizeSavedMB = (sizeSaved / (1024 * 1024)).toFixed(2);
           toast.success(
-            `${uploadingFile.file.name} uploaded & optimized! Saved ${sizeSavedMB}MB (${compressionRatio}% compression)`
+            `${uploadingFile.file.name} uploaded & optimized! Saved ${sizeSavedMB}MB (${compressionRatio}% compression)`,
           );
         } catch (error: any) {
           if (progressInterval) {
@@ -206,16 +231,17 @@ export default function ImageUpload({
         }
       }
       // Call onChange once after all files in the batch are processed
-      onChange([...valueRef.current, ...uploadedUrlsBatch]); // Use valueRef.current here
+      onChange([...(valueRef.current as string[]), ...uploadedUrlsBatch]);
     },
     [
-      // Removed 'value' from dependencies
+      value,
       uploadingFiles.length,
       maxFiles,
       maxSize,
       fileTypes,
       options,
       onChange,
+      manualUpload,
     ],
   );
 
@@ -263,8 +289,8 @@ export default function ImageUpload({
     });
   };
 
-  const removeImage = (urlToRemove: string) => {
-    onChange(value.filter((url) => url !== urlToRemove));
+  const removeImage = (itemToRemove: string | File) => {
+    onChange(value.filter((item) => item !== itemToRemove));
   };
 
   const canUploadMore = value.length + uploadingFiles.length < maxFiles;
@@ -301,16 +327,28 @@ export default function ImageUpload({
               </p>
 
               <div className="flex items-center justify-center space-x-2 mb-4 flex-wrap gap-2">
-                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                <Badge
+                  variant="outline"
+                  className="bg-blue-50 text-blue-700 border-blue-200"
+                >
                   WebP Optimized
                 </Badge>
-                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                <Badge
+                  variant="outline"
+                  className="bg-green-50 text-green-700 border-green-200"
+                >
                   Auto Compression
                 </Badge>
-                <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                <Badge
+                  variant="outline"
+                  className="bg-purple-50 text-purple-700 border-purple-200"
+                >
                   Multiple Sizes
                 </Badge>
-                <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
+                <Badge
+                  variant="outline"
+                  className="bg-orange-50 text-orange-700 border-orange-200"
+                >
                   Max {Math.round(maxSize / 1024 / 1024)}MB
                 </Badge>
               </div>
@@ -347,71 +385,79 @@ export default function ImageUpload({
             Current Images
           </h4>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {value.map((url, index) => (
-              <div
-                key={url} // Use URL as key for stable reordering
-                className={`relative group cursor-grab ${
-                  draggedOverIndex === index ? "border-blue-500 border-2" : ""
-                }`}
-                draggable
-                onDragStart={(e) => {
-                  e.dataTransfer.setData("text/plain", index.toString());
-                  e.currentTarget.style.opacity = "0.5"; // Visual feedback for dragged item
-                }}
-                onDragEnd={(e) => {
-                  e.currentTarget.style.opacity = "1"; // Reset opacity
-                }}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  setDraggedOverIndex(index);
-                }}
-                onDragLeave={() => {
-                  setDraggedOverIndex(null);
-                }}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  setDraggedOverIndex(null);
-                  const draggedIndex = parseInt(
-                    e.dataTransfer.getData("text/plain"),
-                  );
-                  const droppedIndex = index;
+            {value.map((item, index) => {
+              const url =
+                typeof item === "string"
+                  ? item
+                  : objectUrls.get(item as File) || "";
+              const key = typeof item === "string" ? item : item.name;
 
-                  if (draggedIndex === droppedIndex) return;
+              return (
+                <div
+                  key={key}
+                  className={`relative group cursor-grab ${
+                    draggedOverIndex === index ? "border-blue-500 border-2" : ""
+                  }`}
+                  draggable
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData("text/plain", index.toString());
+                    e.currentTarget.style.opacity = "0.5";
+                  }}
+                  onDragEnd={(e) => {
+                    e.currentTarget.style.opacity = "1";
+                  }}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setDraggedOverIndex(index);
+                  }}
+                  onDragLeave={() => {
+                    setDraggedOverIndex(null);
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setDraggedOverIndex(null);
+                    const draggedIndex = parseInt(
+                      e.dataTransfer.getData("text/plain"),
+                    );
+                    const droppedIndex = index;
 
-                  const newUrls = [...value];
-                  const [draggedItem] = newUrls.splice(draggedIndex, 1);
-                  newUrls.splice(droppedIndex, 0, draggedItem);
-                  onChange(newUrls);
-                }}
-              >
-                <div className="aspect-square relative overflow-hidden rounded-lg bg-gray-100">
-                  <Image
-                    src={url || "/placeholder.svg"}
-                    alt={`Image ${index + 1}`}
-                    fill
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center">
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex space-x-2">
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => window.open(url, "_blank")}
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => removeImage(url)}
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
+                    if (draggedIndex === droppedIndex) return;
+
+                    const newItems = [...value];
+                    const [draggedItem] = newItems.splice(draggedIndex, 1);
+                    newItems.splice(droppedIndex, 0, draggedItem);
+                    onChange(newItems);
+                  }}
+                >
+                  <div className="aspect-square relative overflow-hidden rounded-lg bg-gray-100">
+                    <Image
+                      src={url || "/placeholder.svg"}
+                      alt={`Image ${index + 1}`}
+                      fill
+                      className="object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center">
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex space-x-2">
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => window.open(url, "_blank")}
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => removeImage(item)}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
@@ -485,7 +531,8 @@ export default function ImageUpload({
                           </Badge>
                           {uploadingFile.result?.sizes && (
                             <Badge variant="outline" className="text-xs">
-                              {Object.keys(uploadingFile.result.sizes).length} sizes generated
+                              {Object.keys(uploadingFile.result.sizes).length}{" "}
+                              sizes generated
                             </Badge>
                           )}
                         </div>
@@ -493,15 +540,34 @@ export default function ImageUpload({
                           <div className="text-xs text-gray-600 space-y-1">
                             <div className="flex justify-between">
                               <span>Original:</span>
-                              <span>{(uploadingFile.optimizationInfo.originalSize / (1024 * 1024)).toFixed(2)}MB</span>
+                              <span>
+                                {(
+                                  uploadingFile.optimizationInfo.originalSize /
+                                  (1024 * 1024)
+                                ).toFixed(2)}
+                                MB
+                              </span>
                             </div>
                             <div className="flex justify-between">
                               <span>Optimized:</span>
-                              <span>{(uploadingFile.optimizationInfo.compressedSize / (1024 * 1024)).toFixed(2)}MB ({uploadingFile.optimizationInfo.format})</span>
+                              <span>
+                                {(
+                                  uploadingFile.optimizationInfo
+                                    .compressedSize /
+                                  (1024 * 1024)
+                                ).toFixed(2)}
+                                MB ({uploadingFile.optimizationInfo.format})
+                              </span>
                             </div>
                             <div className="flex justify-between font-medium text-green-600">
                               <span>Saved:</span>
-                              <span>{uploadingFile.optimizationInfo.compressionRatio}%</span>
+                              <span>
+                                {
+                                  uploadingFile.optimizationInfo
+                                    .compressionRatio
+                                }
+                                %
+                              </span>
                             </div>
                           </div>
                         )}

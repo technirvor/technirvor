@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,9 +20,29 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Save, Trash2, Star } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { uploadOptimizedImage } from "@/lib/image-upload";
 import type { Product, Category } from "@/lib/types";
 import { toast } from "sonner";
 import ImageUpload from "@/components/image-upload";
+
+interface ProductFormData {
+  name: string;
+  slug: string;
+  description: string;
+  price: number;
+  sale_price: string | number;
+  image_url: string | File;
+  images: (string | File)[];
+  category_id: string;
+  stock: number;
+  is_featured: boolean;
+  is_flash_sale: boolean;
+  flash_sale_end: string;
+  tags: string;
+  meta_title: string;
+  meta_description: string;
+  meta_keywords: string;
+}
 
 interface Props {
   product: Product;
@@ -32,7 +52,7 @@ interface Props {
 export default function ProductEditForm({ product, categories }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState(() => {
+  const [formData, setFormData] = useState<ProductFormData>(() => {
     if (!product) {
       console.error("Product prop is missing or null.", product);
       toast.error(
@@ -64,7 +84,9 @@ export default function ProductEditForm({ product, categories }: Props) {
       price: product.price,
       sale_price: product.sale_price || "",
       image_url: product.image_url || "",
-      images: Array.isArray(product.images) ? product.images.filter(img => img !== product.image_url) : [],
+      images: Array.isArray(product.images)
+        ? product.images.filter((img) => img !== product.image_url)
+        : [],
       category_id: product.category_id || "",
       stock: product.stock,
       is_featured: product.is_featured,
@@ -76,6 +98,34 @@ export default function ProductEditForm({ product, categories }: Props) {
       meta_keywords: product.meta_keywords?.join(", ") || "",
     };
   });
+
+  const mainImagePreview = useMemo(() => {
+    const url = formData.image_url;
+    if (typeof url === "string") return url;
+    if (url instanceof File) return URL.createObjectURL(url);
+    return "";
+  }, [formData.image_url]);
+
+  const additionalImagesPreview = useMemo(() => {
+    return formData.images.map((img) => {
+      if (typeof img === "string") return img;
+      if (img instanceof File) return URL.createObjectURL(img);
+      return "";
+    });
+  }, [formData.images]);
+
+  useEffect(() => {
+    return () => {
+      if (mainImagePreview && mainImagePreview.startsWith("blob:")) {
+        URL.revokeObjectURL(mainImagePreview);
+      }
+      additionalImagesPreview.forEach((url) => {
+        if (url && url.startsWith("blob:")) {
+          URL.revokeObjectURL(url);
+        }
+      });
+    };
+  }, [mainImagePreview, additionalImagesPreview]);
 
   const handleInputChange = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -100,14 +150,33 @@ export default function ProductEditForm({ product, categories }: Props) {
         setLoading(false);
         return;
       }
+
+      // Handle image uploads first
+      const uploadImage = async (image: string | File) => {
+        if (typeof image === "string") {
+          return image; // Already a URL
+        }
+        const result = await uploadOptimizedImage(image, {
+          folder: "products",
+          generateSizes: true,
+          uploadProvider: "supabase",
+        });
+        return result.original.publicUrl;
+      };
+
+      const mainImageUrl = await uploadImage(formData.image_url);
+      const additionalImages = await Promise.all(
+        (formData.images || []).map(uploadImage),
+      );
+
       const updateData = {
         name: formData.name,
         slug: formData.slug,
         description: formData.description || null,
         price: Number(formData.price),
         sale_price: formData.sale_price ? Number(formData.sale_price) : null,
-        image_url: formData.image_url || null,
-        images: Array.isArray(formData.images) ? formData.images : [],
+        image_url: mainImageUrl,
+        images: additionalImages,
         category_id: formData.category_id || null,
         stock: Number(formData.stock),
         is_featured: formData.is_featured,
@@ -127,7 +196,6 @@ export default function ProductEditForm({ product, categories }: Props) {
               .map((kw) => kw.trim())
               .filter(Boolean)
           : [],
-        // updated_at: new Date().toISOString(), // Removed because column does not exist
       };
 
       const { error, data } = await supabase
@@ -402,18 +470,22 @@ export default function ProductEditForm({ product, categories }: Props) {
                   {/* Main Image Section */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <Label className="text-lg font-semibold">Main Product Image</Label>
+                      <Label className="text-lg font-semibold">
+                        Main Product Image
+                      </Label>
                       {formData.image_url && (
-                        <span className="text-sm text-green-600 font-medium">✓ Main image set</span>
+                        <span className="text-sm text-green-600 font-medium">
+                          ✓ Main image set
+                        </span>
                       )}
                     </div>
-                    
-                    {formData.image_url && (
+
+                    {mainImagePreview && (
                       <div className="relative">
                         <div className="w-full max-w-md mx-auto">
                           <div className="aspect-square relative overflow-hidden rounded-lg border-2 border-blue-200 bg-gray-50">
                             <img
-                              src={formData.image_url}
+                              src={mainImagePreview}
                               alt="Main product image"
                               className="w-full h-full object-cover"
                             />
@@ -425,7 +497,8 @@ export default function ProductEditForm({ product, categories }: Props) {
                           </div>
                         </div>
                         <p className="text-center text-sm text-gray-600 mt-2">
-                          This image will be displayed as the primary product image
+                          This image will be displayed as the primary product
+                          image
                         </p>
                       </div>
                     )}
@@ -434,11 +507,12 @@ export default function ProductEditForm({ product, categories }: Props) {
                       <Label htmlFor="image_url">Main Image URL</Label>
                       <ImageUpload
                         value={formData.image_url ? [formData.image_url] : []}
-                        onChange={(urls: string[]) => {
-                          handleInputChange("image_url", urls[0] || "");
+                        onChange={(files: (string | File)[]) => {
+                          handleInputChange("image_url", files[0] || "");
                         }}
                         maxFiles={1}
                         maxSize={5 * 1024 * 1024} // 5MB
+                        manualUpload
                         options={{
                           folder: "products",
                           generateSizes: true,
@@ -454,20 +528,25 @@ export default function ProductEditForm({ product, categories }: Props) {
                   {/* Additional Images Upload Section */}
                   <div className="space-y-4">
                     <div className="border-t pt-6">
-                      <Label className="text-lg font-semibold">Additional Product Images</Label>
+                      <Label className="text-lg font-semibold">
+                        Additional Product Images
+                      </Label>
                       <p className="text-sm text-gray-600 mt-1 mb-4">
                         Upload and manage additional product images.
                       </p>
                       <ImageUpload
-                        value={Array.isArray(formData.images) ? formData.images : []}
-                        onChange={(urls: string[]) => {
+                        value={
+                          Array.isArray(formData.images) ? formData.images : []
+                        }
+                        onChange={(files: (string | File)[]) => {
                           setFormData((prev) => ({
                             ...prev,
-                            images: urls,
+                            images: files,
                           }));
                         }}
                         maxFiles={10}
                         maxSize={10 * 1024 * 1024} // 10MB
+                        manualUpload
                         options={{
                           folder: "products",
                           generateSizes: true,
@@ -478,15 +557,18 @@ export default function ProductEditForm({ product, categories }: Props) {
                   </div>
 
                   {/* Additional Images Preview */}
-                  {Array.isArray(formData.images) && formData.images.length > 0 && (
+                  {additionalImagesPreview.length > 0 && (
                     <div className="space-y-4">
                       <div className="border-t pt-6">
-                        <Label className="text-lg font-semibold">Additional Images Preview</Label>
+                        <Label className="text-lg font-semibold">
+                          Additional Images Preview
+                        </Label>
                         <p className="text-sm text-gray-600 mt-1 mb-4">
-                          These images will be shown as additional product photos.
+                          These images will be shown as additional product
+                          photos.
                         </p>
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                          {formData.images.map((url, index) => (
+                          {additionalImagesPreview.map((url, index) => (
                             <div key={url} className="relative">
                               <div className="aspect-square relative overflow-hidden rounded-lg border bg-gray-50">
                                 <img

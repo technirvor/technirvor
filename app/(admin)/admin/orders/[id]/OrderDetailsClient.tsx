@@ -1,7 +1,14 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
@@ -14,7 +21,10 @@ interface OrderDetailsClientProps {
   trackingNotes: TrackingNote[];
 }
 
-export default function OrderDetailsClient({ order, trackingNotes }: OrderDetailsClientProps) {
+export default function OrderDetailsClient({
+  order,
+  trackingNotes,
+}: OrderDetailsClientProps) {
   return (
     <main className="max-w-4xl mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center">
@@ -30,62 +40,136 @@ export default function OrderDetailsClient({ order, trackingNotes }: OrderDetail
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-base">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-gray-700">Order Number:</span> <span className="font-mono text-gray-900">{order.order_number}</span>
-            <Button variant="ghost" size="sm" onClick={() => { navigator.clipboard.writeText(order.order_number); toast.success("Order Number copied!"); }}>
+            <span className="font-semibold text-gray-700">Order Number:</span>{" "}
+            <span className="font-mono text-gray-900">
+              {order.order_number}
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                navigator.clipboard.writeText(order.order_number);
+                toast.success("Order Number copied!");
+              }}
+            >
               <Copy className="w-4 h-4" />
             </Button>
           </div>
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-gray-700">Order ID:</span> <span className="font-mono text-gray-900">{order.id}</span>
-            <Button variant="ghost" size="sm" onClick={() => { navigator.clipboard.writeText(order.id); toast.success("Order ID copied!"); }}>
+            <span className="font-semibold text-gray-700">Order ID:</span>{" "}
+            <span className="font-mono text-gray-900">{order.id}</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                navigator.clipboard.writeText(order.id);
+                toast.success("Order ID copied!");
+              }}
+            >
               <Copy className="w-4 h-4" />
             </Button>
           </div>
           <div className="flex items-center gap-2">
-            <span className="font-semibold">Customer Name:</span> {order.customer_name}
-            <Button variant="ghost" size="sm" onClick={() => { navigator.clipboard.writeText(order.customer_name); toast.success("Customer Name copied!"); }}>
+            <span className="font-semibold">Customer Name:</span>{" "}
+            {order.customer_name}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                navigator.clipboard.writeText(order.customer_name);
+                toast.success("Customer Name copied!");
+              }}
+            >
               <Copy className="w-4 h-4" />
             </Button>
           </div>
           {order.customer_email && (
             <div className="flex items-center gap-2">
-              <span className="font-semibold">Customer Email:</span> {order.customer_email}
-              <Button variant="ghost" size="sm" onClick={() => { navigator.clipboard.writeText(order.customer_email!); toast.success("Customer Email copied!"); }}>
+              <span className="font-semibold">Customer Email:</span>{" "}
+              {order.customer_email}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  navigator.clipboard.writeText(order.customer_email!);
+                  toast.success("Customer Email copied!");
+                }}
+              >
                 <Copy className="w-4 h-4" />
               </Button>
             </div>
           )}
           <div className="flex items-center gap-2">
-            <span className="font-semibold">Customer Phone:</span> {order.customer_phone}
-            <Button variant="ghost" size="sm" onClick={() => { navigator.clipboard.writeText(order.customer_phone); toast.success("Customer Phone copied!"); }}>
+            <span className="font-semibold">Customer Phone:</span>{" "}
+            {order.customer_phone}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                navigator.clipboard.writeText(order.customer_phone);
+                toast.success("Customer Phone copied!");
+              }}
+            >
               <Copy className="w-4 h-4" />
             </Button>
           </div>
           <div>
-            <span className="font-semibold">Total Amount:</span> ৳{order.total_amount?.toFixed(2)}
+            <span className="font-semibold">Total Amount:</span> ৳
+            {order.total_amount?.toFixed(2)}
           </div>
           <div>
-            <span className="font-semibold">Status:</span> {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+            <span className="font-semibold">Status:</span>{" "}
+            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
           </div>
           <div>
-            <span className="font-semibold">Payment Method:</span> {order.payment_method === "COD" ? "Cash On Delivery" : order.payment_method}
+            <span className="font-semibold">Payment Method:</span>{" "}
+            {order.payment_method === "COD"
+              ? "Cash On Delivery"
+              : order.payment_method}
           </div>
           <div>
-            <span className="font-semibold">Created At:</span> {new Date(order.created_at).toLocaleDateString("en-US", { day: '2-digit', month: '2-digit', year: 'numeric' })}, {new Date(order.created_at).toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
+            <span className="font-semibold">Created At:</span>{" "}
+            {new Date(order.created_at).toLocaleDateString("en-US", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            })}
+            ,{" "}
+            {new Date(order.created_at).toLocaleTimeString("en-US", {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: false,
+            })}
           </div>
           <div>
             <span className="font-semibold">District:</span> {order.district}
           </div>
           <div className="col-span-1 md:col-span-2 flex items-center gap-2">
             <span className="font-semibold">Address:</span> {order.address}
-            <Button variant="ghost" size="sm" onClick={() => { navigator.clipboard.writeText(order.address); toast.success("Address copied!"); }}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                navigator.clipboard.writeText(order.address);
+                toast.success("Address copied!");
+              }}
+            >
               <Copy className="w-4 h-4" />
             </Button>
           </div>
           {order.shipping_address && (
             <div className="col-span-1 md:col-span-2 flex items-center gap-2">
-              <span className="font-semibold">Shipping Address:</span> {order.shipping_address}
-              <Button variant="ghost" size="sm" onClick={() => { navigator.clipboard.writeText(order.shipping_address!); toast.success("Shipping Address copied!"); }}>
+              <span className="font-semibold">Shipping Address:</span>{" "}
+              {order.shipping_address}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  navigator.clipboard.writeText(order.shipping_address!);
+                  toast.success("Shipping Address copied!");
+                }}
+              >
                 <Copy className="w-4 h-4" />
               </Button>
             </div>
@@ -113,7 +197,10 @@ export default function OrderDetailsClient({ order, trackingNotes }: OrderDetail
               {order.items?.map((item: any) => (
                 <TableRow key={item.id}>
                   <TableCell>
-                    <Link href={`/product/${item.product?.slug}`} className="flex items-center gap-2 hover:underline">
+                    <Link
+                      href={`/product/${item.product?.slug}`}
+                      className="flex items-center gap-2 hover:underline"
+                    >
                       {item.product?.image_url && (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -126,8 +213,12 @@ export default function OrderDetailsClient({ order, trackingNotes }: OrderDetail
                     </Link>
                   </TableCell>
                   <TableCell>{item.quantity}</TableCell>
-                  <TableCell className="text-right">৳{item.product?.price?.toFixed(2)}</TableCell>
-                  <TableCell className="text-right">৳{(item.quantity * item.product?.price).toFixed(2)}</TableCell>
+                  <TableCell className="text-right">
+                    ৳{item.product?.price?.toFixed(2)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    ৳{(item.quantity * item.product?.price).toFixed(2)}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -147,7 +238,19 @@ export default function OrderDetailsClient({ order, trackingNotes }: OrderDetail
                 {trackingNotes.map((note: any) => (
                   <li key={note.id} className="text-sm text-gray-700">
                     <span className="font-semibold">
-                      {new Date(note.created_at).toLocaleDateString("en-US", { day: '2-digit', month: '2-digit', year: 'numeric' })}, {new Date(note.created_at).toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}:
+                      {new Date(note.created_at).toLocaleDateString("en-US", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      })}
+                      ,{" "}
+                      {new Date(note.created_at).toLocaleTimeString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                        hour12: false,
+                      })}
+                      :
                     </span>{" "}
                     {note.note}
                   </li>
