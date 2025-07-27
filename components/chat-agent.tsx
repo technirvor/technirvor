@@ -97,7 +97,7 @@ export default function ChatAgent() {
     <>
       {!isOpen && (
         <Button
-          className="fixed bottom-6 right-6 rounded-full w-16 h-16 shadow-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 ease-in-out transform hover:scale-105 z-50 group"
+          className="fixed lg:bottom-6 bottom-20 right-6 rounded-full w-16 h-16 shadow-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 ease-in-out transform hover:scale-105 z-50 group"
           onClick={() => setIsOpen(true)}
           aria-label="Open AI chat assistant"
         >
