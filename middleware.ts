@@ -69,18 +69,18 @@ export async function middleware(req: NextRequest) {
     "geolocation=(), microphone=(), camera=()",
   );
 
-  // CSP: allow Supabase, Vercel, and safe inline for scripts/styles
+  // CSP: allow Supabase, Vercel, Facebook Pixel, Google Analytics, and safe inline for scripts/styles
   const csp = [
     "default-src 'self'",
     "img-src 'self' data: https: blob:",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://connect.facebook.net https:",
     "style-src 'self' 'unsafe-inline' https:",
     "font-src 'self' data:",
-    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.vercel.com",
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.vercel.com https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net https://www.facebook.com https://connect.facebook.net",
     "media-src 'self' blob:",
     "object-src 'none'",
     "base-uri 'self'",
-    "form-action 'self'",
+    "form-action 'self' https://www.facebook.com",
     "frame-ancestors 'none'",
   ].join("; ");
   res.headers.set("Content-Security-Policy", csp);

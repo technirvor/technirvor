@@ -43,6 +43,16 @@ interface UploadingFile {
   status: "uploading" | "success" | "error";
   error?: string;
   preview: string;
+  result?: {
+    original: ImageUploadResult;
+    sizes?: { [key: string]: ImageUploadResult };
+  };
+  optimizationInfo?: {
+    originalSize: number;
+    compressedSize: number;
+    compressionRatio: number;
+    format: string;
+  };
 }
 
 import { useEffect } from "react"; // Import useEffect
@@ -124,10 +134,11 @@ export default function ImageUpload({
       // Upload files
       for (let i = 0; i < newUploadingFiles.length; i++) {
         const uploadingFile = newUploadingFiles[i];
+        let progressInterval: NodeJS.Timeout | undefined;
 
         try {
           // Simulate progress updates
-          const progressInterval = setInterval(() => {
+          progressInterval = setInterval(() => {
             setUploadingFiles((prev) =>
               prev.map((f) =>
                 f.file === uploadingFile.file && f.progress < 90
@@ -144,17 +155,44 @@ export default function ImageUpload({
 
           clearInterval(progressInterval);
 
+          // Calculate optimization info
+          const originalSize = uploadingFile.file.size;
+          const compressedSize = result.original.size;
+          const compressionRatio = Math.round(((originalSize - compressedSize) / originalSize) * 100);
+          
+          const optimizationInfo = {
+            originalSize,
+            compressedSize,
+            compressionRatio,
+            format: 'WebP'
+          };
+
           setUploadingFiles((prev) =>
             prev.map((f) =>
               f.file === uploadingFile.file
-                ? { ...f, progress: 100, status: "success" }
+                ? {
+                    ...f,
+                    progress: 100,
+                    status: "success",
+                    result,
+                    optimizationInfo
+                  }
                 : f,
             ),
           );
 
           uploadedUrlsBatch.push(result.original.publicUrl);
-          toast.success(`${uploadingFile.file.name} uploaded successfully`);
+          
+          // Enhanced success message with optimization info
+          const sizeSaved = originalSize - compressedSize;
+          const sizeSavedMB = (sizeSaved / (1024 * 1024)).toFixed(2);
+          toast.success(
+            `${uploadingFile.file.name} uploaded & optimized! Saved ${sizeSavedMB}MB (${compressionRatio}% compression)`
+          );
         } catch (error: any) {
+          if (progressInterval) {
+            clearInterval(progressInterval);
+          }
           setUploadingFiles((prev) =>
             prev.map((f) =>
               f.file === uploadingFile.file
@@ -262,10 +300,17 @@ export default function ImageUpload({
                 Drag and drop images here, or click to select files
               </p>
 
-              <div className="flex items-center justify-center space-x-4 mb-4">
-                <Badge variant="outline">WebP Optimized</Badge>
-                <Badge variant="outline">Multiple Sizes</Badge>
-                <Badge variant="outline">
+              <div className="flex items-center justify-center space-x-2 mb-4 flex-wrap gap-2">
+                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                  WebP Optimized
+                </Badge>
+                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                  Auto Compression
+                </Badge>
+                <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                  Multiple Sizes
+                </Badge>
+                <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
                   Max {Math.round(maxSize / 1024 / 1024)}MB
                 </Badge>
               </div>
@@ -430,14 +475,36 @@ export default function ImageUpload({
                     )}
 
                     {uploadingFile.status === "success" && (
-                      <div className="flex items-center space-x-2">
-                        <Badge
-                          variant="default"
-                          className="bg-green-100 text-green-800"
-                        >
-                          Uploaded
-                        </Badge>
-                        {/* Removed uploadingFile.result?.sizes */}
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2">
+                          <Badge
+                            variant="default"
+                            className="bg-green-100 text-green-800"
+                          >
+                            Uploaded & Optimized
+                          </Badge>
+                          {uploadingFile.result?.sizes && (
+                            <Badge variant="outline" className="text-xs">
+                              {Object.keys(uploadingFile.result.sizes).length} sizes generated
+                            </Badge>
+                          )}
+                        </div>
+                        {uploadingFile.optimizationInfo && (
+                          <div className="text-xs text-gray-600 space-y-1">
+                            <div className="flex justify-between">
+                              <span>Original:</span>
+                              <span>{(uploadingFile.optimizationInfo.originalSize / (1024 * 1024)).toFixed(2)}MB</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Optimized:</span>
+                              <span>{(uploadingFile.optimizationInfo.compressedSize / (1024 * 1024)).toFixed(2)}MB ({uploadingFile.optimizationInfo.format})</span>
+                            </div>
+                            <div className="flex justify-between font-medium text-green-600">
+                              <span>Saved:</span>
+                              <span>{uploadingFile.optimizationInfo.compressionRatio}%</span>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
 

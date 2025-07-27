@@ -18,11 +18,11 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Save, Trash2 } from "lucide-react";
+import { ArrowLeft, Save, Trash2, Star } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import type { Product, Category } from "@/lib/types";
 import { toast } from "sonner";
-import { uploadOptimizedImage } from "@/lib/image-upload";
+import ImageUpload from "@/components/image-upload";
 
 interface Props {
   product: Product;
@@ -30,40 +30,6 @@ interface Props {
 }
 
 export default function ProductEditForm({ product, categories }: Props) {
-  // Image upload state
-  const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-
-  // Handle image file upload using uploadOptimizedImage
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    setUploadError(null);
-    try {
-      // Use the optimized upload function
-      const result = await uploadOptimizedImage(file, {
-        folder: "products",
-        generateSizes: true,
-        uploadProvider: "supabase",
-      });
-      if (result.original.publicUrl) {
-        setFormData((prev) => ({
-          ...prev,
-          image_url: result.original.publicUrl,
-        }));
-        toast.success("Image uploaded and optimized!");
-      } else {
-        setUploadError("Could not retrieve public URL.");
-        toast.error("Could not retrieve public URL.");
-      }
-    } catch (err) {
-      setUploadError("Unexpected error during upload.");
-      toast.error("Unexpected error during upload.");
-    } finally {
-      setUploading(false);
-    }
-  };
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState(() => {
@@ -79,7 +45,7 @@ export default function ProductEditForm({ product, categories }: Props) {
         price: 0,
         sale_price: "",
         image_url: "",
-        images: "",
+        images: [],
         category_id: "",
         stock: 0,
         is_featured: false,
@@ -98,7 +64,7 @@ export default function ProductEditForm({ product, categories }: Props) {
       price: product.price,
       sale_price: product.sale_price || "",
       image_url: product.image_url || "",
-      images: product.images?.join(", ") || "",
+      images: Array.isArray(product.images) ? product.images.filter(img => img !== product.image_url) : [],
       category_id: product.category_id || "",
       stock: product.stock,
       is_featured: product.is_featured,
@@ -141,12 +107,7 @@ export default function ProductEditForm({ product, categories }: Props) {
         price: Number(formData.price),
         sale_price: formData.sale_price ? Number(formData.sale_price) : null,
         image_url: formData.image_url || null,
-        images: formData.images
-          ? formData.images
-              .split(",")
-              .map((img) => img.trim())
-              .filter(Boolean)
-          : [],
+        images: Array.isArray(formData.images) ? formData.images : [],
         category_id: formData.category_id || null,
         stock: Number(formData.stock),
         is_featured: formData.is_featured,
@@ -437,62 +398,107 @@ export default function ProductEditForm({ product, categories }: Props) {
                 <CardHeader>
                   <CardTitle>Media</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="image_url">Main Image URL</Label>
-                    <Input
-                      id="image_url"
-                      value={formData.image_url}
-                      onChange={(e) =>
-                        handleInputChange("image_url", e.target.value)
-                      }
-                      placeholder="https://example.com/image.jpg"
-                    />
-                    <div className="mt-2">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        disabled={uploading}
-                      />
-                      {uploading && (
-                        <span className="text-sm text-gray-500 ml-2">
-                          Uploading...
-                        </span>
-                      )}
-                      {uploadError && (
-                        <span className="text-sm text-red-500 ml-2">
-                          {uploadError}
-                        </span>
-                      )}
+                <CardContent className="space-y-8">
+                  {/* Main Image Section */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-lg font-semibold">Main Product Image</Label>
                       {formData.image_url && (
-                        <div className="mt-2">
-                          <img
-                            src={formData.image_url}
-                            alt="Product"
-                            className="max-h-32 rounded border"
-                          />
-                        </div>
+                        <span className="text-sm text-green-600 font-medium">✓ Main image set</span>
                       )}
+                    </div>
+                    
+                    {formData.image_url && (
+                      <div className="relative">
+                        <div className="w-full max-w-md mx-auto">
+                          <div className="aspect-square relative overflow-hidden rounded-lg border-2 border-blue-200 bg-gray-50">
+                            <img
+                              src={formData.image_url}
+                              alt="Main product image"
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute top-2 left-2">
+                              <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full font-medium">
+                                Main Image
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <p className="text-center text-sm text-gray-600 mt-2">
+                          This image will be displayed as the primary product image
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="space-y-2">
+                      <Label htmlFor="image_url">Main Image URL (Optional)</Label>
+                      <Input
+                        id="image_url"
+                        value={formData.image_url}
+                        onChange={(e) => handleInputChange("image_url", e.target.value)}
+                        placeholder="https://example.com/image.jpg"
+                      />
+                      <p className="text-sm text-gray-500">
+                        You can manually enter an image URL here, or use the drag and drop uploader below.
+                      </p>
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="images">
-                      Additional Images (comma-separated URLs or upload
-                      multiple)
-                    </Label>
-                    <Textarea
-                      id="images"
-                      value={formData.images}
-                      onChange={(e) =>
-                        handleInputChange("images", e.target.value)
-                      }
-                      rows={3}
-                      placeholder="Paste URLs or upload multiple images separated by commas"
-                    />
-                    {/* TODO: Add multi-image upload input here for future enhancement */}
+                  {/* Additional Images Upload Section */}
+                  <div className="space-y-4">
+                    <div className="border-t pt-6">
+                      <Label className="text-lg font-semibold">Additional Product Images</Label>
+                      <p className="text-sm text-gray-600 mt-1 mb-4">
+                        Upload and manage additional product images.
+                      </p>
+                      <ImageUpload
+                        value={Array.isArray(formData.images) ? formData.images : []}
+                        onChange={(urls: string[]) => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            images: urls,
+                          }));
+                        }}
+                        maxFiles={10}
+                        maxSize={10 * 1024 * 1024} // 10MB
+                        options={{
+                          folder: "products",
+                          generateSizes: true,
+                          uploadProvider: "supabase",
+                        }}
+                      />
+                    </div>
                   </div>
+
+                  {/* Additional Images Preview */}
+                  {Array.isArray(formData.images) && formData.images.length > 0 && (
+                    <div className="space-y-4">
+                      <div className="border-t pt-6">
+                        <Label className="text-lg font-semibold">Additional Images Preview</Label>
+                        <p className="text-sm text-gray-600 mt-1 mb-4">
+                          These images will be shown as additional product photos.
+                        </p>
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                          {formData.images.map((url, index) => (
+                            <div key={url} className="relative">
+                              <div className="aspect-square relative overflow-hidden rounded-lg border bg-gray-50">
+                                <img
+                                  src={url}
+                                  alt={`Additional image ${index + 1}`}
+                                  className="w-full h-full object-cover"
+                                />
+                                <div className="absolute top-2 left-2">
+                                  <span className="bg-gray-600 text-white text-xs px-2 py-1 rounded-full">
+                                    #{index + 1}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
