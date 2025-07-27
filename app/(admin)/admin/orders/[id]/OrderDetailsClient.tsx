@@ -71,7 +71,7 @@ export default function OrderDetailsClient({ order, trackingNotes }: OrderDetail
             <span className="font-semibold">Payment Method:</span> {order.payment_method === "COD" ? "Cash On Delivery" : order.payment_method}
           </div>
           <div>
-            <span className="font-semibold">Created At:</span> {new Date(order.created_at).toLocaleString()}
+            <span className="font-semibold">Created At:</span> {new Date(order.created_at).toLocaleDateString("en-US", { day: '2-digit', month: '2-digit', year: 'numeric' })}, {new Date(order.created_at).toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
           </div>
           <div>
             <span className="font-semibold">District:</span> {order.district}
@@ -147,7 +147,7 @@ export default function OrderDetailsClient({ order, trackingNotes }: OrderDetail
                 {trackingNotes.map((note: any) => (
                   <li key={note.id} className="text-sm text-gray-700">
                     <span className="font-semibold">
-                      {new Date(note.created_at).toLocaleString()}:
+                      {new Date(note.created_at).toLocaleDateString("en-US", { day: '2-digit', month: '2-digit', year: 'numeric' })}, {new Date(note.created_at).toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}:
                     </span>{" "}
                     {note.note}
                   </li>
