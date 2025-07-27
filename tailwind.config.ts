@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import plugin from "tailwindcss/plugin";
 
 // all in fixtures is set to tailwind v3 as interims solutions
 
@@ -11,7 +12,17 @@ const config: Config = {
     "*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+    container: {
+      center: true,
+      padding: "2rem",
+      screens: {
+        "2xl": "1400px",
+      },
+    },
     extend: {
+      screens: {
+        xs: "480px",
+      },
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
@@ -100,13 +111,13 @@ const config: Config = {
   },
   plugins: [
     require("tailwindcss-animate"),
-    function ({ addUtilities }: { addUtilities: any }) {
+    plugin(function ({ addUtilities }) {
       addUtilities({
         ".pause": {
           "animation-play-state": "paused",
         },
       });
-    },
+    }),
   ],
 };
 export default config;

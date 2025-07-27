@@ -26,12 +26,12 @@ export default function HeroSection({ slides }: HeroSectionProps) {
 
   if (slides.length === 0) {
     return (
-      <div className="relative h-64 md:h-96 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
-        <div className="text-center text-white">
-          <h2 className="text-3xl md:text-5xl font-bold mb-4">
+      <div className="relative h-[60vh] max-h-[400px] md:h-96 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+        <div className="text-center text-white px-4">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-4">
             Welcome to Our Store
           </h2>
-          <p className="text-lg md:text-xl mb-6">
+          <p className="text-base sm:text-lg md:text-xl mb-6">
             Discover amazing products at great prices
           </p>
           <Button size="lg" variant="secondary">
@@ -51,7 +51,7 @@ export default function HeroSection({ slides }: HeroSectionProps) {
   };
 
   return (
-    <div className="relative h-64 md:h-96 overflow-hidden">
+    <div className="relative h-[60vh] max-h-[400px] md:h-96 overflow-hidden">
       {slides.map((slide, index) => (
         <div
           key={slide.id}
@@ -70,17 +70,19 @@ export default function HeroSection({ slides }: HeroSectionProps) {
             className="object-cover"
             priority={index === 0}
           />
-          <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-            <div className="text-center text-white px-4">
-              <h2 className="text-2xl md:text-4xl font-bold mb-2">
+          <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center">
+            <div className="text-center text-white px-4 max-w-xs sm:max-w-md md:max-w-2xl">
+              <h2 className="text-xl sm:text-2xl md:text-4xl font-bold mb-2">
                 {slide.title}
               </h2>
               {slide.subtitle && (
-                <p className="text-lg md:text-xl mb-4">{slide.subtitle}</p>
+                <p className="text-base sm:text-lg md:text-xl mb-4">
+                  {slide.subtitle}
+                </p>
               )}
               {slide.link_url && (
                 <Link href={slide.link_url}>
-                  <Button size="lg" variant="secondary">
+                  <Button size="lg" variant="secondary" className="text-sm sm:text-base">
                     Shop Now
                   </Button>
                 </Link>
@@ -94,27 +96,30 @@ export default function HeroSection({ slides }: HeroSectionProps) {
         <>
           <Button
             variant="ghost"
-            size="sm"
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white"
+            size="icon"
+            className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white rounded-full h-8 w-8 sm:h-10 sm:w-10 sm:left-4"
             onClick={prevSlide}
           >
-            <ChevronLeft className="w-6 h-6" />
+            <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
           </Button>
           <Button
             variant="ghost"
-            size="sm"
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white"
+            size="icon"
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white rounded-full h-8 w-8 sm:h-10 sm:w-10 sm:right-4"
             onClick={nextSlide}
           >
-            <ChevronRight className="w-6 h-6" />
+            <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
           </Button>
 
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
             {slides.map((_, index) => (
               <button
                 key={index}
-                className={`w-2 h-2 rounded-full transition-colors ${
-                  index === currentSlide ? "bg-white" : "bg-white/50"
+                aria-label={`Go to slide ${index + 1}`}
+                className={`w-2 h-2 rounded-full transition-colors duration-300 ${
+                  index === currentSlide
+                    ? "bg-white scale-125"
+                    : "bg-white/50 hover:bg-white/75"
                 }`}
                 onClick={() => setCurrentSlide(index)}
               />
