@@ -106,119 +106,121 @@ export default function ChatAgent() {
       )}
 
       {isOpen && (
-        <Card className="fixed bottom-6 right-6 w-96 h-[500px] flex flex-col shadow-2xl rounded-xl backdrop-blur-md bg-card/80 border border-border z-50">
-          <CardHeader className="flex flex-row items-center justify-between p-4 border-b border-border bg-primary text-primary-foreground rounded-t-xl">
-            <CardTitle className="text-lg font-semibold flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-primary-foreground" /> AI
-              Shopping Assistant
-            </CardTitle>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleClearChat}
-                aria-label="Clear chat"
-                className="text-primary-foreground hover:bg-primary/80 transition-colors duration-200"
-              >
-                <MessageCircle className="w-4 h-4 rotate-90" />{" "}
-                {/* Changed to MessageCircle for 'clear' */}
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsOpen(false)}
-                aria-label="Close chat"
-                className="text-primary-foreground hover:bg-primary/80 transition-colors duration-200"
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="flex-1 p-4 overflow-hidden flex flex-col bg-transparent">
-            <ScrollArea className="flex-1 pr-4 -mr-4">
-              <div className="space-y-4">
-                {chatHistory.length === 0 && (
-                  <div className="text-center text-muted-foreground text-sm py-8">
-                    <Sparkles className="w-8 h-8 mx-auto mb-2 text-primary" />
-                    <p className="font-medium">
-                      পণ্য সম্পর্কে আমাকে কিছু জিজ্ঞাসা করুন!
-                    </p>
-                    <p className="text-xs mt-1">
-                      উদাহরণস্বরূপ, "ল্যাপটপ দেখান" অথবা "আপনার সেরা ডিল কি?"
-                    </p>
-                  </div>
-                )}
-                {chatHistory.map((chat, index) => (
-                  <div
-                    key={index}
-                    className={cn(
-                      "flex",
-                      chat.role === "user" ? "justify-end" : "justify-start",
-                    )}
-                  >
+        <div className="fixed inset-0 z-50 flex flex-col bg-background/80 backdrop-blur-sm sm:bg-transparent sm:backdrop-blur-none">
+          <div className="flex-1" onClick={() => setIsOpen(false)}></div>
+          <Card className="fixed bottom-0 right-0 w-full h-[calc(100%-4rem)] flex flex-col shadow-2xl sm:bottom-6 sm:right-6 sm:w-96 sm:h-[calc(100%-8rem)] sm:max-h-[700px] sm:rounded-xl backdrop-blur-md bg-card/80 sm:border border-border pb-16">
+            <CardHeader className="flex flex-row items-center justify-between p-4 border-b border-border bg-primary text-primary-foreground sm:rounded-t-xl">
+              <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-primary-foreground" /> AI
+                Shopping Assistant
+              </CardTitle>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleClearChat}
+                  aria-label="Clear chat"
+                  className="text-primary-foreground hover:bg-primary/80 transition-colors duration-200"
+                >
+                  <MessageCircle className="w-4 h-4 rotate-90" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsOpen(false)}
+                  aria-label="Close chat"
+                  className="text-primary-foreground hover:bg-primary/80 transition-colors duration-200"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="flex-1 p-4 overflow-hidden flex flex-col bg-transparent">
+              <ScrollArea className="flex-1 pr-4 -mr-4">
+                <div className="space-y-4 pb-4">
+                  {chatHistory.length === 0 && (
+                    <div className="text-center text-muted-foreground text-sm py-8">
+                      <Sparkles className="w-8 h-8 mx-auto mb-2 text-primary" />
+                      <p className="font-medium">
+                        পণ্য সম্পর্কে আমাকে কিছু জিজ্ঞাসা করুন!
+                      </p>
+                      <p className="text-xs mt-1">
+                        উদাহরণস্বরূপ, "ল্যাপটপ দেখান" অথবা "আপনার সেরা ডিল কি?"
+                      </p>
+                    </div>
+                  )}
+                  {chatHistory.map((chat, index) => (
                     <div
+                      key={index}
                       className={cn(
-                        "max-w-[80%] p-3 rounded-2xl shadow-md animate-fade-in",
-                        chat.role === "user"
-                          ? "bg-primary text-primary-foreground rounded-br-none"
-                          : "bg-muted text-muted-foreground rounded-bl-none",
+                        "flex",
+                        chat.role === "user" ? "justify-end" : "justify-start",
                       )}
                     >
-                      {chat.text && (
-                        <p className="text-sm leading-relaxed">
-                          {renderTextWithLinks(chat.text)}
-                        </p>
-                      )}
-                      {chat.products && chat.products.length > 0 && (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
-                          {chat.products.map((product) => (
-                            <ProductCard
-                              key={product.id}
-                              product={product}
-                              className="w-full"
-                            />
-                          ))}
-                        </div>
-                      )}
+                      <div
+                        className={cn(
+                          "max-w-[80%] p-3 rounded-2xl shadow-md animate-fade-in",
+                          chat.role === "user"
+                            ? "bg-primary text-primary-foreground rounded-br-none"
+                            : "bg-muted text-muted-foreground rounded-bl-none",
+                        )}
+                      >
+                        {chat.text && (
+                          <p className="text-sm leading-relaxed">
+                            {renderTextWithLinks(chat.text)}
+                          </p>
+                        )}
+                        {chat.products && chat.products.length > 0 && (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+                            {chat.products.map((product) => (
+                              <ProductCard
+                                key={product.id}
+                                product={product}
+                                className="w-full"
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
-                {loading && (
-                  <div className="flex justify-start">
-                    <div className="bg-muted p-3 rounded-2xl rounded-bl-none shadow-md">
-                      <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                  ))}
+                  {loading && (
+                    <div className="flex justify-start">
+                      <div className="bg-muted p-3 rounded-2xl rounded-bl-none shadow-md">
+                        <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                      </div>
                     </div>
-                  </div>
-                )}
-                <div ref={messagesEndRef} />
-              </div>
-            </ScrollArea>
-          </CardContent>
-          <form
-            onSubmit={handleSubmit}
-            className="flex items-center gap-2 p-4 border-t border-border bg-transparent"
-          >
-            <Input
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Ask about products..."
-              disabled={loading}
-              className="flex-1 rounded-full px-4 py-2 border border-input focus:ring-2 focus:ring-ring focus:border-ring transition-all duration-200 bg-background/70"
-            />
-            <Button
-              type="submit"
-              disabled={loading}
-              size="icon"
-              className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200"
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
+              </ScrollArea>
+            </CardContent>
+            <form
+              onSubmit={handleSubmit}
+              className="flex items-center gap-2 p-4 border-t border-border bg-transparent"
             >
-              {loading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Send className="w-4 h-4" />
-              )}
-            </Button>
-          </form>
-        </Card>
+              <Input
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Ask about products..."
+                disabled={loading}
+                className="flex-1 rounded-full px-4 py-2 border border-input focus:ring-2 focus:ring-ring focus:border-ring transition-all duration-200 bg-background/70"
+              />
+              <Button
+                type="submit"
+                disabled={loading}
+                size="icon"
+                className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200"
+              >
+                {loading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Send className="w-4 h-4" />
+                )}
+              </Button>
+            </form>
+          </Card>
+        </div>
       )}
     </>
   );

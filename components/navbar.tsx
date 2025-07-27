@@ -3,7 +3,17 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ShoppingCart, Menu, X, Package, TrainTrackIcon, FileDownIcon, ListOrdered, Search, SearchCheck } from "lucide-react";
+import {
+  ShoppingCart,
+  Menu,
+  X,
+  Package,
+  TrainTrackIcon,
+  FileDownIcon,
+  ListOrdered,
+  Search,
+  SearchCheck,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/lib/cart-store";
 import { Badge } from "@/components/ui/badge";
@@ -87,10 +97,15 @@ export default function Navbar() {
 
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center space-x-2">
-            <Link href="/track-order" className="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-700 group">
-          <SearchCheck className="w-6 h-6 mb-1 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500" />
-          <span className="text-sm text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500">Track</span>
-        </Link>
+            <Link
+              href="/track-order"
+              className="inline-flex items-center px-5 hover:bg-gray-50 dark:hover:bg-gray-700 group"
+            >
+              <SearchCheck className="w-6 h-6 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500 mr-2" />
+              <span className="text-sm text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-500">
+                Track
+              </span>
+            </Link>
           </div>
         </div>
 
