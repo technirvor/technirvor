@@ -11,6 +11,7 @@ export interface Product {
   category_id?: string;
   subcategory_id?: string;
   category?: { name: string } | Category; // Allow partial category for product search
+  subcategory?: { name: string; slug: string };
   stock: number;
   is_featured: boolean;
   is_flash_sale: boolean;

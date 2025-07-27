@@ -243,16 +243,27 @@ export default function ProductPageClient({ product }: Props) {
             <span>/</span>
             {product.category && (
               <>
-                <Link
-                  href={
-                    "slug" in product.category
-                      ? `/category/${product.category.slug}`
-                      : "#"
-                  }
-                  className="hover:text-gray-900"
-                >
-                  {product.category.name}
-                </Link>
+                {"slug" in product.category && product.category.slug ? (
+                  <Link
+                    href={`/category/${product.category.slug}`}
+                    className="hover:text-gray-900"
+                  >
+                    {product.category.name}
+                  </Link>
+                ) : (
+                  <span className="text-gray-900">{product.category.name}</span>
+                )}
+                {product.subcategory && (
+                  <>
+                    <span>/</span>
+                    <Link
+                      href={`/category/${product.subcategory.slug}`}
+                      className="hover:text-gray-900"
+                    >
+                      {product.subcategory.name}
+                    </Link>
+                  </>
+                )}
               </>
             )}
             <span className="text-gray-900">{product.name}</span>
@@ -623,7 +634,13 @@ export default function ProductPageClient({ product }: Props) {
                 <div>
                   <ImageUpload
                     value={reviewImages}
-                    onChange={(urls) => setReviewImages(urls)}
+                    onChange={(urls) =>
+                      setReviewImages(
+                        urls.filter(
+                          (url): url is string => typeof url === "string",
+                        ),
+                      )
+                    }
                     maxFiles={5}
                     maxSize={5 * 1024 * 1024} // 5MB
                     fileTypes={["image/*"]}

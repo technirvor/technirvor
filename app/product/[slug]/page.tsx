@@ -15,7 +15,8 @@ async function getProduct(slug: string): Promise<Product | null> {
       .select(
         `
         *,
-        category:categories(*)
+        category:categories(*),
+        subcategory:subcategories(*)
       `,
       )
       .eq("slug", slug)
