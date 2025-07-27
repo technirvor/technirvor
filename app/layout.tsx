@@ -6,6 +6,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 import Navbar from "@/components/navbar";
+import MobileBottomNav from "@/components/mobile-bottom-nav";
 import { Toaster } from "sonner";
 import {
   googleAnalyticsScriptTags,
@@ -277,7 +278,8 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <Navbar />
-        {children}
+        <main className="pb-16 md:pb-0">{children}</main>
+        <MobileBottomNav />
         <Toaster position="top-right" />
         <Analytics mode="production" />;
         <SpeedInsights />

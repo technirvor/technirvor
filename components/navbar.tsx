@@ -87,25 +87,7 @@ export default function Navbar() {
 
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center space-x-2">
-            <Link href="/cart" className="relative">
-              <ShoppingCart className="w-6 h-6 text-gray-700" />
-              {isClient && totalItems > 0 && (
-                <Badge className="absolute -top-2 -right-2 w-5 h-5 flex items-center justify-center text-xs">
-                  {totalItems}
-                </Badge>
-              )}
-            </Link>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              {isMenuOpen ? (
-                <X className="w-6 h-6" />
-              ) : (
-                <Menu className="w-6 h-6" />
-              )}
-            </Button>
+            
           </div>
         </div>
 
