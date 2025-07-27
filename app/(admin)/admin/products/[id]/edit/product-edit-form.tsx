@@ -431,15 +431,22 @@ export default function ProductEditForm({ product, categories }: Props) {
                     )}
 
                     <div className="space-y-2">
-                      <Label htmlFor="image_url">Main Image URL (Optional)</Label>
-                      <Input
-                        id="image_url"
-                        value={formData.image_url}
-                        onChange={(e) => handleInputChange("image_url", e.target.value)}
-                        placeholder="https://example.com/image.jpg"
+                      <Label htmlFor="image_url">Main Image URL</Label>
+                      <ImageUpload
+                        value={formData.image_url ? [formData.image_url] : []}
+                        onChange={(urls: string[]) => {
+                          handleInputChange("image_url", urls[0] || "");
+                        }}
+                        maxFiles={1}
+                        maxSize={5 * 1024 * 1024} // 5MB
+                        options={{
+                          folder: "products",
+                          generateSizes: true,
+                          uploadProvider: "supabase",
+                        }}
                       />
                       <p className="text-sm text-gray-500">
-                        You can manually enter an image URL here, or use the drag and drop uploader below.
+                        Upload the main product image.
                       </p>
                     </div>
                   </div>
