@@ -70,7 +70,13 @@ export default function ImageUpload({
 
       // Validate files
       const validFiles = fileArray.filter((file) => {
-        if (fileTypes.length > 0 && !fileTypes.includes(file.type)) {
+        if (fileTypes.length > 0 && !fileTypes.some(type => {
+          if (type.endsWith("/*")) {
+            const baseType = type.slice(0, -2);
+            return file.type.startsWith(baseType);
+          }
+          return file.type === type;
+        })) {
           toast.error(`${file.name} is not a supported file type.`);
           return false;
         }
@@ -129,7 +135,7 @@ export default function ImageUpload({
           );
 
           // Add the new image URL to the value array
-          onChange([...value, result.original.url]);
+          onChange([...value, result.original.publicUrl]);
           toast.success(`${uploadingFile.file.name} uploaded successfully`);
         } catch (error: any) {
           setUploadingFiles((prev) =>

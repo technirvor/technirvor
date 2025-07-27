@@ -622,7 +622,7 @@ export default function ProductPageClient({ product }: Props) {
                     maxFiles={5}
                     maxSize={5 * 1024 * 1024} // 5MB
                     fileTypes={["image/*"]}
-                    options={{ folder: "reviews" }} // Specify the folder for review images
+                    options={{ folder: "reviews", uploadProvider: "supabase" }} // Specify the folder for review images and explicitly set provider
                   />
                 </div>
               </div>

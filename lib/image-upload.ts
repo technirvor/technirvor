@@ -170,7 +170,7 @@ export async function uploadToVercelBlob(
       method: "PUT",
       body: file,
       headers: {
-        "Content-Type": file.type,
+        "Content-Type": "image/webp", // Ensure content type matches the compressed format
       },
     });
 
