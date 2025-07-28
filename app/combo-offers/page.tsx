@@ -10,6 +10,7 @@ import { ShoppingCart, Gift, Star } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useCartStore } from "@/lib/cart-store";
 import { toast } from "sonner";
+import { Product } from "@/lib/types"; // Import Product interface
 
 interface ComboProduct {
   id: string;
@@ -24,13 +25,7 @@ interface ComboProduct {
   items: {
     id: string;
     quantity: number;
-    product: {
-      id: string;
-      name: string;
-      image_url: string;
-      price: number;
-      sale_price?: number;
-    };
+    product: Product; // Use the imported Product interface
   }[];
 }
 
