@@ -19,6 +19,7 @@ import {
 import { supabase } from "@/lib/supabase";
 import { useCartStore } from "@/lib/cart-store";
 import { toast } from "sonner";
+import { Product } from "@/lib/types";
 
 interface ComboProduct {
   id: string;
@@ -33,15 +34,7 @@ interface ComboProduct {
   items: {
     id: string;
     quantity: number;
-    product: {
-      id: string;
-      name: string;
-      slug: string;
-      image_url: string;
-      price: number;
-      sale_price?: number;
-      description?: string;
-    };
+    product: Product; // Use the imported Product interface
   }[];
 }
 
