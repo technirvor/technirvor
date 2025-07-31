@@ -59,7 +59,7 @@ export default function AdminNavbar() {
     try {
       const { isAdmin, user } = await checkAdminAccess();
       if (!isAdmin) {
-        router.replace("/admin/login");
+        router.replace("/auth/login");
         return;
       }
       setAdminUser(user);
@@ -68,7 +68,7 @@ export default function AdminNavbar() {
       if (process.env.NODE_ENV !== "production") {
         console.error("Auth check failed:", error);
       }
-      router.replace("/admin/login");
+      router.replace("/auth/login");
     } finally {
       setLoading(false);
     }
@@ -80,7 +80,7 @@ export default function AdminNavbar() {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       toast.success("Signed out successfully");
-      router.replace("/admin/login");
+      router.replace("/auth/login");
     } catch (error) {
       if (process.env.NODE_ENV !== "production") {
         console.error("Sign out error:", error);

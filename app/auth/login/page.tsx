@@ -2,8 +2,8 @@
 
 import type React from "react";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,8 +12,9 @@ import { Shield, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { adminAuth } from "@/lib/auth";
 import { toast } from "sonner";
 
-export default function AdminLoginPage() {
+function AdminLoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -31,7 +32,8 @@ export default function AdminLoginPage() {
     try {
       const hasAccess = await adminAuth.checkAdminAccess();
       if (hasAccess) {
-        router.push("/admin");
+        const returnUrl = searchParams.get('returnUrl') || '/admin';
+        router.push(returnUrl);
       }
     } catch (error) {
       // User not authenticated, stay on login page
@@ -78,7 +80,8 @@ export default function AdminLoginPage() {
       
       // Add a small delay to ensure cookie is set before redirect
       setTimeout(() => {
-        router.push("/admin");
+        const returnUrl = searchParams.get('returnUrl') || '/admin';
+        router.push(returnUrl);
       }, 100);
     } catch (error: any) {
       console.error("Login error:", error);
@@ -197,5 +200,26 @@ export default function AdminLoginPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="mx-auto w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+              <Shield className="w-6 h-6 text-blue-600" />
+            </div>
+            <CardTitle className="text-2xl font-bold text-gray-900">
+              Loading...
+            </CardTitle>
+          </CardHeader>
+        </Card>
+      </div>
+    }>
+      <AdminLoginForm />
+    </Suspense>
   );
 }

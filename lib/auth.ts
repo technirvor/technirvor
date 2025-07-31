@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { adminSecurity } from "./admin-security";
 
 export const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -6,14 +7,25 @@ export const supabase = createClient(
 );
 
 export const adminAuth = {
-  async signIn(email: string, password: string) {
+  async signIn(email: string, password: string, ip?: string) {
     try {
+      // Check for IP lockout
+      if (ip && adminSecurity.isLockedOut(ip)) {
+        throw new Error("Too many failed attempts. Please try again later.");
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        // Record failed attempt
+        if (ip) {
+          adminSecurity.recordFailedAttempt(ip);
+        }
+        throw error;
+      }
 
       // Check if user has admin privileges
       const { data: adminUser, error: adminError } = await supabase
@@ -24,13 +36,37 @@ export const adminAuth = {
 
       if (adminError || !adminUser) {
         await supabase.auth.signOut();
+        if (ip) {
+          adminSecurity.recordFailedAttempt(ip);
+        }
         throw new Error("Admin privileges required");
       }
 
       if (!adminUser.is_active) {
         await supabase.auth.signOut();
+        if (ip) {
+          adminSecurity.recordFailedAttempt(ip);
+        }
         throw new Error("Admin account is deactivated");
       }
+
+      // Clear failed attempts on successful login
+      if (ip) {
+        adminSecurity.clearFailedAttempts(ip);
+      }
+
+      // Update last login time
+      await supabase
+        .from("admin_users")
+        .update({ last_login: new Date().toISOString() })
+        .eq("id", adminUser.id);
+
+      // Log successful login
+      await adminSecurity.logActivity(
+        adminUser.id,
+        "admin_login",
+        { email, success: true }
+      );
 
       // Store session in cookie for middleware
       if (data.session) {
