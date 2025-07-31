@@ -62,6 +62,7 @@ export default function AdminProductsPage() {
   }, [searchQuery]);
 
   const handlePageChange = (page: number) => {
+    setCurrentPage(page);
     fetchProducts(page, searchQuery);
   };
 

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSidebar } from "@/hooks/use-sidebar";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -90,12 +90,12 @@ const navigation = [
 
 export default function AdminSidebar() {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
+  const { collapsed, setCollapsed } = useSidebar();
 
   return (
     <div
       className={cn(
-        "bg-white border-r border-gray-200 transition-all duration-300 flex flex-col shadow-sm",
+        "fixed left-0 top-0 h-full bg-white border-r border-gray-200 transition-all duration-300 flex flex-col shadow-sm z-30",
         collapsed ? "w-16" : "w-64"
       )}
     >

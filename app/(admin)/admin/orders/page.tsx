@@ -20,25 +20,46 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Eye, Printer, Package, Trash2 } from "lucide-react";
+import { Eye, Printer, Package, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import type { Order } from "@/lib/types";
 import { toast } from "sonner";
 import { format } from "date-fns";
+
+const ITEMS_PER_PAGE = 10;
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
-    fetchOrders();
+    fetchOrders(1, search, statusFilter);
   }, []);
 
-  const fetchOrders = async () => {
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setCurrentPage(1);
+      fetchOrders(1, search, statusFilter);
+    }, 300);
+    return () => clearTimeout(timeoutId);
+  }, [search, statusFilter]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    fetchOrders(page, search, statusFilter);
+  };
+
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+
+  const fetchOrders = async (page = 1, searchQuery = "", status = "all") => {
     try {
-      const { data, error } = await supabase
+      setLoading(true);
+      
+      let query = supabase
         .from("orders")
         .select(
           `
@@ -48,11 +69,32 @@ export default function AdminOrdersPage() {
             product:products(*)
           )
         `,
+          { count: 'exact' }
         )
         .order("created_at", { ascending: false });
 
+      // Add search filter if provided
+      if (searchQuery.trim()) {
+        query = query.or(`order_number.ilike.%${searchQuery}%,customer_name.ilike.%${searchQuery}%,customer_phone.ilike.%${searchQuery}%`);
+      }
+
+      // Add status filter if not "all"
+      if (status !== "all") {
+        query = query.eq("status", status);
+      }
+
+      // Add pagination
+      const from = (page - 1) * ITEMS_PER_PAGE;
+      const to = from + ITEMS_PER_PAGE - 1;
+      query = query.range(from, to);
+
+      const { data, error, count } = await query;
+
       if (error) throw error;
+      
       setOrders(data || []);
+      setTotalCount(count || 0);
+      setCurrentPage(page);
     } catch (error) {
       console.error("Error fetching orders:", error);
       toast.error("Failed to fetch orders");
@@ -110,16 +152,7 @@ export default function AdminOrdersPage() {
     }
   };
 
-  const filteredOrders = orders.filter((order) => {
-    const matchesStatus =
-      statusFilter === "all" || order.status === statusFilter;
-    const searchLower = search.toLowerCase();
-    const matchesSearch =
-      order.order_number?.toLowerCase().includes(searchLower) ||
-      order.customer_name?.toLowerCase().includes(searchLower) ||
-      order.customer_phone?.toLowerCase().includes(searchLower);
-    return matchesStatus && (!search || matchesSearch);
-  });
+  // Server-side filtering is now handled in fetchOrders
   const deleteOrder = (orderId: string) => {
     toast.custom(
       (t) => (
@@ -285,7 +318,7 @@ export default function AdminOrdersPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>All Orders ({filteredOrders.length})</CardTitle>
+            <CardTitle>All Orders ({totalCount})</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -303,7 +336,7 @@ export default function AdminOrdersPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredOrders.map((order) => (
+                  {orders.map((order) => (
                     <TableRow key={order.id}>
                       <TableCell
                         className="font-mono text-sm cursor-pointer hover:underline"
@@ -387,6 +420,63 @@ export default function AdminOrdersPage() {
                 </TableBody>
               </Table>
             </div>
+            
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between mt-6">
+                <div className="text-sm text-gray-500">
+                  Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, totalCount)} of {totalCount} orders
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    Previous
+                  </Button>
+                  
+                  <div className="flex items-center space-x-1">
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      let pageNum;
+                      if (totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
+                      
+                      return (
+                        <Button
+                          key={pageNum}
+                          variant={currentPage === pageNum ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handlePageChange(pageNum)}
+                          className="w-8 h-8 p-0"
+                        >
+                          {pageNum}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

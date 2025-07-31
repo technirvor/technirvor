@@ -85,30 +85,33 @@ export default function AdminHeroSlidesPage() {
     try {
       setUploading(true);
       
-      // Create a unique filename
+      // Create a unique filename in the hero-slides folder
       const fileExt = file.name.split('.').pop();
-      const fileName = `hero-slide-${Date.now()}.${fileExt}`;
+      const fileName = `hero-slides/hero-slide-${Date.now()}.${fileExt}`;
       
-      // Upload to Supabase storage
+      // Upload to product-images bucket with hero-slides folder
       const { data, error } = await supabase.storage
-        .from('hero-slides')
-        .upload(fileName, file);
+        .from('product-images')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
       
       if (error) {
         console.error('Upload error:', error);
-        toast.error('Failed to upload image');
+        toast.error(`Failed to upload image: ${error.message}`);
         return null;
       }
       
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
-        .from('hero-slides')
+        .from('product-images')
         .getPublicUrl(fileName);
       
       return publicUrl;
     } catch (error) {
       console.error('Error uploading image:', error);
-      toast.error('Failed to upload image');
+      toast.error(`Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
       return null;
     } finally {
       setUploading(false);
