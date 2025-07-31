@@ -143,16 +143,31 @@ export default function AdminOrdersPage() {
                 className="px-4"
                 onClick={async () => {
                   try {
-                    const { error } = await supabase
-                      .from("orders")
-                      .delete()
-                      .eq("id", orderId);
-                    if (error) throw error;
+                    // Get the current session token
+                    const { data: { session } } = await supabase.auth.getSession();
+                    if (!session) {
+                      toast.error("Authentication required");
+                      return;
+                    }
+
+                    const response = await fetch(`/api/admin/orders/${orderId}`, {
+                      method: 'DELETE',
+                      headers: {
+                        'Authorization': `Bearer ${session.access_token}`,
+                        'Content-Type': 'application/json',
+                      },
+                    });
+
+                    if (!response.ok) {
+                      const errorData = await response.json();
+                      throw new Error(errorData.error || 'Failed to delete order');
+                    }
+
                     setOrders(orders.filter((order) => order.id !== orderId));
                     toast.success("Order deleted successfully");
                   } catch (error) {
                     console.error("Error deleting order:", error);
-                    toast.error("Failed to delete order");
+                    toast.error(error instanceof Error ? error.message : "Failed to delete order");
                   } finally {
                     toast.dismiss(t);
                   }

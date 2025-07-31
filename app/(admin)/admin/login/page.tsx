@@ -75,7 +75,11 @@ export default function AdminLoginPage() {
     try {
       await adminAuth.signIn(formData.email, formData.password);
       toast.success("Login successful!");
-      router.push("/admin");
+      
+      // Add a small delay to ensure cookie is set before redirect
+      setTimeout(() => {
+        router.push("/admin");
+      }, 100);
     } catch (error: any) {
       console.error("Login error:", error);
       toast.error(error.message || "Login failed");
@@ -86,7 +90,6 @@ export default function AdminLoginPage() {
       } else if (error.message?.includes("Admin privileges required")) {
         setErrors({ email: "Admin access required" });
       }
-    } finally {
       setLoading(false);
     }
   };
