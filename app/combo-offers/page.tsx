@@ -10,29 +10,12 @@ import { ShoppingCart, Gift, Star } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useCartStore } from "@/lib/cart-store";
 import { toast } from "sonner";
-import { Product } from "@/lib/types"; // Import Product interface
-
-interface ComboProduct {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  combo_price: number;
-  original_price: number;
-  image_url: string;
-  is_active: boolean;
-  created_at: string;
-  items: {
-    id: string;
-    quantity: number;
-    product: Product; // Use the imported Product interface
-  }[];
-}
+import { Product, ComboProduct } from "@/lib/types";
 
 export default function ComboOffersPage() {
   const [comboProducts, setComboProducts] = useState<ComboProduct[]>([]);
   const [loading, setLoading] = useState(true);
-  const addItem = useCartStore((state) => state.addItem);
+  const addComboItem = useCartStore((state) => state.addComboItem);
 
   useEffect(() => {
     fetchComboProducts();
@@ -68,10 +51,7 @@ export default function ComboOffersPage() {
   };
 
   const handleAddToCart = (combo: ComboProduct) => {
-    // For combo products, we'll add each individual item to cart
-    combo.items.forEach((item) => {
-      addItem(item.product, item.quantity);
-    });
+    addComboItem(combo);
     toast.success(`Added ${combo.name} to cart!`);
   };
 

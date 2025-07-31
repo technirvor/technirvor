@@ -38,6 +38,11 @@ export interface CartItem {
   id: string;
   product: Product;
   quantity: number;
+  isCombo?: boolean;
+  comboId?: string;
+  comboName?: string;
+  comboPrice?: number;
+  comboItems?: ComboProductItem[];
 }
 
 export interface Order {

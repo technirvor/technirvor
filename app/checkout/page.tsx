@@ -62,22 +62,55 @@ export default function CheckoutPage() {
     }
     // Validate products in cart exist in DB
     const validateProducts = async () => {
-      const productIds = items.map((item) => item.product.id);
-      const { data, error } = await supabase
-        .from("products")
-        .select("id")
-        .in("id", productIds);
-      if (error) return;
-      const validIds = (data || []).map((p) => p.id);
-      const invalidItems = items.filter(
-        (item) => !validIds.includes(item.product.id),
-      );
-      if (invalidItems.length > 0) {
-        clearCart();
-        toast.error(
-          "Some products in your cart are no longer available. Cart has been cleared.",
+      // Separate regular products and combo products
+      const regularItems = items.filter((item) => !item.isCombo);
+      const comboItems = items.filter((item) => item.isCombo);
+      
+      // Validate regular products
+      if (regularItems.length > 0) {
+        const productIds = regularItems.map((item) => item.product.id);
+        const { data, error } = await supabase
+          .from("products")
+          .select("id")
+          .in("id", productIds);
+        if (error) return;
+        const validIds = (data || []).map((p) => p.id);
+        const invalidRegularItems = regularItems.filter(
+          (item) => !validIds.includes(item.product.id),
         );
-        router.push("/cart");
+        if (invalidRegularItems.length > 0) {
+          clearCart();
+          toast.error(
+            "Some products in your cart are no longer available. Cart has been cleared.",
+          );
+          router.push("/cart");
+          return;
+        }
+      }
+      
+      // Validate combo products
+      if (comboItems.length > 0) {
+        const comboIds = comboItems.map((item) => item.comboId).filter(Boolean);
+        if (comboIds.length > 0) {
+          const { data, error } = await supabase
+            .from("combo_products")
+            .select("id")
+            .in("id", comboIds)
+            .eq("is_active", true);
+          if (error) return;
+          const validComboIds = (data || []).map((c) => c.id);
+          const invalidComboItems = comboItems.filter(
+            (item) => !validComboIds.includes(item.comboId),
+          );
+          if (invalidComboItems.length > 0) {
+            clearCart();
+            toast.error(
+              "Some combo offers in your cart are no longer available. Cart has been cleared.",
+            );
+            router.push("/cart");
+            return;
+          }
+        }
       }
     };
     validateProducts();
@@ -186,11 +219,27 @@ export default function CheckoutPage() {
     setLoading(true);
 
     try {
-      const orderItems = items.map((item) => ({
-        product_id: item.product.id,
-        quantity: item.quantity,
-        price: item.product.sale_price || item.product.price,
-      }));
+      const orderItems = items.flatMap((item) => {
+        if (item.isCombo && item.comboItems) {
+          // For combo items, create order items for each individual product
+          return item.comboItems.map((comboItem) => ({
+            product_id: comboItem.product.id,
+            quantity: comboItem.quantity * item.quantity,
+            price: (item.comboPrice || 0) / item.comboItems!.length, // Distribute combo price evenly
+            is_combo: true,
+            combo_id: item.comboId,
+            combo_name: item.comboName,
+          }));
+        } else {
+          // Regular product
+          return [{
+            product_id: item.product.id,
+            quantity: item.quantity,
+            price: item.product.sale_price || item.product.price,
+            is_combo: false,
+          }];
+        }
+      });
 
       const subtotal = getTotalPrice();
       const deliveryCharge = selectedDistrict?.delivery_charge || 60;
@@ -370,21 +419,37 @@ export default function CheckoutPage() {
                   className="flex items-center justify-between"
                 >
                   <div className="flex-1">
-                    <h4 className="font-medium">{item.product.name}</h4>
+                    <h4 className="font-medium">
+                      {item.product.name}
+                      {item.isCombo && (
+                        <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                          Combo
+                        </span>
+                      )}
+                    </h4>
                     <p className="text-sm text-gray-600">
                       ৳
-                      {(
-                        item.product.sale_price || item.product.price
-                      ).toLocaleString()}{" "}
+                      {item.isCombo && item.comboPrice
+                        ? item.comboPrice.toLocaleString()
+                        : (
+                            item.product.sale_price || item.product.price
+                          ).toLocaleString()}{" "}
                       × {item.quantity}
                     </p>
+                    {item.isCombo && item.comboItems && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Includes: {item.comboItems.map(ci => ci.product.name).join(", ")}
+                      </p>
+                    )}
                   </div>
                   <span className="font-medium">
                     ৳
-                    {(
-                      (item.product.sale_price || item.product.price) *
-                      item.quantity
-                    ).toLocaleString()}
+                    {item.isCombo && item.comboPrice
+                      ? (item.comboPrice * item.quantity).toLocaleString()
+                      : (
+                          (item.product.sale_price || item.product.price) *
+                          item.quantity
+                        ).toLocaleString()}
                   </span>
                 </div>
               ))}

@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useCartStore } from "@/lib/cart-store";
 
 export default function CartPage() {
@@ -79,13 +80,25 @@ export default function CartPage() {
                   <div className="flex-1 min-w-0 text-center sm:text-left">
                     <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
                       {item.product.name}
+                      {item.isCombo && (
+                        <Badge className="ml-2 bg-green-600 text-white text-xs">
+                          Combo
+                        </Badge>
+                      )}
                     </h3>
                     <p className="text-gray-600 text-sm sm:text-base">
                       ৳
-                      {(
-                        item.product.sale_price || item.product.price
-                      ).toLocaleString()}
+                      {item.isCombo && item.comboPrice
+                        ? item.comboPrice.toLocaleString()
+                        : (
+                            item.product.sale_price || item.product.price
+                          ).toLocaleString()}
                     </p>
+                    {item.isCombo && item.comboItems && (
+                      <div className="text-xs text-gray-500 mt-1">
+                        Includes: {item.comboItems.map(ci => ci.product.name).join(", ")}
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex items-center justify-center gap-2">
@@ -117,10 +130,12 @@ export default function CartPage() {
                   <div className="text-right flex flex-col items-end gap-2 min-w-[90px]">
                     <p className="text-base sm:text-lg font-semibold text-gray-900">
                       ৳
-                      {(
-                        (item.product.sale_price || item.product.price) *
-                        item.quantity
-                      ).toLocaleString()}
+                      {item.isCombo && item.comboPrice
+                        ? (item.comboPrice * item.quantity).toLocaleString()
+                        : (
+                            (item.product.sale_price || item.product.price) *
+                            item.quantity
+                          ).toLocaleString()}
                     </p>
                     <Button
                       variant="ghost"
