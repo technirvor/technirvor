@@ -95,7 +95,7 @@ export default function AdminSidebar() {
   return (
     <div
       className={cn(
-        "bg-white border-r border-gray-200 transition-all duration-300 flex flex-col",
+        "bg-white border-r border-gray-200 transition-all duration-300 flex flex-col shadow-sm",
         collapsed ? "w-16" : "w-64"
       )}
     >

@@ -51,46 +51,77 @@ export default function AdminDashboard() {
 
   const fetchDashboardStats = async () => {
     try {
-      // Fetch orders stats
-      const { data: orders } = await supabase
-        .from("orders")
-        .select("status, total_amount, created_at");
+      setLoading(true);
+      
+      // Use Promise.all for parallel queries with optimized selects
+      const [
+        ordersCountResult,
+        pendingOrdersResult,
+        revenueResult,
+        todayOrdersResult,
+        productsCountResult,
+        lowStockResult
+      ] = await Promise.all([
+        // Total orders count
+        supabase
+          .from("orders")
+          .select("*", { count: 'exact', head: true }),
+        
+        // Pending orders count
+        supabase
+          .from("orders")
+          .select("*", { count: 'exact', head: true })
+          .eq("status", "pending"),
+        
+        // Total revenue
+        supabase
+          .from("orders")
+          .select("total_amount")
+          .not("total_amount", "is", null),
+        
+        // Today's orders
+        supabase
+          .from("orders")
+          .select("*", { count: 'exact', head: true })
+          .gte("created_at", new Date().toISOString().split("T")[0]),
+        
+        // Total products count
+        supabase
+          .from("products")
+          .select("*", { count: 'exact', head: true }),
+        
+        // Low stock products count
+        supabase
+          .from("products")
+          .select("*", { count: 'exact', head: true })
+          .lt("stock_quantity", 10)
+      ]);
 
-      // Fetch products stats
-      const { data: products } = await supabase
-        .from("products")
-        .select("stock_quantity");
+      // Calculate total revenue
+      const totalRevenue = revenueResult.data?.reduce(
+        (sum, order) => sum + (order.total_amount || 0),
+        0
+      ) || 0;
 
-      if (orders && products) {
-        const today = new Date().toISOString().split("T")[0];
-        const todayOrders = orders.filter((order) =>
-          order.created_at.startsWith(today)
-        ).length;
-
-        const pendingOrders = orders.filter(
-          (order) => order.status === "pending"
-        ).length;
-
-        const totalRevenue = orders.reduce(
-          (sum, order) => sum + (order.total_amount || 0),
-          0
-        );
-
-        const lowStockProducts = products.filter(
-          (product) => (product.stock_quantity || 0) < 10
-        ).length;
-
-        setStats({
-          totalOrders: orders.length,
-          pendingOrders,
-          totalProducts: products.length,
-          lowStockProducts,
-          totalRevenue,
-          todayOrders,
-        });
-      }
+      setStats({
+        totalOrders: ordersCountResult.count || 0,
+        pendingOrders: pendingOrdersResult.count || 0,
+        totalProducts: productsCountResult.count || 0,
+        lowStockProducts: lowStockResult.count || 0,
+        totalRevenue,
+        todayOrders: todayOrdersResult.count || 0,
+      });
     } catch (error) {
       console.error("Error fetching dashboard stats:", error);
+      // Set default values on error
+      setStats({
+        totalOrders: 0,
+        pendingOrders: 0,
+        totalProducts: 0,
+        lowStockProducts: 0,
+        totalRevenue: 0,
+        todayOrders: 0,
+      });
     } finally {
       setLoading(false);
     }

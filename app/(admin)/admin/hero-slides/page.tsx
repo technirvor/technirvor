@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,8 @@ import {
   ImageIcon,
   ArrowUp,
   ArrowDown,
+  Upload,
+  X,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import type { HeroSlide } from "@/lib/types";
@@ -45,6 +47,9 @@ export default function AdminHeroSlidesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSlide, setEditingSlide] = useState<HeroSlide | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     subtitle: "",
@@ -72,6 +77,94 @@ export default function AdminHeroSlidesPage() {
       toast.error("Failed to fetch hero slides");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Image upload functions
+  const uploadImage = async (file: File): Promise<string | null> => {
+    try {
+      setUploading(true);
+      
+      // Create a unique filename
+      const fileExt = file.name.split('.').pop();
+      const fileName = `hero-slide-${Date.now()}.${fileExt}`;
+      
+      // Upload to Supabase storage
+      const { data, error } = await supabase.storage
+        .from('hero-slides')
+        .upload(fileName, file);
+      
+      if (error) {
+        console.error('Upload error:', error);
+        toast.error('Failed to upload image');
+        return null;
+      }
+      
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('hero-slides')
+        .getPublicUrl(fileName);
+      
+      return publicUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast.error('Failed to upload image');
+      return null;
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleFileSelect = async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+    
+    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      toast.error('Image size should be less than 5MB');
+      return;
+    }
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setPreviewImage(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+    
+    // Upload image
+    const imageUrl = await uploadImage(file);
+    if (imageUrl) {
+      setFormData(prev => ({ ...prev, image_url: imageUrl }));
+      toast.success('Image uploaded successfully');
+    }
+  };
+
+  // Drag and drop handlers
+  const handleDrag = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFileSelect(e.dataTransfer.files[0]);
+    }
+  }, []);
+
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      handleFileSelect(e.target.files[0]);
     }
   };
 
@@ -180,6 +273,8 @@ export default function AdminHeroSlidesPage() {
       is_active: true,
       order_index: slides.length + 1,
     });
+    setPreviewImage(null);
+    setEditingSlide(null);
   };
 
   const filteredSlides = slides.filter((slide) =>
@@ -252,14 +347,82 @@ export default function AdminHeroSlidesPage() {
               </div>
               
               <div>
-                <Label htmlFor="image_url">Image URL</Label>
-                <Input
-                  id="image_url"
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  placeholder="https://example.com/image.jpg"
-                  required
-                />
+                <Label>Hero Slide Image</Label>
+                <div className="space-y-4">
+                  {/* Drag and Drop Upload Area */}
+                  <div
+                    className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+                      dragActive
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-300 hover:border-gray-400"
+                    }`}
+                    onDragEnter={handleDrag}
+                    onDragLeave={handleDrag}
+                    onDragOver={handleDrag}
+                    onDrop={handleDrop}
+                  >
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileInput}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      disabled={uploading}
+                    />
+                    
+                    {uploading ? (
+                      <div className="flex flex-col items-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2"></div>
+                        <p className="text-sm text-gray-600">Uploading image...</p>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center">
+                        <Upload className="h-8 w-8 text-gray-400 mb-2" />
+                        <p className="text-sm text-gray-600 mb-1">
+                          <span className="font-medium">Click to upload</span> or drag and drop
+                        </p>
+                        <p className="text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Image Preview */}
+                  {(previewImage || formData.image_url) && (
+                    <div className="relative">
+                      <div className="relative w-full h-32 bg-gray-100 rounded-lg overflow-hidden">
+                        <Image
+                          src={previewImage || formData.image_url}
+                          alt="Preview"
+                          fill
+                          className="object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPreviewImage(null);
+                            setFormData(prev => ({ ...prev, image_url: "" }));
+                          }}
+                          className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Manual URL Input */}
+                  <div className="text-center">
+                    <p className="text-xs text-gray-500 mb-2">Or enter image URL manually:</p>
+                    <Input
+                      value={formData.image_url}
+                      onChange={(e) => {
+                        setFormData({ ...formData, image_url: e.target.value });
+                        setPreviewImage(null);
+                      }}
+                      placeholder="https://example.com/image.jpg"
+                      className="text-sm"
+                    />
+                  </div>
+                </div>
               </div>
               
               <div>

@@ -16,6 +16,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
   Edit,
   Trash2,
   Plus,
@@ -23,46 +32,73 @@ import {
   Eye,
   AlertTriangle,
   Package,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import type { Product } from "@/lib/types";
 import { toast } from "sonner";
 
+const ITEMS_PER_PAGE = 10;
+
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-    fetchProducts();
+    fetchProducts(1, "");
   }, []);
 
   useEffect(() => {
-    const filtered = products.filter(
-      (product) =>
-        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.category?.name
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()),
-    );
-    setFilteredProducts(filtered);
-  }, [products, searchQuery]);
+    const timeoutId = setTimeout(() => {
+      fetchProducts(1, searchQuery);
+    }, 300); // Debounce search
 
-  const fetchProducts = async () => {
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
+
+  const handlePageChange = (page: number) => {
+    fetchProducts(page, searchQuery);
+  };
+
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+
+  const fetchProducts = async (page = 1, search = "") => {
     try {
-      const { data, error } = await supabase
+      setLoading(true);
+      
+      let query = supabase
         .from("products")
         .select(
           `
           *,
-          category:categories(*)
+          category:categories(id, name)
         `,
+          { count: 'exact' }
         )
         .order("created_at", { ascending: false });
 
+      // Add search filter if provided
+      if (search.trim()) {
+        query = query.or(`name.ilike.%${search}%,categories.name.ilike.%${search}%`);
+      }
+
+      // Add pagination
+      const from = (page - 1) * ITEMS_PER_PAGE;
+      const to = from + ITEMS_PER_PAGE - 1;
+      query = query.range(from, to);
+
+      const { data, error, count } = await query;
+
       if (error) throw error;
+      
       setProducts(data || []);
+      setTotalCount(count || 0);
+      setCurrentPage(page);
     } catch (error) {
       console.error("Error fetching products:", error);
       toast.error("Failed to fetch products");
@@ -161,8 +197,8 @@ export default function AdminProductsPage() {
     );
   }
 
-  const lowStockProducts = products.filter((p) => p.stock <= 10 && p.stock > 0);
-  const outOfStockProducts = products.filter((p) => p.stock === 0);
+  const lowStockProducts = products.filter((p) => (p.stock || 0) <= 10 && (p.stock || 0) > 0);
+  const outOfStockProducts = products.filter((p) => (p.stock || 0) === 0);
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -185,7 +221,7 @@ export default function AdminProductsPage() {
                 </Badge>
               )}
               <Badge variant="outline" className="text-blue-600">
-                Total: {products.length} Products
+                Total: {totalCount} Products
               </Badge>
             </div>
           </div>
@@ -217,24 +253,47 @@ export default function AdminProductsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>All Products ({filteredProducts.length})</CardTitle>
+            <CardTitle>
+              Products ({products.length} of {totalCount})
+              {searchQuery && (
+                <span className="text-sm font-normal text-gray-500 ml-2">
+                  - Filtered by "{searchQuery}"
+                </span>
+              )}
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Image</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Price</TableHead>
-                    <TableHead>Stock</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredProducts.map((product) => {
+            {loading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              </div>
+            ) : (
+              <>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Image</TableHead>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Category</TableHead>
+                        <TableHead>Price</TableHead>
+                        <TableHead>Stock</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {products.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={7} className="text-center py-8">
+                            <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                            <p className="text-gray-500">
+                              {searchQuery ? 'No products found matching your search.' : 'No products found.'}
+                            </p>
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        products.map((product) => {
                     const stockStatus = getStockStatus(product.stock);
                     return (
                       <TableRow key={product.id}>
@@ -374,13 +433,72 @@ export default function AdminProductsPage() {
                         </TableCell>
                       </TableRow>
                     );
-                  })}
+                  }))}
                 </TableBody>
               </Table>
             </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
+            
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between mt-6">
+                <div className="text-sm text-gray-500">
+                  Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, totalCount)} of {totalCount} products
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    Previous
+                  </Button>
+                  
+                  <div className="flex items-center space-x-1">
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      let pageNum;
+                      if (totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
+                      
+                      return (
+                        <Button
+                          key={pageNum}
+                          variant={currentPage === pageNum ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handlePageChange(pageNum)}
+                          className="w-8 h-8 p-0"
+                        >
+                          {pageNum}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </CardContent>
+    </Card>
+  </div>
+</div>
+);
 }
