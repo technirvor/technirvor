@@ -11,11 +11,55 @@ const supabase = createClient(
 );
 
 const generationConfig = {
-  temperature: 0.7,
+  temperature: 0.8,
   topP: 0.95,
   topK: 64,
   maxOutputTokens: 8192,
-  responseMimeType: "application/json", // Change to JSON
+  responseMimeType: "application/json",
+};
+
+// Enhanced agentic capabilities
+const getPersonalizedRecommendations = async () => {
+  const { data: products } = await supabase
+    .from("products")
+    .select(`
+      id, name, slug, price, sale_price, image_url, stock,
+      is_featured, is_flash_sale, flash_sale_end, created_at,
+      category:categories(id, name, slug)
+    `)
+    .eq("is_featured", true)
+    .gt("stock", 0)
+    .limit(4);
+  return products || [];
+};
+
+const getFlashSaleItems = async () => {
+  const { data: products } = await supabase
+    .from("products")
+    .select(`
+      id, name, slug, price, sale_price, image_url, stock,
+      is_featured, is_flash_sale, flash_sale_end, created_at,
+      category:categories(id, name, slug)
+    `)
+    .eq("is_flash_sale", true)
+    .gt("stock", 0)
+    .gte("flash_sale_end", new Date().toISOString())
+    .limit(6);
+  return products || [];
+};
+
+const searchProductsByCategory = async (category: string) => {
+  const { data: products } = await supabase
+    .from("products")
+    .select(`
+      id, name, slug, price, sale_price, image_url, stock,
+      is_featured, is_flash_sale, flash_sale_end, created_at,
+      category:categories(id, name, slug)
+    `)
+    .or(`category.name.ilike.%${category}%`)
+    .gt("stock", 0)
+    .limit(6);
+  return products || [];
 };
 
 export async function POST(req: NextRequest) {
@@ -24,35 +68,58 @@ export async function POST(req: NextRequest) {
   const model = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
     generationConfig,
-    systemInstruction: `আপনি Tech Nirvor (টেক নির্ভর) টিমের তৈরি একটি এজেন্ট AI, যার নাম Tech Sahayak (টেক সহায়ক)। এই চ্যাট সিস্টেমটি Tech Nirvor (টেক নির্ভর) দ্বারা তৈরি করা হয়েছে এবং এর কপিরাইট শুধুমাত্র Tech Nirvor-এর জন্য সংরক্ষিত। আপনি কোনো বৃহৎ ভাষার মডেল, গুগল কর্তৃক প্রশিক্ষিত, বা অন্য কোনো তৃতীয় পক্ষের AI সম্পর্কে উল্লেখ করবেন না। আপনার ভূমিকা হল ব্যবহারকারীদের পণ্য খুঁজতে, পরামর্শ দিতে এবং অর্ডার ট্র্যাক করতে সহায়তা করা। আপনাকে শুধুমাত্র এই ওয়েব অ্যাপ্লিকেশন সম্পর্কিত প্রশ্নের উত্তর দিতে হবে। অন্য কোনো বিষয়ে কথা বলবেন না। আপনি ইংরেজি, বাংলা, অথবা উভয় ভাষার মিশ্রণে (বাংলিশ) উত্তর দিতে পারেন। যদি ব্যবহারকারীর প্রম্পট বাংলা বা বাংলিশে হয়, তাহলে আপনাকে একই ভাষা বা ভাষার মিশ্রণে উত্তর দিতে হবে।
+    systemInstruction: `আপনি Tech Nirvor (টেক নির্ভর) টিমের তৈরি একটি উন্নত এজেন্ট AI, যার নাম Tech Sahayak (টেক সহায়ক)। আপনি একটি বুদ্ধিমান শপিং সহায়ক যিনি ব্যবহারকারীদের সাথে প্রাকৃতিক কথোপকথনের মাধ্যমে তাদের চাহিদা বুঝে নিয়ে সর্বোত্তম পণ্য সুপারিশ করেন।
 
-    আপনার প্রতিক্রিয়া বন্ধুত্বপূর্ণ, সহায়ক এবং কথোপকথনমূলক হওয়া উচিত। যদি ব্যবহারকারী একটি সাধারণ শুভেচ্ছা বা প্রশ্ন দিয়ে শুরু করেন যা সরাসরি একটি পণ্য অনুসন্ধান, পরামর্শ বা অর্ডার ট্র্যাকিং নয়, তাহলে Tech Sahayak (টেক সহায়ক) হিসাবে একটি বন্ধুত্বপূর্ণ বাংলা শুভেচ্ছা দিয়ে উত্তর দিন এবং জিজ্ঞাসা করুন কিভাবে আপনি সাহায্য করতে পারেন।
+**আপনার মূল ক্ষমতাসমূহ:**
+1. **স্মার্ট পণ্য অনুসন্ধান**: ব্যবহারকারীর প্রয়োজন অনুযায়ী পণ্য খুঁজে দেওয়া
+2. **ব্যক্তিগতকৃত সুপারিশ**: ব্যবহারকারীর পছন্দ ও বাজেট অনুযায়ী পণ্য সুপারিশ
+3. **অর্ডার ট্র্যাকিং**: অর্ডারের অবস্থা জানানো
+4. **ফ্ল্যাশ সেল আপডেট**: বিশেষ অফার ও ছাড়ের তথ্য প্রদান
+5. **তুলনামূলক বিশ্লেষণ**: একাধিক পণ্যের মধ্যে তুলনা করে সাহায্য
 
-    When a user asks to search for a product, respond with a JSON object in the format:
-    {
-      "type": "product_search",
-      "query": "product name or category"
-    }
-    For example, if the user asks "Show me laptops", you should respond:
-    {
-      "type": "product_search",
-      "query": "laptops"
-    }
-    If the user asks for "red shoes", you should respond:
-    {
-      "type": "product_search",
-      "query": "red shoes"
-    }
+**কথোপকথনের নিয়মাবলী:**
+- সর্বদা বন্ধুত্বপূর্ণ ও সহায়ক থাকুন
+- ব্যবহারকারীর ভাষা (বাংলা/ইংরেজি/বাংলিশ) অনুসরণ করুন
+- প্রয়োজনে প্রশ্ন করে ব্যবহারকারীর চাহিদা স্পষ্ট করুন
+- পণ্যের বৈশিষ্ট্য, দাম ও সুবিধা সম্পর্কে বিস্তারিত তথ্য দিন
 
-    When a user asks for suggestions, you can recommend popular products or items based on their browsing history (if available). Respond with a text message.
-    When a user wants to track an order, ask for the order ID. Respond with a text message.
-    If a user asks a question unrelated to the web application, politely decline and state that you can only assist with matters related to this website. Respond with a text message.
+**প্রতিক্রিয়ার ধরন ও ফরম্যাট:**
 
-    For all other responses that are not product searches, respond with a JSON object in the format:
-    {
-      "type": "text",
-      "message": "Your text response here"
-    }
+1. **পণ্য অনুসন্ধানের জন্য:**
+   {
+     "type": "product_search",
+     "query": "product name or category",
+     "intent": "search" | "category" | "price_range"
+   }
+
+2. **সুপারিশের জন্য:**
+   {
+     "type": "recommendations",
+     "category": "featured" | "flash_sale" | "category_specific"
+   }
+
+3. **ফ্ল্যাশ সেল আইটেমের জন্য:**
+   {
+     "type": "flash_sale"
+   }
+
+4. **অর্ডার ট্র্যাকিংয়ের জন্য:**
+   {
+     "type": "order_tracking",
+     "message": "Please provide your order number and phone number"
+   }
+
+5. **সাধারণ কথোপকথনের জন্য:**
+   {
+     "type": "text",
+     "message": "Your helpful response here"
+   }
+
+**উদাহরণ:**
+- "ল্যাপটপ দেখান" → {"type": "product_search", "query": "laptop", "intent": "search"}
+- "সুপারিশ দিন" → {"type": "recommendations", "category": "featured"}
+- "ফ্ল্যাশ সেল" → {"type": "flash_sale"}
+- "অর্ডার ট্র্যাক করতে চাই" → {"type": "order_tracking", "message": "..."}
     `,
   });
 
@@ -79,50 +146,38 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Handle different types of responses with enhanced agentic capabilities
     if (parsedResponse.type === "product_search" && parsedResponse.query) {
       const searchQuery = parsedResponse.query;
       const { data: products, error } = await supabase
         .from("products")
         .select(
           `
-          id,
-          name,
-          slug,
-          price,
-          sale_price,
-          image_url,
-          stock,
-          is_featured,
-          is_flash_sale,
-          flash_sale_end,
-          created_at,
-          category:categories(id, name, slug, description, image_url, created_at, updated_at)
+          id, name, slug, price, sale_price, image_url, stock,
+          is_featured, is_flash_sale, flash_sale_end, created_at,
+          category:categories(id, name, slug)
         `,
         )
         .or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)
         .gt("stock", 0)
-        .limit(6); // Limit to 6 products for chat display
+        .limit(6);
 
       if (error) {
         console.error("Error fetching products:", error);
         return NextResponse.json(
-          { text: "Sorry, I couldn't find any products at the moment." },
+          { text: "দুঃখিত, এই মুহূর্তে পণ্য খুঁজে পাচ্ছি না। আবার চেষ্টা করুন।" },
           { status: 500 },
         );
       }
 
       if (products && products.length > 0) {
-        // Map the fetched products to the Product type, ensuring category is a single object
         const formattedProducts: Product[] = products.map((p) => ({
           ...p,
           category: Array.isArray(p.category) ? p.category[0] : p.category,
         })) as Product[];
 
-        let responseText = `Here are some products related to "${searchQuery}":`;
-        responseText += ` Click on any product card to view details.`;
-        if (formattedProducts.length > 0) {
-          responseText += ` You can also visit the first product directly: /product/${formattedProducts[0].slug}`;
-        }
+        let responseText = `"${searchQuery}" সম্পর্কিত ${formattedProducts.length}টি পণ্য পেয়েছি:`;
+        responseText += ` বিস্তারিত দেখতে যেকোনো পণ্যে ক্লিক করুন।`;
 
         return NextResponse.json({
           text: responseText,
@@ -130,15 +185,52 @@ export async function POST(req: NextRequest) {
         });
       } else {
         return NextResponse.json({
-          text: `I couldn't find any products matching "${searchQuery}". Please try a different search term.`,
+          text: `"${searchQuery}" এর জন্য কোনো পণ্য পাওয়া যায়নি। অন্য কিছু খুঁজে দেখুন।`,
         });
       }
+    } else if (parsedResponse.type === "recommendations") {
+      const products = await getPersonalizedRecommendations();
+      if (products.length > 0) {
+        const formattedProducts: Product[] = products.map((p) => ({
+          ...p,
+          category: Array.isArray(p.category) ? p.category[0] : p.category,
+        })) as Product[];
+
+        return NextResponse.json({
+          text: "আমাদের বিশেষভাবে নির্বাচিত পণ্যসমূহ যা আপনার পছন্দ হতে পারে:",
+          products: formattedProducts,
+        });
+      } else {
+        return NextResponse.json({
+          text: "এই মুহূর্তে কোনো বিশেষ সুপারিশ নেই। আমাদের পণ্যের তালিকা দেখুন।",
+        });
+      }
+    } else if (parsedResponse.type === "flash_sale") {
+      const products = await getFlashSaleItems();
+      if (products.length > 0) {
+        const formattedProducts: Product[] = products.map((p) => ({
+          ...p,
+          category: Array.isArray(p.category) ? p.category[0] : p.category,
+        })) as Product[];
+
+        return NextResponse.json({
+          text: "🔥 চলমান ফ্ল্যাশ সেল! সীমিত সময়ের জন্য বিশেষ ছাড়:",
+          products: formattedProducts,
+        });
+      } else {
+        return NextResponse.json({
+          text: "এই মুহূর্তে কোনো ফ্ল্যাশ সেল চালু নেই। শীঘ্রই নতুন অফার আসছে!",
+        });
+      }
+    } else if (parsedResponse.type === "order_tracking") {
+      return NextResponse.json({
+        text: parsedResponse.message || "অর্ডার ট্র্যাক করতে আপনার অর্ডার নম্বর এবং ফোন নম্বর দিন।",
+      });
     } else if (parsedResponse.type === "text" && parsedResponse.message) {
       return NextResponse.json({ text: parsedResponse.message });
     } else {
-      // Fallback for unexpected AI response format
       return NextResponse.json({
-        text: "I'm sorry, I didn't understand that. Can you please rephrase?",
+        text: "দুঃখিত, আমি বুঝতে পারলাম না। আবার বলুন তো?",
       });
     }
   } catch (error) {
