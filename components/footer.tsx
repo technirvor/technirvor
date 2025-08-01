@@ -17,17 +17,16 @@ export default function Footer() {
             <div className="flex items-center space-x-2">
               <img 
                 src="/logo/logo-white.png" 
-                alt="Tech Nirvor" 
+                alt="টেক নির্ভর" 
                 className="h-8 w-auto"
                 onError={(e) => {
                   e.currentTarget.src = "/placeholder-logo.png";
                 }}
               />
-              <span className="text-xl font-bold">Tech Nirvor</span>
+              <span className="text-xl font-bold">টেক নির্ভর</span>
             </div>
             <p className="text-gray-300 text-sm leading-relaxed">
-              Your trusted online shopping destination in Bangladesh. We offer authentic products 
-              with fast delivery, cash on delivery, and excellent customer service.
+              বাংলাদেশে আপনার বিশ্বস্ত অনলাইন শপিং গন্তব্য। আমরা দ্রুত ডেলিভারি, ক্যাশ অন ডেলিভারি এবং চমৎকার গ্রাহক সেবা সহ খাঁটি পণ্য অফার করি।
             </p>
             <div className="flex space-x-4">
               <Link 
@@ -63,36 +62,36 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Quick Links</h3>
+            <h3 className="text-lg font-semibold">দ্রুত লিংক</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Home
+                  হোম
                 </Link>
               </li>
               <li>
                 <Link href="/products" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  All Products
+                  সকল পণ্য
                 </Link>
               </li>
               <li>
                 <Link href="/categories" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Categories
+                  ক্যাটেগরি
                 </Link>
               </li>
               <li>
                 <Link href="/combo-offers" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Combo Offers
+                  কম্বো অফার
                 </Link>
               </li>
               <li>
                 <Link href="/flash-sale" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Flash Sale
+                  ফ্ল্যাশ সেল
                 </Link>
               </li>
               <li>
                 <Link href="/track-order" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Track Order
+                  অর্ডার ট্র্যাক
                 </Link>
               </li>
             </ul>
@@ -100,36 +99,36 @@ export default function Footer() {
 
           {/* Business Pages */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Business</h3>
+            <h3 className="text-lg font-semibold">তথ্য</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/about-us" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  About Us
+                  আমাদের সম্পর্কে
                 </Link>
               </li>
               <li>
                 <Link href="/contact-us" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Contact Us
+                  যোগাযোগ করুন
                 </Link>
               </li>
               <li>
                 <Link href="/privacy-policy" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Privacy Policy
+                  গোপনীয়তা নীতি
                 </Link>
               </li>
               <li>
                 <Link href="/terms-and-conditions" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Terms & Conditions
+                  শর্তাবলী
                 </Link>
               </li>
               <li>
                 <Link href="/return-policy" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Return Policy
+                  ফেরত নীতি
                 </Link>
               </li>
               <li>
                 <Link href="/shipping-policy" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Shipping Policy
+                  শিপিং নীতি
                 </Link>
               </li>
             </ul>
@@ -137,20 +136,20 @@ export default function Footer() {
 
           {/* Contact Info */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Contact Info</h3>
+            <h3 className="text-lg font-semibold">যোগাযোগের তথ্য</h3>
             <div className="space-y-3">
               <div className="flex items-start space-x-3">
                 <MapPin className="w-4 h-4 text-gray-400 mt-1 flex-shrink-0" />
                 <div className="text-sm text-gray-300">
-                  <p>123 Commerce Street</p>
-                  <p>Dhaka 1000, Bangladesh</p>
+                  <p>১২৩ কমার্স স্ট্রিট</p>
+                  <p>ঢাকা ১০০০, বাংলাদেশ</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
                 <Phone className="w-4 h-4 text-gray-400 flex-shrink-0" />
                 <div className="text-sm text-gray-300">
-                  <p>+880 1410-077761</p>
-                  <p>+880 1710-123456</p>
+                  <p>+৮৮০ ১৪১০-০৭৭৭৬১</p>
+                  <p>+৮৮০ ১৭১০-১২৩৪৫৬</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
@@ -163,9 +162,9 @@ export default function Footer() {
               <div className="flex items-start space-x-3">
                 <Clock className="w-4 h-4 text-gray-400 mt-1 flex-shrink-0" />
                 <div className="text-sm text-gray-300">
-                  <p>Customer Service:</p>
-                  <p>9:00 AM - 10:00 PM</p>
-                  <p>7 Days a Week</p>
+                  <p>গ্রাহক সেবা:</p>
+                  <p>সকাল ৯:০০ - রাত ১০:০০</p>
+                  <p>সপ্তাহে ৭ দিন</p>
                 </div>
               </div>
             </div>
@@ -179,16 +178,16 @@ export default function Footer() {
       <div className="container mx-auto px-4 py-6">
         <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
           <div className="text-sm text-gray-400">
-            © {currentYear} Tech Nirvor. All rights reserved.
+            © {currentYear} টেক নির্ভর। সকল অধিকার সংরক্ষিত।
           </div>
           <div className="flex flex-wrap items-center space-x-6 text-sm text-gray-400">
-            <span>Secure Payment</span>
+            <span>নিরাপদ পেমেন্ট</span>
             <span>•</span>
-            <span>Cash on Delivery</span>
+            <span>ক্যাশ অন ডেলিভারি</span>
             <span>•</span>
-            <span>Fast Delivery</span>
+            <span>দ্রুত ডেলিভারি</span>
             <span>•</span>
-            <span>Authentic Products</span>
+            <span>খাঁটি পণ্য</span>
           </div>
         </div>
       </div>
