@@ -243,10 +243,12 @@ export default function CheckoutPage() {
 
       const subtotal = getTotalPrice();
       
-      // Check if any product in cart has free delivery
-      const hasFreeDeliveryProduct = items.some(item => item.product.has_free_delivery);
+      // Check delivery logic: Free delivery only if ALL products have free delivery
+      const freeDeliveryProducts = items.filter(item => item.product.has_free_delivery === true);
+      const regularProducts = items.filter(item => item.product.has_free_delivery !== true);
+      const allProductsHaveFreeDelivery = items.length > 0 && regularProducts.length === 0;
       const baseDeliveryCharge = selectedDistrict?.delivery_charge || 60;
-      const deliveryCharge = hasFreeDeliveryProduct ? 0 : baseDeliveryCharge;
+      const deliveryCharge = allProductsHaveFreeDelivery ? 0 : baseDeliveryCharge;
       const totalAmount = subtotal + deliveryCharge;
 
       const orderData = {
@@ -299,10 +301,12 @@ export default function CheckoutPage() {
 
   const subtotal = getTotalPrice();
   
-  // Check if any product in cart has free delivery (with fallback for missing column)
-  const hasFreeDeliveryProduct = items.some(item => item.product.has_free_delivery === true);
+  // Check delivery logic: Free delivery only if ALL products have free delivery
+  const freeDeliveryProducts = items.filter(item => item.product.has_free_delivery === true);
+  const regularProducts = items.filter(item => item.product.has_free_delivery !== true);
+  const allProductsHaveFreeDelivery = items.length > 0 && regularProducts.length === 0;
   const baseDeliveryCharge = selectedDistrict?.delivery_charge || 60;
-  const deliveryCharge = hasFreeDeliveryProduct ? 0 : baseDeliveryCharge;
+  const deliveryCharge = allProductsHaveFreeDelivery ? 0 : baseDeliveryCharge;
   const total = subtotal + deliveryCharge;
 
   if (!hydrated || items.length === 0) {
@@ -472,7 +476,7 @@ export default function CheckoutPage() {
                 <div className="flex justify-between">
                   <span>Delivery Charge</span>
                   <div className="text-right">
-                    {hasFreeDeliveryProduct ? (
+                    {allProductsHaveFreeDelivery ? (
                       <div>
                         <span className="line-through text-gray-400 text-sm">৳{baseDeliveryCharge.toLocaleString()}</span>
                         <span className="text-green-600 font-medium ml-2">FREE</span>
@@ -482,9 +486,14 @@ export default function CheckoutPage() {
                     )}
                   </div>
                 </div>
-                {hasFreeDeliveryProduct && (
+                {allProductsHaveFreeDelivery && (
                   <div className="text-xs text-green-600 font-medium">
                     🎉 Free delivery applied!
+                  </div>
+                )}
+                {freeDeliveryProducts.length > 0 && regularProducts.length > 0 && (
+                  <div className="text-xs text-amber-600 font-medium">
+                    ⚠️ Mix of free delivery and regular products - delivery charge applies
                   </div>
                 )}
                 <Separator />

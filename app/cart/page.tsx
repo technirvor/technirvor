@@ -85,6 +85,11 @@ export default function CartPage() {
                           Combo
                         </Badge>
                       )}
+                      {item.product.has_free_delivery === true && (
+                        <Badge className="ml-2 bg-green-100 text-green-800 border border-green-300 text-xs font-semibold">
+                          🚚 Free Delivery
+                        </Badge>
+                      )}
                     </h3>
                     <p className="text-gray-600 text-sm sm:text-base">
                       ৳
@@ -97,6 +102,11 @@ export default function CartPage() {
                     {item.isCombo && item.comboItems && (
                       <div className="text-xs text-gray-500 mt-1">
                         Includes: {item.comboItems.map(ci => ci.product.name).join(", ")}
+                      </div>
+                    )}
+                    {item.product.has_free_delivery === true && item.product.free_delivery_note && (
+                      <div className="text-xs text-green-600 font-medium mt-1">
+                        {item.product.free_delivery_note}
                       </div>
                     )}
                   </div>
@@ -154,45 +164,80 @@ export default function CartPage() {
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 sticky top-8">
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 sm:p-6 sticky top-8">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6 border-b border-gray-100 pb-3">
                 Order Summary
               </h2>
 
-              <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
+              <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
                 <div className="flex justify-between text-sm sm:text-base">
                   <span className="text-gray-600">Subtotal</span>
                   <span className="font-medium">
                     ৳{getTotalPrice().toLocaleString()}
                   </span>
                 </div>
-                <div className="flex justify-between text-sm sm:text-base">
-                  <span className="text-gray-600">Delivery</span>
-                  <span className="font-medium">৳60</span>
-                </div>
-                <div className="border-t pt-2 sm:pt-3">
-                  <div className="flex justify-between text-base sm:text-lg font-semibold">
-                    <span>Total</span>
-                    <span>৳{(getTotalPrice() + 60).toLocaleString()}</span>
-                  </div>
-                </div>
+                {(() => {
+                  // Check delivery logic: Free delivery only if ALL products have free delivery
+                  const freeDeliveryProducts = items.filter(item => item.product.has_free_delivery === true);
+                  const regularProducts = items.filter(item => item.product.has_free_delivery !== true);
+                  const allProductsHaveFreeDelivery = items.length > 0 && regularProducts.length === 0;
+                  const deliveryCharge = allProductsHaveFreeDelivery ? 0 : 60;
+                  
+                  return (
+                    <>
+                      <div className="bg-gray-50 rounded-lg p-3 border">
+                        <div className="flex justify-between text-sm sm:text-base mb-2">
+                          <span className="text-gray-700 font-medium">Delivery Charge</span>
+                          <div className="text-right">
+                            {allProductsHaveFreeDelivery ? (
+                              <>
+                                <span className="line-through text-gray-400 text-xs">৳60</span>
+                                <span className="font-bold text-green-600 ml-2 text-sm">FREE</span>
+                              </>
+                            ) : (
+                              <span className="font-semibold text-gray-900">৳60</span>
+                            )}
+                          </div>
+                        </div>
+                        {allProductsHaveFreeDelivery && (
+                          <div className="text-xs text-green-700 font-medium bg-green-50 px-2 py-1 rounded border border-green-200">
+                            🎉 Free delivery applied to all items!
+                          </div>
+                        )}
+                        {freeDeliveryProducts.length > 0 && regularProducts.length > 0 && (
+                          <div className="text-xs text-amber-700 font-medium bg-amber-50 px-2 py-1 rounded border border-amber-200">
+                            ⚠️ Mixed cart: Delivery charge applies due to regular products
+                          </div>
+                        )}
+                      </div>
+                      <div className="border-t-2 border-gray-200 pt-4 mt-4">
+                         <div className="flex justify-between text-lg sm:text-xl font-bold text-gray-900">
+                           <span>Total Amount</span>
+                           <span className="text-blue-600">৳{(getTotalPrice() + deliveryCharge).toLocaleString()}</span>
+                         </div>
+                       </div>
+                    </>
+                  );
+                })()}
               </div>
 
-              <Link href="/checkout">
-                <Button size="lg" className="w-full">
-                  Proceed to Checkout
-                </Button>
-              </Link>
+              <div className="space-y-3 mt-6">
+                <Link href="/checkout">
+                  <Button size="lg" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
+                    Proceed to Checkout
+                  </Button>
+                </Link>
 
-              <Link href="/products">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="w-full mt-2 sm:mt-3 bg-transparent"
-                >
-                  Continue Shopping
-                </Button>
-              </Link>
+                <Link href="/products">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-full border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 font-medium py-3 rounded-lg transition-all duration-200"
+                  >
+                    Continue Shopping
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>

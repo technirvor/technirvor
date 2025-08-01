@@ -106,7 +106,7 @@ export default function ProductCard({
                 Low Stock
               </Badge>
             )}
-            {product.has_free_delivery && (
+            {product.has_free_delivery === true && (
               <Badge
                 variant="outline"
                 className="text-xs font-medium bg-green-100 text-green-800 border-green-200"
@@ -148,7 +148,7 @@ export default function ProductCard({
           </div>
 
           {/* Free Delivery Note */}
-          {product.has_free_delivery && product.free_delivery_note && (
+          {product.has_free_delivery === true && product.free_delivery_note && (
             <div className="mb-2">
               <span className="text-xs text-green-600 font-medium">
                 {product.free_delivery_note}
