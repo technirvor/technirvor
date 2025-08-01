@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
 
     // Bangladeshi phone number validation
     const isValidBangladeshiPhone = (phone: string) => {
-      // Accepts 01XXXXXXXXX or +8801XXXXXXXXX (11 or 14 digits)
+      // Accepts 01410077761 or +8801410077761 (11 or 14 digits)
       const pattern = /^(\+8801|01)[3-9]\d{8}$/;
       return pattern.test(phone.trim());
     };
