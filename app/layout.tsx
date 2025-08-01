@@ -6,6 +6,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
 import MobileBottomNav from "@/components/mobile-bottom-nav";
 import { Toaster } from "sonner";
 import {
@@ -279,6 +280,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <Navbar />
         <main className="pb-16 md:pb-0">{children}</main>
+        <Footer />
         <MobileBottomNav />
         <Toaster position="top-right" />
         <Analytics mode="production" />;
