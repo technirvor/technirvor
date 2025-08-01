@@ -16,15 +16,16 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: {
-    default: "Tech Nirvor - Best Online Shopping in Bangladesh",
-    template: "%s | Tech Nirvor",
+    default: "Tech Nirvor - Best Online Shopping in Bangladesh | Electronics, Fashion & More",
+    template: "%s | Tech Nirvor - Best Online Shopping Bangladesh",
   },
   description:
-    "Shop the best products online in Bangladesh. Fast delivery, cash on delivery, authentic products. Electronics, Fashion, Home & Garden, Sports, Books, Beauty products at best prices.",
+    "🛒 Shop the best products online in Bangladesh with Tech Nirvor! ✅ Fast delivery nationwide ✅ Cash on delivery ✅ Authentic products ✅ Best prices. Electronics, Fashion, Home & Garden, Sports, Books, Beauty products. Order now!",
   keywords: [
     "online shopping bangladesh",
-    "ecommerce bd",
-    "cash on delivery",
+    "tech nirvor",
+    "ecommerce bangladesh",
+    "cash on delivery bangladesh",
     "electronics bangladesh",
     "fashion bangladesh",
     "home garden bangladesh",
@@ -32,12 +33,23 @@ export const metadata: Metadata = {
     "books bangladesh",
     "beauty products bangladesh",
     "fast delivery dhaka",
-    "authentic products",
+    "authentic products bangladesh",
     "best prices bangladesh",
+    "online store bd",
+    "shopping bd",
+    "buy online bangladesh",
+    "technirvor",
+    "tech nirvor bd",
+    "bangladesh online shopping",
+    "dhaka online shopping",
+    "chittagong online shopping",
+    "sylhet online shopping",
   ],
-  authors: [{ name: "Tech Nirvor" }],
+  authors: [{ name: "Tech Nirvor", url: "https://technirvor.com" }],
   creator: "Tech Nirvor",
   publisher: "Tech Nirvor",
+  category: "E-commerce",
+  classification: "Online Shopping Platform",
   formatDetection: {
     email: false,
     address: false,
@@ -48,38 +60,51 @@ export const metadata: Metadata = {
   ),
   alternates: {
     canonical: "/",
+    languages: {
+      "en-BD": "/",
+      "bn-BD": "/bn",
+    },
   },
   openGraph: {
     type: "website",
     locale: "en_BD",
     url: "/",
-    title: "Tech Nirvor - Best Online Shopping in Bangladesh",
+    title: "Tech Nirvor - Best Online Shopping in Bangladesh | Electronics, Fashion & More",
     description:
-      "Shop the best products online in Bangladesh. Fast delivery, cash on delivery, authentic products at best prices.",
+      "🛒 Shop the best products online in Bangladesh with Tech Nirvor! ✅ Fast delivery nationwide ✅ Cash on delivery ✅ Authentic products ✅ Best prices. Electronics, Fashion, Home & Garden, Sports, Books, Beauty products. Order now!",
     siteName: "Tech Nirvor",
     images: [
       {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Tech Nirvor - Online Shopping",
+        alt: "Tech Nirvor - Best Online Shopping in Bangladesh",
+      },
+      {
+        url: "/logo/logo-black.png",
+        width: 800,
+        height: 600,
+        alt: "Tech Nirvor Logo",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Tech Nirvor - Best Online Shopping in Bangladesh",
+    site: "@technirvor",
+    title: "Tech Nirvor - Best Online Shopping in Bangladesh | Electronics, Fashion & More",
     description:
-      "Shop the best products online in Bangladesh. Fast delivery, cash on delivery, authentic products at best prices.",
+      "🛒 Shop the best products online in Bangladesh with Tech Nirvor! ✅ Fast delivery nationwide ✅ Cash on delivery ✅ Authentic products ✅ Best prices.",
     images: ["/og-image.jpg"],
     creator: "@technirvor",
   },
   robots: {
     index: true,
     follow: true,
+    nocache: false,
     googleBot: {
       index: true,
       follow: true,
+      noimageindex: false,
       "max-video-preview": -1,
       "max-image-preview": "large",
       "max-snippet": -1,
@@ -90,13 +115,25 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: "default",
     title: "Tech Nirvor",
+    startupImage: [
+      {
+        url: "/icon-512x512.png",
+        media: "(device-width: 768px) and (device-height: 1024px)",
+      },
+    ],
   },
   verification: {
     google: "your-google-verification-code",
     yandex: "your-yandex-verification-code",
     yahoo: "your-yahoo-verification-code",
   },
-  generator: "v0.dev",
+  other: {
+    "mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-capable": "yes",
+    "application-name": "Tech Nirvor",
+    "msapplication-TileColor": "#000000",
+    "msapplication-config": "/browserconfig.xml",
+  },
 };
 
 export const viewport = {
@@ -113,8 +150,38 @@ export default function RootLayout({
   return (
     <html lang="en-BD">
       <head>
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/logo/favicon-White.png" />
+        {/* Favicon with cache busting */}
+        <link rel="icon" type="image/x-icon" href={`/favicon.ico?v=${Date.now()}`} />
+        <link rel="shortcut icon" type="image/x-icon" href={`/favicon.ico?v=${Date.now()}`} />
+        
+        {/* Apple Touch Icons */}
+        <link rel="apple-touch-icon" sizes="180x180" href={`/logo/favicon-White.png?v=${Date.now()}`} />
+        <link rel="apple-touch-icon" sizes="152x152" href={`/logo/favicon-White.png?v=${Date.now()}`} />
+        <link rel="apple-touch-icon" sizes="144x144" href={`/logo/favicon-White.png?v=${Date.now()}`} />
+        <link rel="apple-touch-icon" sizes="120x120" href={`/logo/favicon-White.png?v=${Date.now()}`} />
+        <link rel="apple-touch-icon" sizes="114x114" href={`/logo/favicon-White.png?v=${Date.now()}`} />
+        <link rel="apple-touch-icon" sizes="76x76" href={`/logo/favicon-White.png?v=${Date.now()}`} />
+        <link rel="apple-touch-icon" sizes="72x72" href={`/logo/favicon-White.png?v=${Date.now()}`} />
+        <link rel="apple-touch-icon" sizes="60x60" href={`/logo/favicon-White.png?v=${Date.now()}`} />
+        <link rel="apple-touch-icon" sizes="57x57" href={`/logo/favicon-White.png?v=${Date.now()}`} />
+        
+        {/* Android Chrome Icons */}
+        <link rel="icon" type="image/png" sizes="192x192" href={`/icon-192x192.png?v=${Date.now()}`} />
+        <link rel="icon" type="image/png" sizes="512x512" href={`/icon-512x512.png?v=${Date.now()}`} />
+        <link rel="icon" type="image/png" sizes="384x384" href={`/icon-384x384.png?v=${Date.now()}`} />
+        <link rel="icon" type="image/png" sizes="256x256" href={`/icon-256x256.png?v=${Date.now()}`} />
+        
+        {/* Microsoft Tiles */}
+        <meta name="msapplication-TileImage" content={`/icon-512x512.png?v=${Date.now()}`} />
+        <meta name="msapplication-TileColor" content="#000000" />
+        
+        {/* SEO and Social Media */}
+        <link rel="canonical" href={process.env.NEXT_PUBLIC_SITE_URL || "https://technirvor.com"} />
+        <meta name="theme-color" content="#000000" />
+        <meta name="msapplication-navbutton-color" content="#000000" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        
+        {/* Sitemap */}
         <link
           rel="sitemap"
           type="application/xml"
@@ -126,7 +193,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Tech Nirvor" />
         <meta name="mobile-web-app-capable" content="yes" />
 
-        {/* Structured Data */}
+        {/* Enhanced Structured Data for SEO */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -134,9 +201,11 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "WebSite",
               name: "Tech Nirvor",
+              alternateName: "TechNirvor",
               url: process.env.NEXT_PUBLIC_SITE_URL || "https://technirvor.com",
               description:
-                "Best online shopping in Bangladesh with cash on delivery",
+                "Best online shopping platform in Bangladesh offering electronics, fashion, home & garden, sports, books, and beauty products with fast delivery and cash on delivery options.",
+              inLanguage: "en-BD",
               potentialAction: {
                 "@type": "SearchAction",
                 target: {
@@ -145,6 +214,85 @@ export default function RootLayout({
                 },
                 "query-input": "required name=search_term_string",
               },
+              publisher: {
+                "@type": "Organization",
+                name: "Tech Nirvor",
+                url: process.env.NEXT_PUBLIC_SITE_URL || "https://technirvor.com",
+                logo: {
+                  "@type": "ImageObject",
+                  url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://technirvor.com"}/logo/logo-black.png`,
+                  width: 800,
+                  height: 600
+                },
+                sameAs: [
+                  "https://facebook.com/technirvor",
+                  "https://twitter.com/technirvor",
+                  "https://instagram.com/technirvor"
+                ]
+              }
+            }),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "Tech Nirvor",
+              url: process.env.NEXT_PUBLIC_SITE_URL || "https://technirvor.com",
+              logo: `${process.env.NEXT_PUBLIC_SITE_URL || "https://technirvor.com"}/logo/logo-black.png`,
+              description: "Leading e-commerce platform in Bangladesh offering authentic products with fast delivery and cash on delivery options.",
+              address: {
+                "@type": "PostalAddress",
+                addressCountry: "BD",
+                addressRegion: "Dhaka"
+              },
+              contactPoint: {
+                "@type": "ContactPoint",
+                contactType: "customer service",
+                areaServed: "BD",
+                availableLanguage: ["English", "Bengali"]
+              },
+              sameAs: [
+                "https://facebook.com/technirvor",
+                "https://twitter.com/technirvor",
+                "https://instagram.com/technirvor"
+              ]
+            }),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Store",
+              name: "Tech Nirvor",
+              image: `${process.env.NEXT_PUBLIC_SITE_URL || "https://technirvor.com"}/logo/logo-black.png`,
+              description: "Best online shopping store in Bangladesh with authentic products, fast delivery, and cash on delivery options.",
+              url: process.env.NEXT_PUBLIC_SITE_URL || "https://technirvor.com",
+              telephone: "+880-XXX-XXXXXX",
+              address: {
+                "@type": "PostalAddress",
+                addressCountry: "BD",
+                addressRegion: "Dhaka"
+              },
+              geo: {
+                "@type": "GeoCoordinates",
+                latitude: "23.8103",
+                longitude: "90.4125"
+              },
+              openingHoursSpecification: {
+                "@type": "OpeningHoursSpecification",
+                dayOfWeek: [
+                  "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+                ],
+                opens: "00:00",
+                closes: "23:59"
+              },
+              paymentAccepted: ["Cash", "Credit Card", "Debit Card", "Mobile Banking"],
+              currenciesAccepted: "BDT"
             }),
           }}
         />

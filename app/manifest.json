@@ -1,22 +1,76 @@
 {
-  "name": "Tech Nirvor ",
+  "name": "Tech Nirvor - Best Online Shopping in Bangladesh",
   "short_name": "Tech Nirvor",
-  "description": "Tech Nirvor is a platform for managing and tracking orders, invoices, and customer interactions.",
+  "description": "🛒 Shop the best products online in Bangladesh with Tech Nirvor! ✅ Fast delivery nationwide ✅ Cash on delivery ✅ Authentic products ✅ Best prices. Electronics, Fashion, Home & Garden, Sports, Books, Beauty products.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",
   "orientation": "portrait",
+  "lang": "en-BD",
+  "dir": "ltr",
+  "categories": ["shopping", "ecommerce", "business", "lifestyle"],
+  "screenshots": [
+    {
+      "src": "/og-image.jpg",
+      "sizes": "1200x630",
+      "type": "image/jpeg",
+      "form_factor": "wide"
+    }
+  ],
   "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "16x16 32x32 48x48",
+      "type": "image/x-icon"
+    },
     {
       "src": "/icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-256x256.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Products",
+      "short_name": "Products",
+      "description": "Browse all products",
+      "url": "/products",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Categories",
+      "short_name": "Categories",
+      "description": "Browse by category",
+      "url": "/categories",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Cart",
+      "short_name": "Cart",
+      "description": "View shopping cart",
+      "url": "/cart",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
     }
   ]
 }
