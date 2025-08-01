@@ -299,8 +299,8 @@ export default function CheckoutPage() {
 
   const subtotal = getTotalPrice();
   
-  // Check if any product in cart has free delivery
-  const hasFreeDeliveryProduct = items.some(item => item.product.has_free_delivery);
+  // Check if any product in cart has free delivery (with fallback for missing column)
+  const hasFreeDeliveryProduct = items.some(item => item.product.has_free_delivery === true);
   const baseDeliveryCharge = selectedDistrict?.delivery_charge || 60;
   const deliveryCharge = hasFreeDeliveryProduct ? 0 : baseDeliveryCharge;
   const total = subtotal + deliveryCharge;

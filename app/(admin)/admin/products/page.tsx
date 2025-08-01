@@ -111,7 +111,14 @@ export default function AdminProductsPage() {
 
       if (error) throw error;
       
-      setProducts(data || []);
+      // Map the data to ensure it matches the Product type
+      const mappedProducts = (data || []).map(item => ({
+        ...item,
+        has_free_delivery: false, // Default value since column doesn't exist yet
+        free_delivery_note: undefined, // Default value since column doesn't exist yet
+        category: Array.isArray(item.category) ? item.category[0] : item.category
+      })) as Product[];
+      setProducts(mappedProducts);
       setTotalCount(count || 0);
       setCurrentPage(page);
     } catch (error) {

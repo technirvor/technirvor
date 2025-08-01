@@ -108,11 +108,16 @@ COMMENT ON COLUMN orders.delivery_charge IS 'Actual delivery charge applied to t
 COMMENT ON COLUMN orders.original_delivery_charge IS 'Original delivery charge before any free delivery discounts';
 
 -- Insert some sample data for testing
-UPDATE products 
+WITH featured_products AS (
+  SELECT id FROM products
+  WHERE is_featured = TRUE
+  LIMIT 2
+)
+UPDATE products
 SET 
   has_free_delivery = TRUE,
   free_delivery_note = 'Free delivery on this premium product'
-WHERE is_featured = TRUE
-LIMIT 2;
+WHERE id IN (SELECT id FROM featured_products);
 
-SELECT 'Free delivery system setup completed successfully!' as status;
+-- Final status message
+SELECT 'Free delivery system setup completed successfully!' AS status;
