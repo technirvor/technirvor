@@ -64,7 +64,7 @@ export default function ContactUsPage() {
   const contactInfo = [
     {
       icon: MapPin,
-      title: "Visit Our Office",
+      title: "আমাদের অফিসে আসুন",
       details: [
         "123 Commerce Street",
         "Dhaka 1000, Bangladesh",
@@ -73,7 +73,7 @@ export default function ContactUsPage() {
     },
     {
       icon: Phone,
-      title: "Call Us",
+      title: "আমাদের কল করুন",
       details: [
         "+880 1410-077761",
         "+880 1710-123456",
@@ -82,7 +82,7 @@ export default function ContactUsPage() {
     },
     {
       icon: Mail,
-      title: "Email Us",
+      title: "আমাদের ইমেইল করুন",
       details: [
         "support@technirvor.com",
         "info@technirvor.com",
@@ -91,7 +91,7 @@ export default function ContactUsPage() {
     },
     {
       icon: Clock,
-      title: "Business Hours",
+      title: "ব্যবসায়িক সময়",
       details: [
         "Monday - Friday: 9:00 AM - 10:00 PM",
         "Saturday - Sunday: 10:00 AM - 8:00 PM",
@@ -113,10 +113,10 @@ export default function ContactUsPage() {
       <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Contact Us
+            যোগাযোগ করুন
           </h1>
           <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto leading-relaxed">
-            We're here to help! Get in touch with our friendly customer service team.
+            আমরা সাহায্য করতে এখানে আছি! আমাদের বন্ধুত্বপূর্ণ গ্রাহক সেবা দলের সাথে যোগাযোগ করুন।
           </p>
           <div className="flex items-center justify-center space-x-2">
             <MessageSquare className="w-5 h-5" />
@@ -156,28 +156,28 @@ export default function ContactUsPage() {
               <CardHeader>
                 <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                   <Send className="w-6 h-6 text-blue-600" />
-                  Send us a Message
+                  আমাদের একটি বার্তা পাঠান
                 </CardTitle>
                 <p className="text-gray-600">
-                  Fill out the form below and we'll get back to you as soon as possible.
+                  নিচের ফর্মটি পূরণ করুন এবং আমরা যত তাড়াতাড়ি সম্ভব আপনার কাছে ফিরে আসব।
                 </p>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="name">Full Name *</Label>
+                      <Label htmlFor="name">পূর্ণ নাম *</Label>
                       <Input
                         id="name"
                         type="text"
                         value={formData.name}
                         onChange={(e) => handleInputChange("name", e.target.value)}
-                        placeholder="Your full name"
+                        placeholder="আপনার পূর্ণ নাম"
                         required
                       />
                     </div>
                     <div>
-                      <Label htmlFor="email">Email Address *</Label>
+                      <Label htmlFor="email">ইমেইল ঠিকানা *</Label>
                       <Input
                         id="email"
                         type="email"
@@ -191,7 +191,7 @@ export default function ContactUsPage() {
 
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="phone">Phone Number</Label>
+                      <Label htmlFor="phone">ফোন নম্বর</Label>
                       <Input
                         id="phone"
                         type="tel"
@@ -201,43 +201,43 @@ export default function ContactUsPage() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="inquiry_type">Inquiry Type *</Label>
+                      <Label htmlFor="inquiry_type">অনুসন্ধানের ধরন *</Label>
                       <Select value={formData.inquiry_type} onValueChange={(value) => handleInputChange("inquiry_type", value)}>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select inquiry type" />
+                          <SelectValue placeholder="অনুসন্ধানের ধরন নির্বাচন করুন" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="general">General Inquiry</SelectItem>
-                          <SelectItem value="order">Order Support</SelectItem>
-                          <SelectItem value="product">Product Question</SelectItem>
-                          <SelectItem value="return">Return/Refund</SelectItem>
-                          <SelectItem value="technical">Technical Support</SelectItem>
-                          <SelectItem value="partnership">Business Partnership</SelectItem>
-                          <SelectItem value="complaint">Complaint</SelectItem>
+                          <SelectItem value="general">সাধারণ অনুসন্ধান</SelectItem>
+                          <SelectItem value="order">অর্ডার সহায়তা</SelectItem>
+                          <SelectItem value="product">পণ্য সম্পর্কিত প্রশ্ন</SelectItem>
+                          <SelectItem value="return">ফেরত/রিফান্ড</SelectItem>
+                          <SelectItem value="technical">প্রযুক্তিগত সহায়তা</SelectItem>
+                          <SelectItem value="partnership">ব্যবসায়িক অংশীদারিত্ব</SelectItem>
+                          <SelectItem value="complaint">অভিযোগ</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                   </div>
 
                   <div>
-                    <Label htmlFor="subject">Subject *</Label>
+                    <Label htmlFor="subject">বিষয় *</Label>
                     <Input
                       id="subject"
                       type="text"
                       value={formData.subject}
                       onChange={(e) => handleInputChange("subject", e.target.value)}
-                      placeholder="Brief subject of your message"
+                      placeholder="আপনার বার্তার সংক্ষিপ্ত বিষয়"
                       required
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="message">Message *</Label>
+                    <Label htmlFor="message">বার্তা *</Label>
                     <Textarea
                       id="message"
                       value={formData.message}
                       onChange={(e) => handleInputChange("message", e.target.value)}
-                      placeholder="Please describe your inquiry in detail..."
+                      placeholder="অনুগ্রহ করে আপনার অনুসন্ধান বিস্তারিতভাবে বর্ণনা করুন..."
                       rows={6}
                       required
                     />
@@ -248,7 +248,7 @@ export default function ContactUsPage() {
                     className="w-full" 
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? "Sending..." : "Send Message"}
+                    {isSubmitting ? "পাঠানো হচ্ছে..." : "বার্তা পাঠান"}
                   </Button>
                 </form>
               </CardContent>
@@ -259,13 +259,13 @@ export default function ContactUsPage() {
               {/* Map Placeholder */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-xl font-bold text-gray-900">Find Us</CardTitle>
+                  <CardTitle className="text-xl font-bold text-gray-900">আমাদের খুঁজুন</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="bg-gray-200 h-64 rounded-lg flex items-center justify-center">
                     <div className="text-center text-gray-500">
                       <MapPin className="w-12 h-12 mx-auto mb-2" />
-                      <p className="font-medium">Interactive Map</p>
+                      <p className="font-medium">ইন্টারঅ্যাক্টিভ ম্যাপ</p>
                       <p className="text-sm">123 Commerce Street, Dhaka 1000</p>
                     </div>
                   </div>
@@ -275,8 +275,8 @@ export default function ContactUsPage() {
               {/* Social Media */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-xl font-bold text-gray-900">Follow Us</CardTitle>
-                  <p className="text-gray-600">Stay connected on social media</p>
+                  <CardTitle className="text-xl font-bold text-gray-900">আমাদের ফলো করুন</CardTitle>
+                  <p className="text-gray-600">সোশ্যাল মিডিয়ায় যুক্ত থাকুন</p>
                 </CardHeader>
                 <CardContent>
                   <div className="flex space-x-4">
@@ -301,12 +301,12 @@ export default function ContactUsPage() {
               {/* FAQ Link */}
               <Card>
                 <CardContent className="p-6">
-                  <h3 className="text-lg font-bold mb-2 text-gray-900">Need Quick Answers?</h3>
+                  <h3 className="text-lg font-bold mb-2 text-gray-900">দ্রুত উত্তর প্রয়োজন?</h3>
                   <p className="text-gray-600 mb-4">
-                    Check our FAQ section for instant answers to common questions.
+                    সাধারণ প্রশ্নের তাৎক্ষণিক উত্তরের জন্য আমাদের FAQ বিভাগ দেখুন।
                   </p>
                   <Button variant="outline" className="w-full">
-                    Visit FAQ Section
+                    FAQ বিভাগ দেখুন
                   </Button>
                 </CardContent>
               </Card>

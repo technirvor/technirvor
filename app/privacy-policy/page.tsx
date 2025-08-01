@@ -11,73 +11,73 @@ export const metadata: Metadata = {
 };
 
 export default function PrivacyPolicyPage() {
-  const lastUpdated = "January 15, 2024";
+  const lastUpdated = "১৫ জানুয়ারি, ২০২৪";
 
   const sections = [
     {
       id: "information-collection",
-      title: "Information We Collect",
+      title: "আমরা যে তথ্য সংগ্রহ করি",
       icon: Database,
       content: [
         {
-          subtitle: "Personal Information",
+          subtitle: "ব্যক্তিগত তথ্য",
           items: [
-            "Name, email address, and phone number",
-            "Billing and shipping addresses",
-            "Payment information (processed securely through third-party providers)",
-            "Account credentials and preferences"
+            "নাম, ইমেইল ঠিকানা এবং ফোন নম্বর",
+            "বিলিং এবং শিপিং ঠিকানা",
+            "পেমেন্ট তথ্য (তৃতীয় পক্ষের প্রদানকারীর মাধ্যমে নিরাপদে প্রক্রিয়াজাত)",
+            "অ্যাকাউন্ট শংসাপত্র এবং পছন্দ"
           ]
         },
         {
-          subtitle: "Automatically Collected Information",
+          subtitle: "স্বয়ংক্রিয়ভাবে সংগৃহীত তথ্য",
           items: [
-            "IP address and browser information",
-            "Device type and operating system",
-            "Pages visited and time spent on our website",
-            "Cookies and similar tracking technologies"
+            "আইপি ঠিকানা এবং ব্রাউজার তথ্য",
+            "ডিভাইসের ধরন এবং অপারেটিং সিস্টেম",
+            "পরিদর্শিত পৃষ্ঠা এবং আমাদের ওয়েবসাইটে কাটানো সময়",
+            "কুকিজ এবং অনুরূপ ট্র্যাকিং প্রযুক্তি"
           ]
         },
         {
-          subtitle: "Transaction Information",
+          subtitle: "লেনদেনের তথ্য",
           items: [
-            "Purchase history and order details",
-            "Product reviews and ratings",
-            "Customer service interactions",
-            "Return and refund requests"
+            "ক্রয়ের ইতিহাস এবং অর্ডারের বিবরণ",
+            "পণ্যের রিভিউ এবং রেটিং",
+            "গ্রাহক সেবার মিথস্ক্রিয়া",
+            "ফেরত এবং রিফান্ডের অনুরোধ"
           ]
         }
       ]
     },
     {
       id: "information-use",
-      title: "How We Use Your Information",
+      title: "আমরা কীভাবে আপনার তথ্য ব্যবহার করি",
       icon: UserCheck,
       content: [
         {
-          subtitle: "Service Provision",
+          subtitle: "সেবা প্রদান",
           items: [
-            "Process and fulfill your orders",
-            "Provide customer support and assistance",
-            "Send order confirmations and shipping updates",
-            "Manage your account and preferences"
+            "আপনার অর্ডার প্রক্রিয়া এবং পূরণ করা",
+            "গ্রাহক সহায়তা এবং সহায়তা প্রদান",
+            "অর্ডার নিশ্চিতকরণ এবং শিপিং আপডেট পাঠানো",
+            "আপনার অ্যাকাউন্ট এবং পছন্দ পরিচালনা"
           ]
         },
         {
-          subtitle: "Communication",
+          subtitle: "যোগাযোগ",
           items: [
-            "Send promotional emails and newsletters (with your consent)",
-            "Notify you about new products and special offers",
-            "Respond to your inquiries and feedback",
-            "Send important account and service updates"
+            "প্রচারণামূলক ইমেইল এবং নিউজলেটার পাঠানো (আপনার সম্মতিতে)",
+            "নতুন পণ্য এবং বিশেষ অফার সম্পর্কে আপনাকে অবহিত করা",
+            "আপনার অনুসন্ধান এবং ফিডব্যাকের উত্তর দেওয়া",
+            "গুরুত্বপূর্ণ অ্যাকাউন্ট এবং সেবা আপডেট পাঠানো"
           ]
         },
         {
-          subtitle: "Improvement and Analytics",
+          subtitle: "উন্নতি এবং বিশ্লেষণ",
           items: [
-            "Analyze website usage and customer behavior",
-            "Improve our products and services",
-            "Personalize your shopping experience",
-            "Conduct market research and surveys"
+            "ওয়েবসাইট ব্যবহার এবং গ্রাহকের আচরণ বিশ্লেষণ",
+            "আমাদের পণ্য এবং সেবা উন্নত করা",
+            "আপনার কেনাকাটার অভিজ্ঞতা ব্যক্তিগতকরণ",
+            "বাজার গবেষণা এবং সমীক্ষা পরিচালনা"
           ]
         }
       ]
@@ -215,14 +215,14 @@ export default function PrivacyPolicyPage() {
       <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Privacy Policy
+            গোপনীয়তা নীতি
           </h1>
           <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto leading-relaxed">
-            Your privacy is important to us. Learn how we collect, use, and protect your information.
+            আপনার গোপনীয়তা আমাদের কাছে গুরুত্বপূর্ণ। জানুন আমরা কীভাবে আপনার তথ্য সংগ্রহ, ব্যবহার এবং সুরক্ষিত রাখি।
           </p>
           <div className="flex items-center justify-center space-x-4">
             <Badge variant="secondary" className="text-lg px-4 py-2">
-              Last Updated: {lastUpdated}
+              সর্বশেষ আপডেট: {lastUpdated}
             </Badge>
           </div>
         </div>

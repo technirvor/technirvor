@@ -21,8 +21,8 @@ export const metadata: Metadata = {
 };
 
 export default function TermsAndConditionsPage() {
-  const lastUpdated = "January 15, 2024";
-  const effectiveDate = "January 1, 2024";
+  const lastUpdated = "১৫ জানুয়ারি, ২০২৪";
+  const effectiveDate = "১ জানুয়ারি, ২০২৪";
 
   const sections = [
     {
@@ -186,17 +186,17 @@ export default function TermsAndConditionsPage() {
       <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Terms and Conditions
+            শর্তাবলী
           </h1>
           <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto leading-relaxed">
-            Please read these terms carefully before using our services.
+            আমাদের সেবা ব্যবহার করার আগে অনুগ্রহ করে এই শর্তাবলী সাবধানে পড়ুন।
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Badge variant="secondary" className="text-lg px-4 py-2">
-              Last Updated: {lastUpdated}
+              সর্বশেষ আপডেট: {lastUpdated}
             </Badge>
             <Badge variant="secondary" className="text-lg px-4 py-2">
-              Effective: {effectiveDate}
+              কার্যকর: {effectiveDate}
             </Badge>
           </div>
         </div>

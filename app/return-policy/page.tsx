@@ -22,15 +22,15 @@ export const metadata: Metadata = {
 };
 
 export default function ReturnPolicyPage() {
-  const lastUpdated = "January 15, 2024";
+  const lastUpdated = "১৫ জানুয়ারি, ২০২৪";
 
   const returnTimeframes = [
-    { category: "Electronics & Gadgets", days: "7 days", condition: "Unopened original packaging" },
-    { category: "Fashion & Clothing", days: "14 days", condition: "Unworn with tags" },
-    { category: "Books & Media", days: "30 days", condition: "Undamaged condition" },
-    { category: "Home & Garden", days: "14 days", condition: "Unused condition" },
-    { category: "Beauty & Personal Care", days: "7 days", condition: "Unopened and sealed" },
-    { category: "Sports & Outdoor", days: "14 days", condition: "Unused with packaging" }
+    { category: "ইলেকট্রনিক্স ও গ্যাজেট", days: "৭ দিন", condition: "অবিকৃত মূল প্যাকেজিং" },
+    { category: "ফ্যাশন ও পোশাক", days: "১৪ দিন", condition: "ট্যাগ সহ অব্যবহৃত" },
+    { category: "বই ও মিডিয়া", days: "৩০ দিন", condition: "অক্ষত অবস্থা" },
+    { category: "ঘর ও বাগান", days: "১৪ দিন", condition: "অব্যবহৃত অবস্থা" },
+    { category: "সৌন্দর্য ও ব্যক্তিগত যত্ন", days: "৭ দিন", condition: "অবিকৃত ও সিল করা" },
+    { category: "খেলাধুলা ও আউটডোর", days: "১৪ দিন", condition: "প্যাকেজিং সহ অব্যবহৃত" }
   ];
 
   const eligibleItems = [
@@ -114,14 +114,14 @@ export default function ReturnPolicyPage() {
       <section className="bg-gradient-to-r from-green-600 to-blue-600 text-white py-20">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Return Policy
+            ফেরত নীতি
           </h1>
           <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto leading-relaxed">
-            We want you to be completely satisfied with your purchase. Learn about our hassle-free return process.
+            আমরা চাই আপনি আপনার ক্রয়ে সম্পূর্ণ সন্তুষ্ট হন। আমাদের ঝামেলামুক্ত ফেরত প্রক্রিয়া সম্পর্কে জানুন।
           </p>
           <div className="flex items-center justify-center space-x-4">
             <Badge variant="secondary" className="text-lg px-4 py-2">
-              Last Updated: {lastUpdated}
+              সর্বশেষ আপডেট: {lastUpdated}
             </Badge>
           </div>
         </div>
@@ -135,30 +135,30 @@ export default function ReturnPolicyPage() {
               <CardHeader>
                 <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                   <RotateCcw className="w-6 h-6 text-green-600" />
-                  Our Return Promise
+                  আমাদের ফেরত প্রতিশ্রুতি
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-lg text-gray-700 leading-relaxed">
-                  At Tech Nirvor, customer satisfaction is our top priority. We offer a comprehensive return policy 
-                  to ensure you're completely happy with your purchase. If you're not satisfied for any reason, 
-                  we're here to help make it right.
+                  টেক নির্ভরে, গ্রাহক সন্তুষ্টি আমাদের প্রধান অগ্রাধিকার। আমরা একটি ব্যাপক ফেরত নীতি অফার করি 
+                  যাতে আপনি আপনার ক্রয়ে সম্পূর্ণ খুশি হন। যদি আপনি কোনো কারণে সন্তুষ্ট না হন, 
+                  আমরা এটি ঠিক করতে সাহায্য করার জন্য এখানে আছি।
                 </p>
                 <div className="grid md:grid-cols-3 gap-6 mt-8">
                   <div className="text-center p-4 bg-green-50 rounded-lg">
                     <Clock className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                    <h3 className="font-bold text-gray-900">Up to 30 Days</h3>
-                    <p className="text-sm text-gray-600">Return period varies by product category</p>
+                    <h3 className="font-bold text-gray-900">৩০ দিন পর্যন্ত</h3>
+                    <p className="text-sm text-gray-600">পণ্যের ধরন অনুযায়ী ফেরতের সময় ভিন্ন</p>
                   </div>
                   <div className="text-center p-4 bg-blue-50 rounded-lg">
                     <Package className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                    <h3 className="font-bold text-gray-900">Free Returns</h3>
-                    <p className="text-sm text-gray-600">No return shipping charges for defective items</p>
+                    <h3 className="font-bold text-gray-900">বিনামূল্যে ফেরত</h3>
+                    <p className="text-sm text-gray-600">ত্রুটিপূর্ণ পণ্যের জন্য কোনো ফেরত শিপিং চার্জ নেই</p>
                   </div>
                   <div className="text-center p-4 bg-purple-50 rounded-lg">
                     <CreditCard className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-                    <h3 className="font-bold text-gray-900">Quick Refunds</h3>
-                    <p className="text-sm text-gray-600">Processed within 5-7 business days</p>
+                    <h3 className="font-bold text-gray-900">দ্রুত রিফান্ড</h3>
+                    <p className="text-sm text-gray-600">৫-৭ কার্যদিবসের মধ্যে প্রক্রিয়া করা হয়</p>
                   </div>
                 </div>
               </CardContent>

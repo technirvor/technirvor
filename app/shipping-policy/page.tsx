@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 };
 
 export default function ShippingPolicyPage() {
-  const lastUpdated = "January 15, 2024";
+  const lastUpdated = "১৫ জানুয়ারি, ২০২৪";
 
   const shippingZones = [
     {
@@ -123,14 +123,14 @@ export default function ShippingPolicyPage() {
       <section className="bg-gradient-to-r from-blue-600 to-green-600 text-white py-20">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Shipping Policy
+            শিপিং নীতি
           </h1>
           <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto leading-relaxed">
-            Fast, reliable delivery across Bangladesh. Learn about our shipping options and delivery process.
+            বাংলাদেশ জুড়ে দ্রুত, নির্ভরযোগ্য ডেলিভারি। আমাদের শিপিং অপশন এবং ডেলিভারি প্রক্রিয়া সম্পর্কে জানুন।
           </p>
           <div className="flex items-center justify-center space-x-4">
             <Badge variant="secondary" className="text-lg px-4 py-2">
-              Last Updated: {lastUpdated}
+              সর্বশেষ আপডেট: {lastUpdated}
             </Badge>
           </div>
         </div>
@@ -144,13 +144,13 @@ export default function ShippingPolicyPage() {
               <CardHeader>
                 <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                   <Truck className="w-6 h-6 text-blue-600" />
-                  Our Shipping Promise
+                  আমাদের শিপিং প্রতিশ্রুতি
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-lg text-gray-700 leading-relaxed">
-                  We're committed to delivering your orders quickly and safely across Bangladesh. 
-                  Our shipping network covers all 64 districts with various delivery options to suit your needs.
+                  আমরা বাংলাদেশ জুড়ে আপনার অর্ডার দ্রুত এবং নিরাপদে পৌঁছে দিতে প্রতিশ্রুতিবদ্ধ। 
+                  আমাদের শিপিং নেটওয়ার্ক সকল ৬৪টি জেলায় বিস্তৃত এবং আপনার প্রয়োজন অনুযায়ী বিভিন্ন ডেলিভারি অপশন রয়েছে।
                 </p>
                 <div className="grid md:grid-cols-4 gap-6 mt-8">
                   <div className="text-center p-4 bg-blue-50 rounded-lg">

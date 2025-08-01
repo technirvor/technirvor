@@ -23,65 +23,65 @@ export const metadata: Metadata = {
 
 export default function AboutUsPage() {
   const stats = [
-    { icon: Users, label: "Happy Customers", value: "50,000+" },
-    { icon: ShoppingBag, label: "Products Sold", value: "100,000+" },
-    { icon: Truck, label: "Orders Delivered", value: "75,000+" },
-    { icon: Award, label: "Years of Service", value: "5+" },
+    { icon: Users, label: "সন্তুষ্ট গ্রাহক", value: "৫০,০০০+" },
+    { icon: ShoppingBag, label: "বিক্রিত পণ্য", value: "১,০০,০০০+" },
+    { icon: Truck, label: "ডেলিভারি সম্পন্ন", value: "৭৫,০০০+" },
+    { icon: Award, label: "সেবার বছর", value: "৫+" },
   ];
 
   const values = [
     {
       icon: Shield,
-      title: "Authenticity",
-      description: "We guarantee 100% authentic products from trusted brands and suppliers."
+      title: "সত্যতা",
+      description: "আমরা বিশ্বস্ত ব্র্যান্ড এবং সরবরাহকারীদের কাছ থেকে ১০০% খাঁটি পণ্যের গ্যারান্টি দিই।"
     },
     {
       icon: Truck,
-      title: "Fast Delivery",
-      description: "Quick and reliable delivery across Bangladesh with real-time tracking."
+      title: "দ্রুত ডেলিভারি",
+      description: "রিয়েল-টাইম ট্র্যাকিং সহ বাংলাদেশ জুড়ে দ্রুত এবং নির্ভরযোগ্য ডেলিভারি।"
     },
     {
       icon: Heart,
-      title: "Customer First",
-      description: "Your satisfaction is our priority with 24/7 customer support."
+      title: "গ্রাহক প্রথম",
+      description: "২৪/৭ গ্রাহক সহায়তা সহ আপনার সন্তুষ্টি আমাদের অগ্রাধিকার।"
     },
     {
       icon: Star,
-      title: "Quality Assurance",
-      description: "Rigorous quality checks ensure you receive the best products."
+      title: "মান নিশ্চয়তা",
+      description: "কঠোর মান পরীক্ষা নিশ্চিত করে যে আপনি সেরা পণ্য পান।"
     }
   ];
 
   const milestones = [
     {
-      year: "2019",
-      title: "Company Founded",
-      description: "Tech Nirvor was established with a vision to revolutionize online shopping in Bangladesh."
+      year: "২০২৫",
+      title: "কোম্পানি প্রতিষ্ঠা",
+      description: "বাংলাদেশে অনলাইন শপিংয়ে বিপ্লব আনার দৃষ্টিভঙ্গি নিয়ে টেক নির্ভর প্রতিষ্ঠিত হয়।"
     },
     {
-      year: "2020",
-      title: "First 1,000 Orders",
-      description: "Achieved our first milestone of 1,000 successful orders and happy customers."
+      year: "২০২৫",
+      title: "প্রথম ১,০০০ অর্ডার",
+      description: "১,০০০ সফল অর্ডার এবং সন্তুষ্ট গ্রাহকের প্রথম মাইলফলক অর্জন।"
     },
     {
-      year: "2021",
-      title: "Nationwide Delivery",
-      description: "Expanded delivery services to cover all 64 districts of Bangladesh."
+      year: "২০২৫",
+      title: "দেশব্যাপী ডেলিভারি",
+      description: "বাংলাদেশের সব ৬৪টি জেলায় ডেলিভারি সেবা সম্প্রসারণ।"
     },
     {
-      year: "2022",
-      title: "Mobile App Launch",
-      description: "Launched our mobile application for better shopping experience."
+      year: "২০২৫",
+      title: "মোবাইল অ্যাপ চালু",
+      description: "উন্নত শপিং অভিজ্ঞতার জন্য আমাদের মোবাইল অ্যাপ্লিকেশন চালু।"
     },
     {
-      year: "2023",
-      title: "50,000+ Customers",
-      description: "Reached the milestone of serving over 50,000 satisfied customers."
+      year: "২০২৫",
+      title: "৫০,০০০+ গ্রাহক",
+      description: "৫০,০০০ এর বেশি সন্তুষ্ট গ্রাহকদের সেবা প্রদানের মাইলফলক অর্জন।"
     },
     {
-      year: "2024",
-      title: "Premium Services",
-      description: "Introduced premium delivery and exclusive product lines."
+      year: "২০২৫",
+      title: "প্রিমিয়াম সেবা",
+      description: "প্রিমিয়াম ডেলিভারি এবং এক্সক্লুসিভ পণ্যের লাইন চালু।"
     }
   ];
 
@@ -91,15 +91,15 @@ export default function AboutUsPage() {
       <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            About Tech Nirvor
+            টেক নির্ভর সম্পর্কে
           </h1>
           <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto leading-relaxed">
-            Bangladesh's most trusted online shopping destination, committed to bringing 
-            you authentic products with exceptional service.
+            বাংলাদেশের সবচেয়ে বিশ্বস্ত অনলাইন শপিং গন্তব্য, ব্যতিক্রমী সেবার সাথে 
+            আপনার কাছে খাঁটি পণ্য পৌঁছে দিতে প্রতিশ্রুতিবদ্ধ।
           </p>
           <div className="flex items-center justify-center space-x-2">
             <MapPin className="w-5 h-5" />
-            <span className="text-lg">Proudly serving Bangladesh since 2019</span>
+            <span className="text-lg">২০২৫ সাল থেকে গর্বের সাথে বাংলাদেশে সেবা প্রদান</span>
           </div>
         </div>
       </section>
@@ -129,36 +129,36 @@ export default function AboutUsPage() {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-900">
-              Our Story
+              আমাদের গল্প
             </h2>
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div className="space-y-6">
                 <p className="text-lg text-gray-700 leading-relaxed">
-                  Tech Nirvor was born from a simple idea: to make quality products accessible 
-                  to everyone in Bangladesh through a seamless online shopping experience. 
-                  Founded in 2019, we started as a small team with big dreams.
+                  টেক নির্ভর একটি সহজ ধারণা থেকে জন্ম নিয়েছে: একটি নিরবচ্ছিন্ন অনলাইন শপিং অভিজ্ঞতার 
+                  মাধ্যমে বাংলাদেশের সবার কাছে মানসম্পন্ন পণ্য পৌঁছে দেওয়া। ২০২৫ সালে প্রতিষ্ঠিত, 
+                  আমরা বড় স্বপ্ন নিয়ে একটি ছোট দল হিসেবে শুরু করেছিলাম।
                 </p>
                 <p className="text-lg text-gray-700 leading-relaxed">
-                  Today, we've grown into one of Bangladesh's most trusted e-commerce platforms, 
-                  serving thousands of customers across all 64 districts. Our commitment to 
-                  authenticity, quality, and customer satisfaction remains unchanged.
+                  আজ, আমরা বাংলাদেশের সবচেয়ে বিশ্বস্ত ই-কমার্স প্ল্যাটফর্মগুলির মধ্যে একটিতে 
+                  পরিণত হয়েছি, সব ৬৪টি জেলায় হাজার হাজার গ্রাহকদের সেবা প্রদান করছি। সত্যতা, 
+                  মান এবং গ্রাহক সন্তুষ্টির প্রতি আমাদের অঙ্গীকার অপরিবর্তিত রয়েছে।
                 </p>
                 <p className="text-lg text-gray-700 leading-relaxed">
-                  We believe that everyone deserves access to genuine products at fair prices, 
-                  delivered with care and backed by excellent customer service.
+                  আমরা বিশ্বাস করি যে সবাই ন্যায্য মূল্যে খাঁটি পণ্যের অ্যাক্সেস পাওয়ার যোগ্য, 
+                  যত্নের সাথে ডেলিভারি এবং চমৎকার গ্রাহক সেবার সমর্থনে।
                 </p>
               </div>
               <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-8 rounded-2xl">
-                <h3 className="text-2xl font-bold mb-4 text-gray-900">Our Mission</h3>
+                <h3 className="text-2xl font-bold mb-4 text-gray-900">আমাদের লক্ষ্য</h3>
                 <p className="text-gray-700 mb-6">
-                  To revolutionize online shopping in Bangladesh by providing authentic products, 
-                  exceptional service, and innovative solutions that exceed customer expectations.
+                  খাঁটি পণ্য, ব্যতিক্রমী সেবা এবং গ্রাহকের প্রত্যাশা ছাড়িয়ে যাওয়া উদ্ভাবনী 
+                  সমাধান প্রদানের মাধ্যমে বাংলাদেশে অনলাইন শপিংয়ে বিপ্লব আনা।
                 </p>
-                <h3 className="text-2xl font-bold mb-4 text-gray-900">Our Vision</h3>
+                <h3 className="text-2xl font-bold mb-4 text-gray-900">আমাদের দৃষ্টিভঙ্গি</h3>
                 <p className="text-gray-700">
-                  To become Bangladesh's leading e-commerce platform, known for trust, quality, 
-                  and customer-centricity, while contributing to the digital transformation of 
-                  the country's retail landscape.
+                  বিশ্বাস, মান এবং গ্রাহক-কেন্দ্রিকতার জন্য পরিচিত বাংলাদেশের শীর্ষস্থানীয় 
+                  ই-কমার্স প্ল্যাটফর্ম হয়ে ওঠা, পাশাপাশি দেশের খুচরা ব্যবসার ডিজিটাল 
+                  রূপান্তরে অবদান রাখা।
                 </p>
               </div>
             </div>
@@ -170,7 +170,7 @@ export default function AboutUsPage() {
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-900">
-            Our Values
+            আমাদের মূল্যবোধ
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {values.map((value, index) => {
@@ -195,7 +195,7 @@ export default function AboutUsPage() {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-900">
-            Our Journey
+            আমাদের যাত্রা
           </h2>
           <div className="max-w-4xl mx-auto">
             <div className="space-y-8">
@@ -221,28 +221,28 @@ export default function AboutUsPage() {
       <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-8">
-            Why Choose Tech Nirvor?
+            কেন টেক নির্ভর বেছে নেবেন?
           </h2>
           <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             <div className="space-y-4">
               <Clock className="w-12 h-12 mx-auto" />
-              <h3 className="text-xl font-bold">Fast Delivery</h3>
+              <h3 className="text-xl font-bold">দ্রুত ডেলিভারি</h3>
               <p className="text-blue-100">
-                Same-day delivery in Dhaka and 1-3 days nationwide with real-time tracking.
+                ঢাকায় একই দিনে এবং দেশব্যাপী ১-৩ দিনে রিয়েল-টাইম ট্র্যাকিং সহ ডেলিভারি।
               </p>
             </div>
             <div className="space-y-4">
               <Shield className="w-12 h-12 mx-auto" />
-              <h3 className="text-xl font-bold">100% Authentic</h3>
+              <h3 className="text-xl font-bold">১০০% খাঁটি</h3>
               <p className="text-blue-100">
-                All products are sourced directly from authorized dealers and brands.
+                সব পণ্য সরাসরি অনুমোদিত ডিলার এবং ব্র্যান্ড থেকে সংগ্রহ করা হয়।
               </p>
             </div>
             <div className="space-y-4">
               <Heart className="w-12 h-12 mx-auto" />
-              <h3 className="text-xl font-bold">Customer Support</h3>
+              <h3 className="text-xl font-bold">গ্রাহক সহায়তা</h3>
               <p className="text-blue-100">
-                24/7 customer service with dedicated support team for all your needs.
+                আপনার সব প্রয়োজনের জন্য নিবেদিত সহায়তা দল সহ ২৪/৭ গ্রাহক সেবা।
               </p>
             </div>
           </div>
