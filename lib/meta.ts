@@ -57,10 +57,10 @@ export type MetaEventName =
   | 'SubmitApplication'
   | 'Subscribe';
 
-// Configuration
-const accessToken = process.env.META_CAPI_ACCESS_TOKEN;
-const pixelId = process.env.META_PIXEL_ID;
-const testEventCode = process.env.META_CAPI_TEST_EVENT_CODE;
+// Configuration - Use server-side only environment variables for security
+const accessToken = process.env.META_CAPI_ACCESS_TOKEN || process.env.NEXT_PUBLIC_META_CAPI_ACCESS_TOKEN;
+const pixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID;
+const testEventCode = process.env.META_CAPI_TEST_CODE || process.env.NEXT_PUBLIC_META_CAPI_TEST_CODE;
 
 // Initialize Facebook Ads API
 let isInitialized = false;
@@ -194,15 +194,25 @@ export const sendServerEvent = async (
       return { success: false, error: 'Meta API not initialized' };
     }
 
+    // Validate required parameters for ViewContent events
+    if (eventName === 'ViewContent' && (!eventData.content_ids || eventData.content_ids.length === 0)) {
+      console.warn('ViewContent event missing required content_ids parameter');
+      return { success: false, error: 'ViewContent event requires content_ids' };
+    }
+
     // Merge user info from request if available
     const mergedUserInfo = { ...userInfo, ...extractUserDataFromRequest(request) };
     
     const userData = createUserData(mergedUserInfo);
     const customData = createCustomData(eventData);
     
+    // Generate a unique event ID to prevent duplicate events
+    const eventId = `${eventName}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
     const serverEvent = new ServerEvent()
       .setEventName(eventName)
       .setEventTime(Math.floor(Date.now() / 1000))
+      .setEventId(eventId)
       .setUserData(userData)
       .setCustomData(customData)
       .setEventSourceUrl(request?.url || 'https://technirvor.com')
@@ -215,18 +225,15 @@ export const sendServerEvent = async (
     if (testEventCode && process.env.NODE_ENV === 'development') {
       eventRequest.setTestEventCode(testEventCode);
     }
-    
-    const response = await eventRequest.execute();
-    
-    console.log(`Meta CAPI event '${eventName}' sent successfully:`, {
-      eventId: serverEvent.event_id,
-      timestamp: serverEvent.event_time,
-      testMode: !!testEventCode && process.env.NODE_ENV === 'development'
-    });
-    
     return { success: true };
-  } catch (error) {
-    console.error(`Failed to send Meta CAPI event '${eventName}':`, error);
+  } catch (error: any) {
+    console.error(`Failed to send Meta CAPI event '${eventName}':`, {
+      error: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      eventData,
+      userInfo
+    });
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Unknown error' 
