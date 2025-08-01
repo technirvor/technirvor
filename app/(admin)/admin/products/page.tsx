@@ -76,7 +76,21 @@ export default function AdminProductsPage() {
         .from("products")
         .select(
           `
-          *,
+          id,
+          name,
+          slug,
+          description,
+          price,
+          sale_price,
+          image_url,
+          images,
+          category_id,
+          subcategory_id,
+          is_featured,
+          is_flash_sale,
+          flash_sale_end,
+          stock,
+          created_at,
           category:categories(id, name)
         `,
           { count: 'exact' }
@@ -85,7 +99,7 @@ export default function AdminProductsPage() {
 
       // Add search filter if provided
       if (search.trim()) {
-        query = query.or(`name.ilike.%${search}%,categories.name.ilike.%${search}%`);
+        query = query.ilike('name', `%${search}%`);
       }
 
       // Add pagination
@@ -102,7 +116,8 @@ export default function AdminProductsPage() {
       setCurrentPage(page);
     } catch (error) {
       console.error("Error fetching products:", error);
-      toast.error("Failed to fetch products");
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      toast.error(`Failed to fetch products: ${errorMessage}`);
     } finally {
       setLoading(false);
     }

@@ -106,6 +106,14 @@ export default function ProductCard({
                 Low Stock
               </Badge>
             )}
+            {product.has_free_delivery && (
+              <Badge
+                variant="outline"
+                className="text-xs font-medium bg-green-100 text-green-800 border-green-200"
+              >
+                Free Delivery
+              </Badge>
+            )}
           </div>
 
           {/* Wishlist Button */}
@@ -138,6 +146,15 @@ export default function ProductCard({
               </span>
             )}
           </div>
+
+          {/* Free Delivery Note */}
+          {product.has_free_delivery && product.free_delivery_note && (
+            <div className="mb-2">
+              <span className="text-xs text-green-600 font-medium">
+                {product.free_delivery_note}
+              </span>
+            </div>
+          )}
 
           {/* Stock Status - Debug info included */}
           <div className="mb-3">

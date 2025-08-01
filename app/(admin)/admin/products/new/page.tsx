@@ -40,6 +40,8 @@ export default function NewProductPage() {
     isFeatured: boolean;
     isFlashSale: boolean;
     flashSaleEnd: string;
+    hasFreeDelivery: boolean;
+    freeDeliveryNote: string;
     tags: string;
     metaTitle: string;
     metaDescription: string;
@@ -57,6 +59,8 @@ export default function NewProductPage() {
     isFeatured: false,
     isFlashSale: false,
     flashSaleEnd: "",
+    hasFreeDelivery: false,
+    freeDeliveryNote: "",
     tags: "",
     metaTitle: "",
     metaDescription: "",
@@ -151,6 +155,8 @@ export default function NewProductPage() {
         is_featured: formData.isFeatured,
         is_flash_sale: formData.isFlashSale,
         flash_sale_end: formData.flashSaleEnd || null,
+        has_free_delivery: formData.hasFreeDelivery,
+        free_delivery_note: formData.freeDeliveryNote || null,
         tags: formData.tags
           .split(",")
           .map((tag) => tag.trim())
@@ -299,7 +305,7 @@ export default function NewProductPage() {
                       onChange={(urls) =>
                         setFormData((prev) => ({
                           ...prev,
-                          imageUrl: urls[0] || "",
+                          imageUrl: typeof urls[0] === 'string' ? urls[0] : "",
                         }))
                       }
                       maxFiles={1}
@@ -316,7 +322,7 @@ export default function NewProductPage() {
                     <ImageUpload
                       value={formData.images}
                       onChange={(urls) =>
-                        setFormData((prev) => ({ ...prev, images: urls }))
+                        setFormData((prev) => ({ ...prev, images: urls.filter((url): url is string => typeof url === 'string') }))
                       }
                       maxFiles={5} // Example: allow up to 5 additional images
                       options={{
@@ -419,6 +425,34 @@ export default function NewProductPage() {
                         onChange={(e) =>
                           handleInputChange("flashSaleEnd", e.target.value)
                         }
+                      />
+                    </div>
+                  )}
+
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="freeDelivery"
+                      checked={formData.hasFreeDelivery}
+                      onCheckedChange={(checked) =>
+                        handleInputChange("hasFreeDelivery", checked)
+                      }
+                    />
+                    <Label htmlFor="freeDelivery">Free Delivery</Label>
+                  </div>
+
+                  {formData.hasFreeDelivery && (
+                    <div>
+                      <Label htmlFor="freeDeliveryNote">
+                        Free Delivery Note (Optional)
+                      </Label>
+                      <Textarea
+                        id="freeDeliveryNote"
+                        placeholder="e.g., Free delivery on orders above ৳500"
+                        value={formData.freeDeliveryNote}
+                        onChange={(e) =>
+                          handleInputChange("freeDeliveryNote", e.target.value)
+                        }
+                        rows={2}
                       />
                     </div>
                   )}

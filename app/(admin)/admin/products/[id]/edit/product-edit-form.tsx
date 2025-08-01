@@ -38,6 +38,8 @@ interface ProductFormData {
   is_featured: boolean;
   is_flash_sale: boolean;
   flash_sale_end: string;
+  has_free_delivery: boolean;
+  free_delivery_note: string;
   tags: string;
   meta_title: string;
   meta_description: string;
@@ -71,6 +73,8 @@ export default function ProductEditForm({ product, categories }: Props) {
         is_featured: false,
         is_flash_sale: false,
         flash_sale_end: "",
+        has_free_delivery: false,
+        free_delivery_note: "",
         tags: "",
         meta_title: "",
         meta_description: "",
@@ -92,10 +96,12 @@ export default function ProductEditForm({ product, categories }: Props) {
       is_featured: product.is_featured,
       is_flash_sale: product.is_flash_sale,
       flash_sale_end: product.flash_sale_end || "",
+      has_free_delivery: (product as any).has_free_delivery || false,
+      free_delivery_note: (product as any).free_delivery_note || "",
       tags: product.tags?.join(", ") || "",
       meta_title: product.meta_title || "",
       meta_description: product.meta_description || "",
-      meta_keywords: product.meta_keywords?.join(", ") || "",
+      meta_keywords: product.meta_keywords?.join(", ") || ""
     };
   });
 
@@ -182,6 +188,8 @@ export default function ProductEditForm({ product, categories }: Props) {
         is_featured: formData.is_featured,
         is_flash_sale: formData.is_flash_sale,
         flash_sale_end: formData.flash_sale_end || null,
+        has_free_delivery: formData.has_free_delivery,
+        free_delivery_note: formData.free_delivery_note || null,
         tags: formData.tags
           ? formData.tags
               .split(",")
@@ -453,6 +461,39 @@ export default function ProductEditForm({ product, categories }: Props) {
                           onChange={(e) =>
                             handleInputChange("flash_sale_end", e.target.value)
                           }
+                        />
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label htmlFor="has_free_delivery">Free Delivery</Label>
+                        <p className="text-sm text-gray-600">
+                          Offer free delivery for this product
+                        </p>
+                      </div>
+                      <Switch
+                        id="has_free_delivery"
+                        checked={formData.has_free_delivery}
+                        onCheckedChange={(checked) =>
+                          handleInputChange("has_free_delivery", checked)
+                        }
+                      />
+                    </div>
+
+                    {formData.has_free_delivery && (
+                      <div className="space-y-2">
+                        <Label htmlFor="free_delivery_note">
+                          Free Delivery Note (Optional)
+                        </Label>
+                        <Textarea
+                          id="free_delivery_note"
+                          placeholder="e.g., Free delivery on orders above ৳500"
+                          value={formData.free_delivery_note}
+                          onChange={(e) =>
+                            handleInputChange("free_delivery_note", e.target.value)
+                          }
+                          rows={2}
                         />
                       </div>
                     )}

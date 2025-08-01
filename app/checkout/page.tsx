@@ -242,7 +242,11 @@ export default function CheckoutPage() {
       });
 
       const subtotal = getTotalPrice();
-      const deliveryCharge = selectedDistrict?.delivery_charge || 60;
+      
+      // Check if any product in cart has free delivery
+      const hasFreeDeliveryProduct = items.some(item => item.product.has_free_delivery);
+      const baseDeliveryCharge = selectedDistrict?.delivery_charge || 60;
+      const deliveryCharge = hasFreeDeliveryProduct ? 0 : baseDeliveryCharge;
       const totalAmount = subtotal + deliveryCharge;
 
       const orderData = {
@@ -294,7 +298,11 @@ export default function CheckoutPage() {
   };
 
   const subtotal = getTotalPrice();
-  const deliveryCharge = selectedDistrict?.delivery_charge || 60;
+  
+  // Check if any product in cart has free delivery
+  const hasFreeDeliveryProduct = items.some(item => item.product.has_free_delivery);
+  const baseDeliveryCharge = selectedDistrict?.delivery_charge || 60;
+  const deliveryCharge = hasFreeDeliveryProduct ? 0 : baseDeliveryCharge;
   const total = subtotal + deliveryCharge;
 
   if (!hydrated || items.length === 0) {
@@ -463,8 +471,22 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between">
                   <span>Delivery Charge</span>
-                  <span>৳{deliveryCharge.toLocaleString()}</span>
+                  <div className="text-right">
+                    {hasFreeDeliveryProduct ? (
+                      <div>
+                        <span className="line-through text-gray-400 text-sm">৳{baseDeliveryCharge.toLocaleString()}</span>
+                        <span className="text-green-600 font-medium ml-2">FREE</span>
+                      </div>
+                    ) : (
+                      <span>৳{deliveryCharge.toLocaleString()}</span>
+                    )}
+                  </div>
                 </div>
+                {hasFreeDeliveryProduct && (
+                  <div className="text-xs text-green-600 font-medium">
+                    🎉 Free delivery applied!
+                  </div>
+                )}
                 <Separator />
                 <div className="flex justify-between font-bold text-lg">
                   <span>Total</span>

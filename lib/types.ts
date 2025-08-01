@@ -16,6 +16,8 @@ export interface Product {
   is_featured: boolean;
   is_flash_sale: boolean;
   flash_sale_end?: string;
+  has_free_delivery?: boolean;
+  free_delivery_note?: string;
   tags?: string[];
   meta_title?: string;
   meta_description?: string;
