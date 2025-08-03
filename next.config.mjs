@@ -1,11 +1,6 @@
 /** @type {import('next').NextConfig} */
 
 const nextConfig = {
-  allowedDevOrigins: [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://192.168.0.102:3000",
-  ],
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -14,19 +9,44 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
+    domains: ['localhost' ],
   },
   output: "standalone",
-  // swcMinify: true, // Not needed in Next.js 15+
   reactStrictMode: true,
   productionBrowserSourceMaps: false,
+  poweredByHeader: false,
+  compress: true,
+  serverExternalPackages: ['@supabase/supabase-js'],
   experimental: {
     scrollRestoration: true,
     optimizeCss: true,
   },
-  webpack: (config) => {
-    config.cache = {
-      type: "memory",
+  webpack: (config, { dev, isServer }) => {
+    // Optimize for production
+    if (!dev && !isServer) {
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: 'vendors',
+              chunks: 'all',
+            },
+          },
+        },
+      };
+    }
+    
+    // Fix for production builds
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      net: false,
+      tls: false,
     };
+    
     return config;
   },
 

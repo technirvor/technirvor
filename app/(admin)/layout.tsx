@@ -12,28 +12,33 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const { collapsed } = useSidebar();
   
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
       {/* Sidebar */}
       <AdminSidebar />
       
       {/* Main Content */}
       <div className={`flex flex-col min-h-screen transition-all duration-300 ${
-        collapsed ? "ml-16" : "ml-64"
+        collapsed ? "ml-16" : "ml-72"
       }`}>
         {/* Top Navigation */}
         <AdminTopbar />
         
         {/* Page Content */}
-        <main className="flex-1 p-6 overflow-auto">
-          <Suspense
-            fallback={
-              <div className="flex items-center justify-center min-h-[400px]">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              </div>
-            }
-          >
-            {children}
-          </Suspense>
+        <main className="flex-1 p-8 overflow-auto">
+          <div className="max-w-7xl mx-auto">
+            <Suspense
+              fallback={
+                <div className="flex items-center justify-center min-h-[400px]">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="animate-spin rounded-full h-12 w-12 border-4 border-slate-200 border-t-blue-600"></div>
+                    <p className="text-slate-600 text-sm">Loading...</p>
+                  </div>
+                </div>
+              }
+            >
+              {children}
+            </Suspense>
+          </div>
         </main>
       </div>
       

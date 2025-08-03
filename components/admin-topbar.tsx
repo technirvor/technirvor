@@ -37,6 +37,8 @@ const getPageTitle = (pathname: string) => {
     "/admin/hero-slides": "Hero Slides",
     "/admin/districts": "Districts",
     "/admin/analytics": "Analytics",
+    "/admin/security": "Security Dashboard",
+    "/admin/users": "User Management",
     "/admin/settings": "Settings",
   };
 
