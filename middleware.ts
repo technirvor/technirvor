@@ -1,112 +1,38 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import {
-  type CloudflareRequest,
-  SECURITY_CONFIG,
-  checkEnhancedRateLimit,
-  isSuspiciousBot,
-  isBlockedCountry,
-  getCloudflareSecurityHeaders,
-  getCloudflareCSP,
-  logSecurityEvent,
-  shouldChallenge,
-  createChallengeResponse,
-  isTrustedIP
-} from "./lib/cloudflare-security";
 
-// Legacy rate limiting function for backward compatibility
+// Simple in-memory rate limiting (in production, use Redis or similar)
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes
+const MAX_REQUESTS = 100; // Max requests per window
+
 function checkRateLimit(ip: string): boolean {
-  return checkEnhancedRateLimit(ip, SECURITY_CONFIG.RATE_LIMITS.GENERAL);
+  const now = Date.now();
+  const userLimit = rateLimitMap.get(ip);
+  
+  if (!userLimit || now > userLimit.resetTime) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+    return true;
+  }
+  
+  if (userLimit.count >= MAX_REQUESTS) {
+    return false;
+  }
+  
+  userLimit.count++;
+  return true;
 }
 
-export async function middleware(req: CloudflareRequest) {
+export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
   const pathname = req.nextUrl.pathname;
-  
-  // Enhanced IP detection with Cloudflare headers
-  const ip = req.headers.get('cf-connecting-ip') || 
-            req.headers.get('x-forwarded-for') || 
-            req.headers.get('x-real-ip') || 
-            'unknown';
-  
-  const country = req.cf?.country;
-  const userAgent = req.headers.get('user-agent') || '';
-  
-  // 1. CLOUDFLARE SECURITY CHECKS
-  
-  // Check for blocked countries
-  if (isBlockedCountry(country)) {
-    logSecurityEvent({
-      type: 'country_blocked',
-      ip,
-      country,
-      userAgent,
-      path: pathname,
-      timestamp: Date.now()
-    });
-    return createChallengeResponse(`Access from ${country} is restricted`);
-  }
-  
-  // Check for suspicious bots
-  if (isSuspiciousBot(req)) {
-    logSecurityEvent({
-      type: 'bot_detected',
-      ip,
-      country,
-      userAgent,
-      path: pathname,
-      timestamp: Date.now(),
-      details: { botScore: req.cf?.botManagement?.score, trustScore: req.cf?.clientTrustScore }
-    });
-    
-    // Challenge suspicious bots instead of blocking completely
-    if (shouldChallenge(req)) {
-      return createChallengeResponse('Suspicious bot activity detected');
-    }
-  }
-  
-  // 2. ENHANCED RATE LIMITING
-  
+  const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+
+  // Rate limiting for admin routes
   const isAdminRoute = pathname.startsWith("/admin");
-  const isApiRoute = pathname.startsWith("/api");
-  const isLoginRoute = pathname === "/auth/login";
-  
-  // Apply different rate limits based on route type
-  let rateLimitConfig = SECURITY_CONFIG.RATE_LIMITS.GENERAL;
-  let rateLimitKey = ip;
-  
-  if (isAdminRoute) {
-    rateLimitConfig = SECURITY_CONFIG.RATE_LIMITS.ADMIN;
-    rateLimitKey = `admin:${ip}`;
-  } else if (isApiRoute) {
-    rateLimitConfig = SECURITY_CONFIG.RATE_LIMITS.API;
-    rateLimitKey = `api:${ip}`;
-  } else if (isLoginRoute) {
-    rateLimitConfig = SECURITY_CONFIG.RATE_LIMITS.LOGIN;
-    rateLimitKey = `login:${ip}`;
-  }
-  
-  // Skip rate limiting for trusted IPs
-  if (!isTrustedIP(ip) && !checkEnhancedRateLimit(rateLimitKey, rateLimitConfig, country)) {
-    logSecurityEvent({
-      type: 'rate_limit',
-      ip,
-      country,
-      userAgent,
-      path: pathname,
-      timestamp: Date.now(),
-      details: { routeType: isAdminRoute ? 'admin' : isApiRoute ? 'api' : isLoginRoute ? 'login' : 'general' }
-    });
-    
-    return new NextResponse('Rate limit exceeded. Please try again later.', { 
-      status: 429,
-      headers: {
-        'Retry-After': '900', // 15 minutes
-        'X-RateLimit-Limit': rateLimitConfig.requests.toString(),
-        'X-RateLimit-Window': (rateLimitConfig.window / 1000).toString()
-      }
-    });
+  if (isAdminRoute && !checkRateLimit(ip)) {
+    return new NextResponse('Too Many Requests', { status: 429 });
   }
 
   // Admin route authentication check
@@ -195,32 +121,35 @@ export async function middleware(req: CloudflareRequest) {
     }
   }
 
-  // 3. CLOUDFLARE-OPTIMIZED SECURITY HEADERS
-  
-  // Apply Cloudflare-optimized security headers
-  const securityHeaders = getCloudflareSecurityHeaders(req);
-  Object.entries(securityHeaders).forEach(([key, value]) => {
-    if (value) res.headers.set(key, value);
-  });
-  
-  // Generate CSP nonce for inline scripts (optional)
-  const nonce = Math.random().toString(36).substring(2, 15);
-  res.headers.set('X-Nonce', nonce);
-  
-  // Set Cloudflare-optimized CSP
-  const csp = getCloudflareCSP(nonce);
+  // Security headers - Updated CSP to allow Supabase
+
+  res.headers.set("X-Frame-Options", "DENY");
+  res.headers.set("X-Content-Type-Options", "nosniff");
+  res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.headers.set(
+    "Strict-Transport-Security",
+    "max-age=63072000; includeSubDomains; preload",
+  );
+  res.headers.set(
+    "Permissions-Policy",
+    "geolocation=(), microphone=(), camera=()",
+  );
+
+  // CSP: allow Supabase, Vercel, Facebook Pixel, Google Analytics, and safe inline for scripts/styles
+  const csp = [
+    "default-src 'self'",
+    "img-src 'self' data: https: blob:",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://connect.facebook.net https:",
+    "style-src 'self' 'unsafe-inline' https:",
+    "font-src 'self' data:",
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.vercel.com https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net https://www.facebook.com https://connect.facebook.net",
+    "media-src 'self' blob:",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self' https://www.facebook.com",
+    "frame-ancestors 'none'",
+  ].join("; ");
   res.headers.set("Content-Security-Policy", csp);
-  
-  // Additional Cloudflare-specific headers
-  res.headers.set('X-Robots-Tag', 'noindex, nofollow, nosnippet, noarchive');
-  res.headers.set('X-Request-ID', Math.random().toString(36).substring(2, 15));
-  
-  // Cache control for security-sensitive pages
-  if (isAdminRoute || isApiRoute || isLoginRoute) {
-    res.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, private');
-    res.headers.set('Pragma', 'no-cache');
-    res.headers.set('Expires', '0');
-  }
 
   return res;
 }
