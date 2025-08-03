@@ -9,7 +9,7 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
-    domains: ['localhost' ],
+    domains: ['localhost', 'porxdwrulkzdpbvrsagh.supabase.co'],
   },
   output: "standalone",
   reactStrictMode: true,
@@ -21,16 +21,49 @@ const nextConfig = {
     scrollRestoration: true,
     optimizeCss: true,
   },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+        ],
+      },
+    ];
+  },
   webpack: (config, { dev, isServer }) => {
+    // Suppress webpack warnings about large string serialization
+    config.infrastructureLogging = {
+      level: 'error',
+      debug: false,
+    };
+    
+    // Optimize cache to reduce large string serialization impact
+    if (config.cache && config.cache.type === 'filesystem') {
+      config.cache.compression = 'gzip';
+    }
+    
     // Optimize for production
     if (!dev && !isServer) {
       config.optimization = {
         ...config.optimization,
         splitChunks: {
           chunks: 'all',
+          maxSize: 244000,
           cacheGroups: {
             vendor: {
-              test: /[\\/]node_modules[\\/]/,
+              test: /[\\\\/]node_modules[\\\\/]/,
               name: 'vendors',
               chunks: 'all',
             },

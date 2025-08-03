@@ -139,17 +139,22 @@ export async function middleware(req: NextRequest) {
   const csp = [
     "default-src 'self'",
     "img-src 'self' data: https: blob:",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://connect.facebook.net https:",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://connect.facebook.net https: https://www.google-analytics.com",
     "style-src 'self' 'unsafe-inline' https:",
-    "font-src 'self' data:",
-    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.vercel.com https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net https://www.facebook.com https://connect.facebook.net",
+    "font-src 'self' data: https:",
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.vercel.com https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net https://www.facebook.com https://connect.facebook.net https://region1.google-analytics.com",
     "media-src 'self' blob:",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self' https://www.facebook.com",
     "frame-ancestors 'none'",
+    "worker-src 'self' blob:",
   ].join("; ");
-  res.headers.set("Content-Security-Policy", csp);
+  
+  // Only apply CSP for non-admin routes to avoid conflicts during logout
+  if (!isAdminRoute) {
+    res.headers.set("Content-Security-Policy", csp);
+  }
 
   return res;
 }

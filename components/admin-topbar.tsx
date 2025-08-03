@@ -101,26 +101,29 @@ export default function AdminTopbar() {
   }, [router]);
 
   const handleSignOut = useCallback(async () => {
+    if (loading) return; // Prevent multiple simultaneous logout attempts
+    
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      // Clear session cookie first to prevent middleware conflicts
+      document.cookie = "sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax";
       
-      // Clear session cookie
-      document.cookie =
-        "sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT";
+      // Sign out from Supabase
+      await supabase.auth.signOut({ scope: 'local' });
       
       toast.success("Signed out successfully");
-      router.replace("/auth/login");
+      
+      // Use window.location for immediate redirect to avoid router conflicts
+      window.location.href = "/auth/login";
     } catch (error) {
       if (process.env.NODE_ENV !== "production") {
         console.error("Sign out error:", error);
       }
       toast.error("Failed to sign out");
-    } finally {
-      setLoading(false);
+      // Fallback redirect even on error
+      window.location.href = "/auth/login";
     }
-  }, [router]);
+  }, [loading]);
 
   if (loading) {
     return (
