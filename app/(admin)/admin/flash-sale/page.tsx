@@ -72,12 +72,12 @@ export default function AdminFlashSalePage() {
     }
   };
 
-  const isFlashSaleActive = (endDate: string | null) => {
+  const isFlashSaleActive = (endDate: string | null | undefined) => {
     if (!endDate) return true;
     return new Date(endDate) > new Date();
   };
 
-  const getTimeRemaining = (endDate: string | null) => {
+  const getTimeRemaining = (endDate: string | null | undefined) => {
     if (!endDate) return "No end date";
 
     const now = new Date().getTime();

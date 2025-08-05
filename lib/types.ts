@@ -147,3 +147,6 @@ export interface StockAlert {
   current_stock: number;
   threshold: number;
 }
+
+// Re-export user types
+export * from './types/user';
