@@ -10,19 +10,21 @@ import { SidebarProvider, useSidebar } from "@/hooks/use-sidebar";
 
 function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const { collapsed } = useSidebar();
-  
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
       {/* Sidebar */}
       <AdminSidebar />
-      
+
       {/* Main Content */}
-      <div className={`flex flex-col min-h-screen transition-all duration-300 ${
-        collapsed ? "ml-16" : "ml-72"
-      }`}>
+      <div
+        className={`flex flex-col min-h-screen transition-all duration-300 ${
+          collapsed ? "ml-16" : "ml-72"
+        }`}
+      >
         {/* Top Navigation */}
         <AdminTopbar />
-        
+
         {/* Page Content */}
         <main className="flex-1 p-8 overflow-auto">
           <div className="max-w-7xl mx-auto">
@@ -41,7 +43,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
           </div>
         </main>
       </div>
-      
+
       <Toaster position="top-right" />
     </div>
   );

@@ -67,7 +67,7 @@ export function metaPixelScriptTags() {
 // Example: send conversion event to backend
 export async function sendMetaConversionEvent(
   eventName: string,
-  eventData: any,
+  eventData: Record<string, unknown>,
 ) {
   try {
     const response = await fetch("/api/meta-capi", {
@@ -91,11 +91,18 @@ export async function sendMetaConversionEvent(
 // Safe tracking functions that won't break the app
 export function trackGoogleAnalyticsEvent(
   eventName: string,
-  parameters: any = {},
+  parameters: Record<string, unknown> = {},
 ) {
   try {
-    if (typeof window !== "undefined" && (window as any).gtag) {
-      (window as any).gtag("event", eventName, parameters);
+    if (
+      typeof window !== "undefined" &&
+      (window as typeof window & { gtag?: (...args: unknown[]) => void }).gtag
+    ) {
+      (window as typeof window & { gtag: (...args: unknown[]) => void }).gtag(
+        "event",
+        eventName,
+        parameters,
+      );
     }
   } catch (error) {
     console.warn("Google Analytics tracking error:", error);
@@ -104,11 +111,18 @@ export function trackGoogleAnalyticsEvent(
 
 export function trackFacebookPixelEvent(
   eventName: string,
-  parameters: any = {},
+  parameters: Record<string, unknown> = {},
 ) {
   try {
-    if (typeof window !== "undefined" && (window as any).fbq) {
-      (window as any).fbq("track", eventName, parameters);
+    if (
+      typeof window !== "undefined" &&
+      (window as typeof window & { fbq?: (...args: unknown[]) => void }).fbq
+    ) {
+      (window as typeof window & { fbq: (...args: unknown[]) => void }).fbq(
+        "track",
+        eventName,
+        parameters,
+      );
     }
   } catch (error) {
     console.warn("Facebook Pixel tracking error:", error);

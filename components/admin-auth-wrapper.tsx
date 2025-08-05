@@ -21,26 +21,28 @@ export default function AdminAuthWrapper({ children }: AdminAuthWrapperProps) {
       try {
         setIsLoading(true);
         setError(null);
-        
+
         const { isAdmin, user } = await checkAdminAccess();
-        
+
         if (!isAdmin || !user) {
           // Clear any existing session data
-          document.cookie = "sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT";
-          
+          document.cookie =
+            "sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT";
+
           // Redirect to login with return URL
           const returnUrl = encodeURIComponent(pathname);
           router.replace(`/auth/login?returnUrl=${returnUrl}`);
           return;
         }
-        
+
         setIsAuthenticated(true);
       } catch (error) {
         console.error("Admin authentication failed:", error);
         setError("Authentication failed. Please try again.");
-        
+
         // Clear session and redirect to login
-        document.cookie = "sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT";
+        document.cookie =
+          "sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT";
         router.replace("/auth/login");
       } finally {
         setIsLoading(false);

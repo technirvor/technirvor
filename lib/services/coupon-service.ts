@@ -1,5 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
-import { Coupon, ApplyCouponData, ApplyCouponResponse } from '@/lib/types/user';
+import { createClient } from "@supabase/supabase-js";
+import { Coupon, ApplyCouponData, ApplyCouponResponse } from "@/lib/types/user";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -14,21 +14,21 @@ export async function getUserCoupons(sessionToken: string): Promise<{
   message?: string;
 }> {
   try {
-    const response = await fetch('/api/coupons', {
-      method: 'GET',
+    const response = await fetch("/api/coupons", {
+      method: "GET",
       headers: {
-        'Authorization': `Bearer ${sessionToken}`,
-        'Content-Type': 'application/json'
-      }
+        Authorization: `Bearer ${sessionToken}`,
+        "Content-Type": "application/json",
+      },
     });
 
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Get user coupons error:', error);
+    console.error("Get user coupons error:", error);
     return {
       success: false,
-      message: 'Failed to fetch coupons'
+      message: "Failed to fetch coupons",
     };
   }
 }
@@ -38,25 +38,25 @@ export async function getUserCoupons(sessionToken: string): Promise<{
  */
 export async function applyCoupon(
   sessionToken: string,
-  request: ApplyCouponData
+  request: ApplyCouponData,
 ): Promise<ApplyCouponResponse> {
   try {
-    const response = await fetch('/api/coupons', {
-      method: 'POST',
+    const response = await fetch("/api/coupons", {
+      method: "POST",
       headers: {
-        'Authorization': `Bearer ${sessionToken}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${sessionToken}`,
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(request)
+      body: JSON.stringify(request),
     });
 
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Apply coupon error:', error);
+    console.error("Apply coupon error:", error);
     return {
       success: false,
-      message: 'Failed to apply coupon'
+      message: "Failed to apply coupon",
     };
   }
 }
@@ -66,25 +66,25 @@ export async function applyCoupon(
  */
 export async function markCouponAsUsed(
   sessionToken: string,
-  couponId: string
+  couponId: string,
 ): Promise<{ success: boolean; message?: string }> {
   try {
-    const response = await fetch('/api/coupons', {
-      method: 'PUT',
+    const response = await fetch("/api/coupons", {
+      method: "PUT",
       headers: {
-        'Authorization': `Bearer ${sessionToken}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${sessionToken}`,
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ coupon_id: couponId })
+      body: JSON.stringify({ coupon_id: couponId }),
     });
 
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Mark coupon as used error:', error);
+    console.error("Mark coupon as used error:", error);
     return {
       success: false,
-      message: 'Failed to mark coupon as used'
+      message: "Failed to mark coupon as used",
     };
   }
 }
@@ -92,38 +92,36 @@ export async function markCouponAsUsed(
 /**
  * Validate a coupon code
  */
-export async function validateCouponCode(
-  couponCode: string
-): Promise<{
+export async function validateCouponCode(couponCode: string): Promise<{
   success: boolean;
   coupon?: Coupon;
   message?: string;
 }> {
   try {
     const { data: coupon, error } = await supabase
-      .from('coupons')
-      .select('*')
-      .eq('code', couponCode.toUpperCase())
-      .eq('is_used', false)
-      .gt('expires_at', new Date().toISOString())
+      .from("coupons")
+      .select("*")
+      .eq("code", couponCode.toUpperCase())
+      .eq("is_used", false)
+      .gt("expires_at", new Date().toISOString())
       .single();
 
     if (error || !coupon) {
       return {
         success: false,
-        message: 'Invalid or expired coupon code'
+        message: "Invalid or expired coupon code",
       };
     }
 
     return {
       success: true,
-      coupon
+      coupon,
     };
   } catch (error) {
-    console.error('Validate coupon code error:', error);
+    console.error("Validate coupon code error:", error);
     return {
       success: false,
-      message: 'Failed to validate coupon code'
+      message: "Failed to validate coupon code",
     };
   }
 }
@@ -131,11 +129,8 @@ export async function validateCouponCode(
 /**
  * Calculate discount amount based on coupon
  */
-export function calculateDiscount(
-  coupon: Coupon,
-  orderAmount: number
-): number {
-  if (coupon.discount_type === 'percentage') {
+export function calculateDiscount(coupon: Coupon, orderAmount: number): number {
+  if (coupon.discount_type === "percentage") {
     const discount = (orderAmount * coupon.discount_value) / 100;
     // No max discount amount limit for percentage coupons in current schema
     return discount;
@@ -150,9 +145,12 @@ export function calculateDiscount(
  */
 export function isCouponValidForOrder(
   coupon: Coupon,
-  orderAmount: number
+  orderAmount: number,
 ): boolean {
-  if (coupon.minimum_order_amount && orderAmount < coupon.minimum_order_amount) {
+  if (
+    coupon.minimum_order_amount &&
+    orderAmount < coupon.minimum_order_amount
+  ) {
     return false;
   }
   return true;

@@ -84,34 +84,36 @@ export default function AdminHeroSlidesPage() {
   const uploadImage = async (file: File): Promise<string | null> => {
     try {
       setUploading(true);
-      
+
       // Create a unique filename in the hero-slides folder
-      const fileExt = file.name.split('.').pop();
+      const fileExt = file.name.split(".").pop();
       const fileName = `hero-slides/hero-slide-${Date.now()}.${fileExt}`;
-      
+
       // Upload to product-images bucket with hero-slides folder
       const { data, error } = await supabase.storage
-        .from('product-images')
+        .from("product-images")
         .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: false
+          cacheControl: "3600",
+          upsert: false,
         });
-      
+
       if (error) {
-        console.error('Upload error:', error);
+        console.error("Upload error:", error);
         toast.error(`Failed to upload image: ${error.message}`);
         return null;
       }
-      
+
       // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('product-images')
-        .getPublicUrl(fileName);
-      
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("product-images").getPublicUrl(fileName);
+
       return publicUrl;
     } catch (error) {
-      console.error('Error uploading image:', error);
-      toast.error(`Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error("Error uploading image:", error);
+      toast.error(
+        `Upload failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
       return null;
     } finally {
       setUploading(false);
@@ -119,28 +121,29 @@ export default function AdminHeroSlidesPage() {
   };
 
   const handleFileSelect = async (file: File) => {
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
       return;
     }
-    
-    if (file.size > 5 * 1024 * 1024) { // 5MB limit
-      toast.error('Image size should be less than 5MB');
+
+    if (file.size > 5 * 1024 * 1024) {
+      // 5MB limit
+      toast.error("Image size should be less than 5MB");
       return;
     }
-    
+
     // Create preview
     const reader = new FileReader();
     reader.onload = (e) => {
       setPreviewImage(e.target?.result as string);
     };
     reader.readAsDataURL(file);
-    
+
     // Upload image
     const imageUrl = await uploadImage(file);
     if (imageUrl) {
-      setFormData(prev => ({ ...prev, image_url: imageUrl }));
-      toast.success('Image uploaded successfully');
+      setFormData((prev) => ({ ...prev, image_url: imageUrl }));
+      toast.success("Image uploaded successfully");
     }
   };
 
@@ -159,7 +162,7 @@ export default function AdminHeroSlidesPage() {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFileSelect(e.dataTransfer.files[0]);
     }
@@ -173,7 +176,7 @@ export default function AdminHeroSlidesPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       if (editingSlide) {
         // Update existing slide
@@ -181,19 +184,17 @@ export default function AdminHeroSlidesPage() {
           .from("hero_slides")
           .update(formData)
           .eq("id", editingSlide.id);
-        
+
         if (error) throw error;
         toast.success("Hero slide updated successfully");
       } else {
         // Create new slide
-        const { error } = await supabase
-          .from("hero_slides")
-          .insert([formData]);
-        
+        const { error } = await supabase.from("hero_slides").insert([formData]);
+
         if (error) throw error;
         toast.success("Hero slide created successfully");
       }
-      
+
       setIsDialogOpen(false);
       setEditingSlide(null);
       resetForm();
@@ -225,9 +226,9 @@ export default function AdminHeroSlidesPage() {
         .from("hero_slides")
         .delete()
         .eq("id", id);
-      
+
       if (error) throw error;
-      
+
       setSlides(slides.filter((slide) => slide.id !== id));
       toast.success("Hero slide deleted successfully");
     } catch (error) {
@@ -242,7 +243,7 @@ export default function AdminHeroSlidesPage() {
         .from("hero_slides")
         .update({ order_index: newOrder })
         .eq("id", id);
-      
+
       if (error) throw error;
       fetchSlides();
     } catch (error) {
@@ -257,10 +258,12 @@ export default function AdminHeroSlidesPage() {
         .from("hero_slides")
         .update({ is_active: !isActive })
         .eq("id", id);
-      
+
       if (error) throw error;
       fetchSlides();
-      toast.success(`Slide ${!isActive ? 'activated' : 'deactivated'} successfully`);
+      toast.success(
+        `Slide ${!isActive ? "activated" : "deactivated"} successfully`,
+      );
     } catch (error) {
       console.error("Error toggling active status:", error);
       toast.error("Failed to update slide status");
@@ -281,7 +284,7 @@ export default function AdminHeroSlidesPage() {
   };
 
   const filteredSlides = slides.filter((slide) =>
-    slide.title.toLowerCase().includes(searchQuery.toLowerCase())
+    slide.title.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   if (loading) {
@@ -305,7 +308,12 @@ export default function AdminHeroSlidesPage() {
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={() => { resetForm(); setEditingSlide(null); }}>
+            <Button
+              onClick={() => {
+                resetForm();
+                setEditingSlide(null);
+              }}
+            >
               <Plus className="h-4 w-4 mr-2" />
               Add Slide
             </Button>
@@ -323,7 +331,9 @@ export default function AdminHeroSlidesPage() {
                   <Input
                     id="title"
                     value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, title: e.target.value })
+                    }
                     required
                   />
                 </div>
@@ -333,22 +343,29 @@ export default function AdminHeroSlidesPage() {
                     id="order_index"
                     type="number"
                     value={formData.order_index}
-                    onChange={(e) => setFormData({ ...formData, order_index: parseInt(e.target.value) })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        order_index: parseInt(e.target.value),
+                      })
+                    }
                     required
                   />
                 </div>
               </div>
-              
+
               <div>
                 <Label htmlFor="subtitle">Subtitle</Label>
                 <Textarea
                   id="subtitle"
                   value={formData.subtitle}
-                  onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, subtitle: e.target.value })
+                  }
                   rows={2}
                 />
               </div>
-              
+
               <div>
                 <Label>Hero Slide Image</Label>
                 <div className="space-y-4">
@@ -371,23 +388,28 @@ export default function AdminHeroSlidesPage() {
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                       disabled={uploading}
                     />
-                    
+
                     {uploading ? (
                       <div className="flex flex-col items-center">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2"></div>
-                        <p className="text-sm text-gray-600">Uploading image...</p>
+                        <p className="text-sm text-gray-600">
+                          Uploading image...
+                        </p>
                       </div>
                     ) : (
                       <div className="flex flex-col items-center">
                         <Upload className="h-8 w-8 text-gray-400 mb-2" />
                         <p className="text-sm text-gray-600 mb-1">
-                          <span className="font-medium">Click to upload</span> or drag and drop
+                          <span className="font-medium">Click to upload</span>{" "}
+                          or drag and drop
                         </p>
-                        <p className="text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                        <p className="text-xs text-gray-500">
+                          PNG, JPG, GIF up to 5MB
+                        </p>
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Image Preview */}
                   {(previewImage || formData.image_url) && (
                     <div className="relative">
@@ -402,7 +424,7 @@ export default function AdminHeroSlidesPage() {
                           type="button"
                           onClick={() => {
                             setPreviewImage(null);
-                            setFormData(prev => ({ ...prev, image_url: "" }));
+                            setFormData((prev) => ({ ...prev, image_url: "" }));
                           }}
                           className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
                         >
@@ -411,10 +433,12 @@ export default function AdminHeroSlidesPage() {
                       </div>
                     </div>
                   )}
-                  
+
                   {/* Manual URL Input */}
                   <div className="text-center">
-                    <p className="text-xs text-gray-500 mb-2">Or enter image URL manually:</p>
+                    <p className="text-xs text-gray-500 mb-2">
+                      Or enter image URL manually:
+                    </p>
                     <Input
                       value={formData.image_url}
                       onChange={(e) => {
@@ -427,28 +451,36 @@ export default function AdminHeroSlidesPage() {
                   </div>
                 </div>
               </div>
-              
+
               <div>
                 <Label htmlFor="link_url">Link URL</Label>
                 <Input
                   id="link_url"
                   value={formData.link_url}
-                  onChange={(e) => setFormData({ ...formData, link_url: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, link_url: e.target.value })
+                  }
                   placeholder="/products or https://example.com"
                 />
               </div>
-              
+
               <div className="flex items-center space-x-2">
                 <Switch
                   id="is_active"
                   checked={formData.is_active}
-                  onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, is_active: checked })
+                  }
                 />
                 <Label htmlFor="is_active">Active</Label>
               </div>
-              
+
               <div className="flex justify-end space-x-2">
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsDialogOpen(false)}
+                >
                   Cancel
                 </Button>
                 <Button type="submit">
@@ -510,7 +542,9 @@ export default function AdminHeroSlidesPage() {
                             variant="ghost"
                             size="sm"
                             className="h-6 w-6 p-0"
-                            onClick={() => updateOrder(slide.id, slide.order_index - 1)}
+                            onClick={() =>
+                              updateOrder(slide.id, slide.order_index - 1)
+                            }
                             disabled={slide.order_index === 1}
                           >
                             <ArrowUp className="h-3 w-3" />
@@ -519,7 +553,9 @@ export default function AdminHeroSlidesPage() {
                             variant="ghost"
                             size="sm"
                             className="h-6 w-6 p-0"
-                            onClick={() => updateOrder(slide.id, slide.order_index + 1)}
+                            onClick={() =>
+                              updateOrder(slide.id, slide.order_index + 1)
+                            }
                             disabled={slide.order_index === slides.length}
                           >
                             <ArrowDown className="h-3 w-3" />
@@ -536,7 +572,7 @@ export default function AdminHeroSlidesPage() {
                           className="object-cover"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
-                            target.src = '/placeholder.svg';
+                            target.src = "/placeholder.svg";
                           }}
                         />
                       </div>
@@ -545,13 +581,15 @@ export default function AdminHeroSlidesPage() {
                       <div>
                         <p className="font-medium">{slide.title}</p>
                         {slide.link_url && (
-                          <p className="text-sm text-gray-500">{slide.link_url}</p>
+                          <p className="text-sm text-gray-500">
+                            {slide.link_url}
+                          </p>
                         )}
                       </div>
                     </TableCell>
                     <TableCell>
                       <p className="text-sm text-gray-600 max-w-xs truncate">
-                        {slide.subtitle || '-'}
+                        {slide.subtitle || "-"}
                       </p>
                     </TableCell>
                     <TableCell>

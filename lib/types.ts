@@ -48,7 +48,7 @@ export interface CartItem {
 }
 
 export interface Order {
-  order_number: any;
+  order_number: string;
   id: string;
   customer_name: string;
   customer_email?: string;
@@ -149,4 +149,4 @@ export interface StockAlert {
 }
 
 // Re-export user types
-export * from './types/user';
+export * from "./types/user";

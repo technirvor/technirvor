@@ -71,7 +71,7 @@ export default function AdminProductsPage() {
   const fetchProducts = async (page = 1, search = "") => {
     try {
       setLoading(true);
-      
+
       let query = supabase
         .from("products")
         .select(
@@ -93,13 +93,13 @@ export default function AdminProductsPage() {
           created_at,
           category:categories(id, name)
         `,
-          { count: 'exact' }
+          { count: "exact" },
         )
         .order("created_at", { ascending: false });
 
       // Add search filter if provided
       if (search.trim()) {
-        query = query.ilike('name', `%${search}%`);
+        query = query.ilike("name", `%${search}%`);
       }
 
       // Add pagination
@@ -110,20 +110,23 @@ export default function AdminProductsPage() {
       const { data, error, count } = await query;
 
       if (error) throw error;
-      
+
       // Map the data to ensure it matches the Product type
-      const mappedProducts = (data || []).map(item => ({
+      const mappedProducts = (data || []).map((item) => ({
         ...item,
         has_free_delivery: false, // Default value since column doesn't exist yet
         free_delivery_note: undefined, // Default value since column doesn't exist yet
-        category: Array.isArray(item.category) ? item.category[0] : item.category
+        category: Array.isArray(item.category)
+          ? item.category[0]
+          : item.category,
       })) as Product[];
       setProducts(mappedProducts);
       setTotalCount(count || 0);
       setCurrentPage(page);
     } catch (error) {
       console.error("Error fetching products:", error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error occurred";
       toast.error(`Failed to fetch products: ${errorMessage}`);
     } finally {
       setLoading(false);
@@ -220,7 +223,9 @@ export default function AdminProductsPage() {
     );
   }
 
-  const lowStockProducts = products.filter((p) => (p.stock || 0) <= 10 && (p.stock || 0) > 0);
+  const lowStockProducts = products.filter(
+    (p) => (p.stock || 0) <= 10 && (p.stock || 0) > 0,
+  );
   const outOfStockProducts = products.filter((p) => (p.stock || 0) === 0);
 
   return (
@@ -311,217 +316,240 @@ export default function AdminProductsPage() {
                           <TableCell colSpan={7} className="text-center py-8">
                             <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                             <p className="text-gray-500">
-                              {searchQuery ? 'No products found matching your search.' : 'No products found.'}
+                              {searchQuery
+                                ? "No products found matching your search."
+                                : "No products found."}
                             </p>
                           </TableCell>
                         </TableRow>
                       ) : (
                         products.map((product) => {
-                    const stockStatus = getStockStatus(product.stock);
-                    return (
-                      <TableRow key={product.id}>
-                        <TableCell>
-                          <Image
-                            src={
-                              product.image_url?.trim() ||
-                              "/placeholder.svg?height=50&width=50"
+                          const stockStatus = getStockStatus(product.stock);
+                          return (
+                            <TableRow key={product.id}>
+                              <TableCell>
+                                <Image
+                                  src={
+                                    product.image_url?.trim() ||
+                                    "/placeholder.svg?height=50&width=50"
+                                  }
+                                  alt={product.name}
+                                  width={50}
+                                  height={50}
+                                  className="rounded-lg object-cover"
+                                />
+                              </TableCell>
+                              <TableCell className="font-medium max-w-xs">
+                                <div className="truncate">{product.name}</div>
+                              </TableCell>
+                              <TableCell>
+                                {product.category?.name || "No Category"}
+                              </TableCell>
+                              <TableCell>
+                                <div>
+                                  {product.sale_price && (
+                                    <span className="text-green-600 font-semibold">
+                                      ৳{product.sale_price.toLocaleString()}
+                                    </span>
+                                  )}
+                                  <span
+                                    className={
+                                      product.sale_price
+                                        ? "text-gray-500 line-through ml-2"
+                                        : "font-semibold"
+                                    }
+                                  >
+                                    ৳{product.price.toLocaleString()}
+                                  </span>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-2">
+                                  <Badge
+                                    variant={stockStatus.variant}
+                                    className={stockStatus.color}
+                                  >
+                                    {stockStatus.text}
+                                  </Badge>
+                                  {product.stock <= 10 && product.stock > 0 && (
+                                    <AlertTriangle className="w-4 h-4 text-orange-500" />
+                                  )}
+                                </div>
+                                {/* Debug info */}
+                                <div className="text-xs text-gray-500 mt-1">
+                                  Raw: {product.stock}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex flex-col gap-1">
+                                  {product.is_featured && (
+                                    <Badge variant="secondary">Featured</Badge>
+                                  )}
+                                  {product.is_flash_sale && (
+                                    <Badge variant="destructive">
+                                      Flash Sale
+                                    </Badge>
+                                  )}
+                                  {!product.is_featured &&
+                                    !product.is_flash_sale && (
+                                      <Badge variant="outline">Regular</Badge>
+                                    )}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-1">
+                                  <Link href={`/product/${product.slug}`}>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      title="View Product"
+                                    >
+                                      <Eye className="w-4 h-4" />
+                                    </Button>
+                                  </Link>
+                                  <Link
+                                    href={`/admin/products/${product.id}/edit`}
+                                  >
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      title="Edit Product"
+                                    >
+                                      <Edit className="w-4 h-4" />
+                                    </Button>
+                                  </Link>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() =>
+                                      toggleFeatured(
+                                        product.id,
+                                        product.is_featured,
+                                      )
+                                    }
+                                    className={
+                                      product.is_featured
+                                        ? "text-yellow-600"
+                                        : "text-gray-600"
+                                    }
+                                    title="Toggle Featured"
+                                  >
+                                    {product.is_featured ? "★" : "☆"}
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                      const newStock = prompt(
+                                        `Update stock for ${product.name}:`,
+                                        product.stock.toString(),
+                                      );
+                                      if (
+                                        newStock !== null &&
+                                        !isNaN(Number(newStock))
+                                      ) {
+                                        updateStock(
+                                          product.id,
+                                          Number(newStock),
+                                        );
+                                      }
+                                    }}
+                                    className="text-blue-600 hover:text-blue-800"
+                                    title="Update Stock"
+                                  >
+                                    <Package className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() =>
+                                      handleDelete(product.id, product.name)
+                                    }
+                                    className="text-red-600 hover:text-red-800"
+                                    title="Delete Product"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between mt-6">
+                    <div className="text-sm text-gray-500">
+                      Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{" "}
+                      {Math.min(currentPage * ITEMS_PER_PAGE, totalCount)} of{" "}
+                      {totalCount} products
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                        Previous
+                      </Button>
+
+                      <div className="flex items-center space-x-1">
+                        {Array.from(
+                          { length: Math.min(5, totalPages) },
+                          (_, i) => {
+                            let pageNum;
+                            if (totalPages <= 5) {
+                              pageNum = i + 1;
+                            } else if (currentPage <= 3) {
+                              pageNum = i + 1;
+                            } else if (currentPage >= totalPages - 2) {
+                              pageNum = totalPages - 4 + i;
+                            } else {
+                              pageNum = currentPage - 2 + i;
                             }
-                            alt={product.name}
-                            width={50}
-                            height={50}
-                            className="rounded-lg object-cover"
-                          />
-                        </TableCell>
-                        <TableCell className="font-medium max-w-xs">
-                          <div className="truncate">{product.name}</div>
-                        </TableCell>
-                        <TableCell>
-                          {product.category?.name || "No Category"}
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            {product.sale_price && (
-                              <span className="text-green-600 font-semibold">
-                                ৳{product.sale_price.toLocaleString()}
-                              </span>
-                            )}
-                            <span
-                              className={
-                                product.sale_price
-                                  ? "text-gray-500 line-through ml-2"
-                                  : "font-semibold"
-                              }
-                            >
-                              ৳{product.price.toLocaleString()}
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Badge
-                              variant={stockStatus.variant}
-                              className={stockStatus.color}
-                            >
-                              {stockStatus.text}
-                            </Badge>
-                            {product.stock <= 10 && product.stock > 0 && (
-                              <AlertTriangle className="w-4 h-4 text-orange-500" />
-                            )}
-                          </div>
-                          {/* Debug info */}
-                          <div className="text-xs text-gray-500 mt-1">
-                            Raw: {product.stock}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-col gap-1">
-                            {product.is_featured && (
-                              <Badge variant="secondary">Featured</Badge>
-                            )}
-                            {product.is_flash_sale && (
-                              <Badge variant="destructive">Flash Sale</Badge>
-                            )}
-                            {!product.is_featured && !product.is_flash_sale && (
-                              <Badge variant="outline">Regular</Badge>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1">
-                            <Link href={`/product/${product.slug}`}>
+
+                            return (
                               <Button
-                                variant="ghost"
-                                size="sm"
-                                title="View Product"
-                              >
-                                <Eye className="w-4 h-4" />
-                              </Button>
-                            </Link>
-                            <Link href={`/admin/products/${product.id}/edit`}>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                title="Edit Product"
-                              >
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                            </Link>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() =>
-                                toggleFeatured(product.id, product.is_featured)
-                              }
-                              className={
-                                product.is_featured
-                                  ? "text-yellow-600"
-                                  : "text-gray-600"
-                              }
-                              title="Toggle Featured"
-                            >
-                              {product.is_featured ? "★" : "☆"}
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                const newStock = prompt(
-                                  `Update stock for ${product.name}:`,
-                                  product.stock.toString(),
-                                );
-                                if (
-                                  newStock !== null &&
-                                  !isNaN(Number(newStock))
-                                ) {
-                                  updateStock(product.id, Number(newStock));
+                                key={pageNum}
+                                variant={
+                                  currentPage === pageNum
+                                    ? "default"
+                                    : "outline"
                                 }
-                              }}
-                              className="text-blue-600 hover:text-blue-800"
-                              title="Update Stock"
-                            >
-                              <Package className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() =>
-                                handleDelete(product.id, product.name)
-                              }
-                              className="text-red-600 hover:text-red-800"
-                              title="Delete Product"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  }))}
-                </TableBody>
-              </Table>
-            </div>
-            
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-between mt-6">
-                <div className="text-sm text-gray-500">
-                  Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, totalCount)} of {totalCount} products
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                    Previous
-                  </Button>
-                  
-                  <div className="flex items-center space-x-1">
-                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                      let pageNum;
-                      if (totalPages <= 5) {
-                        pageNum = i + 1;
-                      } else if (currentPage <= 3) {
-                        pageNum = i + 1;
-                      } else if (currentPage >= totalPages - 2) {
-                        pageNum = totalPages - 4 + i;
-                      } else {
-                        pageNum = currentPage - 2 + i;
-                      }
-                      
-                      return (
-                        <Button
-                          key={pageNum}
-                          variant={currentPage === pageNum ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => handlePageChange(pageNum)}
-                          className="w-8 h-8 p-0"
-                        >
-                          {pageNum}
-                        </Button>
-                      );
-                    })}
+                                size="sm"
+                                onClick={() => handlePageChange(pageNum)}
+                                className="w-8 h-8 p-0"
+                              >
+                                {pageNum}
+                              </Button>
+                            );
+                          },
+                        )}
+                      </div>
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                      >
+                        Next
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                  
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                  >
-                    Next
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
+                )}
+              </>
             )}
-          </>
-        )}
-      </CardContent>
-    </Card>
-  </div>
-</div>
-);
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
 }

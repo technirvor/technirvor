@@ -7,7 +7,7 @@ export interface User {
   phone: string;
   email?: string;
   date_of_birth?: string;
-  gender?: 'male' | 'female' | 'other';
+  gender?: "male" | "female" | "other";
   district?: string;
   address?: string;
   is_phone_verified: boolean;
@@ -29,7 +29,7 @@ export interface UserRewards {
   total_earned: number;
   total_redeemed: number;
   lifetime_points: number;
-  current_tier: 'bronze' | 'silver' | 'gold' | 'platinum';
+  current_tier: "bronze" | "silver" | "gold" | "platinum";
   tier_progress: number;
   next_tier_threshold?: number;
   created_at: string;
@@ -39,7 +39,7 @@ export interface UserRewards {
 export interface RewardTransaction {
   id: string;
   user_id: string;
-  transaction_type: 'earned' | 'redeemed' | 'expired' | 'bonus';
+  transaction_type: "earned" | "redeemed" | "expired" | "bonus";
   points: number;
   description: string;
   order_id?: string;
@@ -52,7 +52,7 @@ export interface RewardTier {
   tier_name: string;
   min_points: number;
   max_points?: number;
-  benefits: Record<string, any>;
+  benefits: Record<string, unknown>;
   discount_percentage: number;
   free_delivery_threshold?: number;
   created_at: string;
@@ -63,7 +63,7 @@ export interface UserReferral {
   referrer_id: string;
   referred_id: string;
   referral_code: string;
-  status: 'pending' | 'completed' | 'expired';
+  status: "pending" | "completed" | "expired";
   reward_points: number;
   completed_at?: string;
   created_at: string;
@@ -97,7 +97,7 @@ export interface UserRegistrationData {
   password: string;
   confirm_password: string;
   date_of_birth?: string;
-  gender?: 'male' | 'female' | 'other';
+  gender?: "male" | "female" | "other";
   district?: string;
   address?: string;
   referral_code?: string;
@@ -151,7 +151,7 @@ export interface ValidationResult {
 
 export interface BangladeshiPhoneValidation extends ValidationResult {
   normalized_phone?: string;
-  operator?: 'Grameenphone' | 'Robi' | 'Banglalink' | 'Teletalk' | 'Airtel';
+  operator?: "Grameenphone" | "Robi" | "Banglalink" | "Teletalk" | "Airtel";
 }
 
 // User dashboard types
@@ -160,7 +160,7 @@ export interface UserDashboardData {
   rewards: UserRewards;
   currentTier: RewardTier;
   nextTier?: RewardTier;
-  recent_orders: any[]; // Will use existing Order type
+  recent_orders: Record<string, unknown>[]; // Will use existing Order type
   recent_transactions: RewardTransaction[];
   referral_stats: {
     total_referrals: number;
@@ -180,7 +180,7 @@ export interface UserDashboardData {
 // Reward redemption types
 export interface RewardRedemption {
   points_to_redeem: number;
-  redemption_type: 'discount' | 'free_delivery' | 'gift_voucher';
+  redemption_type: "discount" | "free_delivery" | "gift_voucher";
   description: string;
   minimum_order_amount?: number;
 }
@@ -201,11 +201,11 @@ export interface UserPreferences {
     marketing_emails: boolean;
   };
   privacy: {
-    profile_visibility: 'public' | 'private';
+    profile_visibility: "public" | "private";
     show_purchase_history: boolean;
   };
-  language: 'en' | 'bn';
-  currency: 'BDT';
+  language: "en" | "bn";
+  currency: "BDT";
 }
 
 // Form validation schemas (for use with react-hook-form)
@@ -233,18 +233,18 @@ export interface PhoneVerificationErrors {
 
 // Constants
 export const BANGLADESHI_OPERATORS = {
-  GRAMEENPHONE: { prefix: ['017', '013'], name: 'Grameenphone' },
-  ROBI: { prefix: ['018', '019'], name: 'Robi' },
-  BANGLALINK: { prefix: ['014', '019'], name: 'Banglalink' },
-  TELETALK: { prefix: ['015'], name: 'Teletalk' },
-  AIRTEL: { prefix: ['016'], name: 'Airtel' }
+  GRAMEENPHONE: { prefix: ["017", "013"], name: "Grameenphone" },
+  ROBI: { prefix: ["018", "019"], name: "Robi" },
+  BANGLALINK: { prefix: ["014", "019"], name: "Banglalink" },
+  TELETALK: { prefix: ["015"], name: "Teletalk" },
+  AIRTEL: { prefix: ["016"], name: "Airtel" },
 } as const;
 
 export const REWARD_TIERS = {
-  BRONZE: { name: 'bronze', min_points: 0, max_points: 999 },
-  SILVER: { name: 'silver', min_points: 1000, max_points: 4999 },
-  GOLD: { name: 'gold', min_points: 5000, max_points: 19999 },
-  PLATINUM: { name: 'platinum', min_points: 20000, max_points: null }
+  BRONZE: { name: "bronze", min_points: 0, max_points: 999 },
+  SILVER: { name: "silver", min_points: 1000, max_points: 4999 },
+  GOLD: { name: "gold", min_points: 5000, max_points: 19999 },
+  PLATINUM: { name: "platinum", min_points: 20000, max_points: null },
 } as const;
 
 export const POINTS_PER_BDT = 0.1; // 1 point for every 10 BDT
@@ -254,7 +254,7 @@ export const BIRTHDAY_BONUS_POINTS = {
   bronze: 100,
   silver: 200,
   gold: 300,
-  platinum: 500
+  platinum: 500,
 } as const;
 
 // Coupon system types
@@ -262,7 +262,7 @@ export interface Coupon {
   id: string;
   code: string;
   user_id: string;
-  discount_type: 'percentage' | 'fixed';
+  discount_type: "percentage" | "fixed";
   discount_value: number;
   minimum_order_amount: number;
   is_used: boolean;
@@ -275,10 +275,10 @@ export interface Coupon {
 export interface UserNotification {
   id: string;
   user_id: string;
-  type: 'order' | 'offer' | 'status' | 'message' | 'coupon' | 'reward';
+  type: "order" | "offer" | "status" | "message" | "coupon" | "reward";
   title: string;
   message: string;
-  data: Record<string, any>;
+  data: Record<string, unknown>;
   is_read: boolean;
   created_at: string;
 }
@@ -289,7 +289,7 @@ export interface Message {
   sender_id: string;
   receiver_id: string;
   message: string;
-  message_type: 'text' | 'image' | 'file';
+  message_type: "text" | "image" | "file";
   attachment_url?: string;
   is_read: boolean;
   read_at?: string;
@@ -313,7 +313,7 @@ export interface AdminUser {
   user_id: string;
   full_name: string;
   email: string;
-  role: 'admin' | 'super_admin';
+  role: "admin" | "super_admin";
   is_active: boolean;
   created_at: string;
 }
@@ -322,7 +322,7 @@ export interface AdminUser {
 export interface SendMessageData {
   receiver_id: string;
   message: string;
-  message_type?: 'text' | 'image' | 'file';
+  message_type?: "text" | "image" | "file";
   attachment_url?: string;
 }
 
@@ -377,10 +377,10 @@ export interface ApplyCouponResponse {
 
 // Real-time notification types
 export interface NotificationPayload {
-  type: 'order' | 'offer' | 'status' | 'message' | 'coupon' | 'reward';
+  type: "order" | "offer" | "status" | "message" | "coupon" | "reward";
   title: string;
   message: string;
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
   user_id: string;
 }
 
@@ -390,6 +390,6 @@ export interface MessagePayload {
   sender_id: string;
   receiver_id: string;
   message: string;
-  message_type: 'text' | 'image' | 'file';
+  message_type: "text" | "image" | "file";
   created_at: string;
 }

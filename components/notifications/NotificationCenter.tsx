@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { Bell, X, Check, Trash2 } from 'lucide-react';
-import { UserNotification } from '@/lib/types/user';
+import React, { useState, useEffect } from "react";
+import { Bell, X, Check, Trash2 } from "lucide-react";
+import { UserNotification } from "@/lib/types/user";
 import {
   getUserNotifications,
   markNotificationAsRead,
   markAllNotificationsAsRead,
-  deleteNotification
-} from '@/lib/services/notification-service';
+  deleteNotification,
+} from "@/lib/services/notification-service";
 
 interface NotificationCenterProps {
   sessionToken: string;
@@ -17,41 +17,44 @@ interface NotificationCenterProps {
 
 const NotificationCenter: React.FC<NotificationCenterProps> = ({
   sessionToken,
-  onClose
+  onClose,
 }) => {
   const [notifications, setNotifications] = useState<UserNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'unread'>('all');
+  const [filter, setFilter] = useState<"all" | "unread">("all");
 
   useEffect(() => {
     loadNotifications();
   }, [filter]);
 
-  const loadNotifications = async (pageNum: number = 1, reset: boolean = true) => {
+  const loadNotifications = async (
+    pageNum: number = 1,
+    reset: boolean = true,
+  ) => {
     try {
       setLoading(true);
       const response = await getUserNotifications(
         sessionToken,
         pageNum,
         20,
-        filter === 'unread'
+        filter === "unread",
       );
 
       if (response.success && response.data) {
         if (reset) {
           setNotifications(response.data);
         } else {
-          setNotifications(prev => [...prev, ...response.data!]);
+          setNotifications((prev) => [...prev, ...response.data!]);
         }
         setUnreadCount(response.unread_count || 0);
         setHasMore(response.data.length === 20);
         setPage(pageNum);
       }
     } catch (error) {
-      console.error('Error loading notifications:', error);
+      console.error("Error loading notifications:", error);
     } finally {
       setLoading(false);
     }
@@ -59,19 +62,20 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
 
   const handleMarkAsRead = async (notificationId: string) => {
     try {
-      const response = await markNotificationAsRead(sessionToken, notificationId);
+      const response = await markNotificationAsRead(
+        sessionToken,
+        notificationId,
+      );
       if (response.success) {
-        setNotifications(prev =>
-          prev.map(notif =>
-            notif.id === notificationId
-              ? { ...notif, is_read: true }
-              : notif
-          )
+        setNotifications((prev) =>
+          prev.map((notif) =>
+            notif.id === notificationId ? { ...notif, is_read: true } : notif,
+          ),
         );
-        setUnreadCount(prev => Math.max(0, prev - 1));
+        setUnreadCount((prev) => Math.max(0, prev - 1));
       }
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      console.error("Error marking notification as read:", error);
     }
   };
 
@@ -79,13 +83,13 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
     try {
       const response = await markAllNotificationsAsRead(sessionToken);
       if (response.success) {
-        setNotifications(prev =>
-          prev.map(notif => ({ ...notif, is_read: true }))
+        setNotifications((prev) =>
+          prev.map((notif) => ({ ...notif, is_read: true })),
         );
         setUnreadCount(0);
       }
     } catch (error) {
-      console.error('Error marking all notifications as read:', error);
+      console.error("Error marking all notifications as read:", error);
     }
   };
 
@@ -93,14 +97,18 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
     try {
       const response = await deleteNotification(sessionToken, notificationId);
       if (response.success) {
-        const deletedNotification = notifications.find(n => n.id === notificationId);
-        setNotifications(prev => prev.filter(notif => notif.id !== notificationId));
+        const deletedNotification = notifications.find(
+          (n) => n.id === notificationId,
+        );
+        setNotifications((prev) =>
+          prev.filter((notif) => notif.id !== notificationId),
+        );
         if (deletedNotification && !deletedNotification.is_read) {
-          setUnreadCount(prev => Math.max(0, prev - 1));
+          setUnreadCount((prev) => Math.max(0, prev - 1));
         }
       }
     } catch (error) {
-      console.error('Error deleting notification:', error);
+      console.error("Error deleting notification:", error);
     }
   };
 
@@ -112,18 +120,18 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case 'order':
-        return '📦';
-      case 'offer':
-        return '🎉';
-      case 'coupon':
-        return '🎫';
-      case 'message':
-        return '💬';
-      case 'reward':
-        return '⭐';
+      case "order":
+        return "📦";
+      case "offer":
+        return "🎉";
+      case "coupon":
+        return "🎫";
+      case "message":
+        return "💬";
+      case "reward":
+        return "⭐";
       default:
-        return '🔔';
+        return "🔔";
     }
   };
 
@@ -132,9 +140,10 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-    if (diffInSeconds < 60) return 'Just now';
+    if (diffInSeconds < 60) return "Just now";
     if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+    if (diffInSeconds < 86400)
+      return `${Math.floor(diffInSeconds / 3600)}h ago`;
     return `${Math.floor(diffInSeconds / 86400)}d ago`;
   };
 
@@ -175,21 +184,21 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
       {/* Filter */}
       <div className="flex border-b">
         <button
-          onClick={() => setFilter('all')}
+          onClick={() => setFilter("all")}
           className={`flex-1 py-2 px-4 text-sm font-medium ${
-            filter === 'all'
-              ? 'text-blue-600 border-b-2 border-blue-600'
-              : 'text-gray-500 hover:text-gray-700'
+            filter === "all"
+              ? "text-blue-600 border-b-2 border-blue-600"
+              : "text-gray-500 hover:text-gray-700"
           }`}
         >
           All
         </button>
         <button
-          onClick={() => setFilter('unread')}
+          onClick={() => setFilter("unread")}
           className={`flex-1 py-2 px-4 text-sm font-medium ${
-            filter === 'unread'
-              ? 'text-blue-600 border-b-2 border-blue-600'
-              : 'text-gray-500 hover:text-gray-700'
+            filter === "unread"
+              ? "text-blue-600 border-b-2 border-blue-600"
+              : "text-gray-500 hover:text-gray-700"
           }`}
         >
           Unread ({unreadCount})
@@ -204,7 +213,9 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
           </div>
         ) : notifications.length === 0 ? (
           <div className="p-4 text-center text-gray-500">
-            {filter === 'unread' ? 'No unread notifications' : 'No notifications yet'}
+            {filter === "unread"
+              ? "No unread notifications"
+              : "No notifications yet"}
           </div>
         ) : (
           <div className="divide-y">
@@ -212,7 +223,9 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
               <div
                 key={notification.id}
                 className={`p-4 hover:bg-gray-50 transition-colors ${
-                  !notification.is_read ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
+                  !notification.is_read
+                    ? "bg-blue-50 border-l-4 border-l-blue-500"
+                    : ""
                 }`}
               >
                 <div className="flex items-start gap-3">
@@ -222,9 +235,13 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <h4 className={`text-sm font-medium ${
-                          !notification.is_read ? 'text-gray-900' : 'text-gray-700'
-                        }`}>
+                        <h4
+                          className={`text-sm font-medium ${
+                            !notification.is_read
+                              ? "text-gray-900"
+                              : "text-gray-700"
+                          }`}
+                        >
                           {notification.title}
                         </h4>
                         <p className="text-sm text-gray-600 mt-1 line-clamp-2">
@@ -264,7 +281,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                   disabled={loading}
                   className="text-blue-600 hover:text-blue-700 text-sm font-medium disabled:opacity-50"
                 >
-                  {loading ? 'Loading...' : 'Load More'}
+                  {loading ? "Loading..." : "Load More"}
                 </button>
               </div>
             )}

@@ -1,7 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, Clock } from "lucide-react";
+import {
+  Facebook,
+  Twitter,
+  Instagram,
+  Youtube,
+  Mail,
+  Phone,
+  MapPin,
+  Clock,
+} from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 export default function Footer() {
@@ -15,9 +24,9 @@ export default function Footer() {
           {/* Company Info */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <img 
-                src="/logo/logo-white.png" 
-                alt="টেক নির্ভর" 
+              <img
+                src="/logo/logo-white.png"
+                alt="টেক নির্ভর"
                 className="h-8 w-auto"
                 onError={(e) => {
                   e.currentTarget.src = "/placeholder-logo.png";
@@ -26,32 +35,33 @@ export default function Footer() {
               <span className="text-xl font-bold">টেক নির্ভর</span>
             </div>
             <p className="text-gray-300 text-sm leading-relaxed">
-              বাংলাদেশে আপনার বিশ্বস্ত অনলাইন শপিং গন্তব্য। আমরা দ্রুত ডেলিভারি, ক্যাশ অন ডেলিভারি এবং চমৎকার গ্রাহক সেবা সহ খাঁটি পণ্য অফার করি।
+              বাংলাদেশে আপনার বিশ্বস্ত অনলাইন শপিং গন্তব্য। আমরা দ্রুত ডেলিভারি,
+              ক্যাশ অন ডেলিভারি এবং চমৎকার গ্রাহক সেবা সহ খাঁটি পণ্য অফার করি।
             </p>
             <div className="flex space-x-4">
-              <Link 
-                href="https://facebook.com/technirvor" 
+              <Link
+                href="https://facebook.com/technirvor"
                 target="_blank"
                 className="text-gray-400 hover:text-blue-500 transition-colors"
               >
                 <Facebook className="w-5 h-5" />
               </Link>
-              <Link 
-                href="https://twitter.com/technirvor" 
+              <Link
+                href="https://twitter.com/technirvor"
                 target="_blank"
                 className="text-gray-400 hover:text-blue-400 transition-colors"
               >
                 <Twitter className="w-5 h-5" />
               </Link>
-              <Link 
-                href="https://instagram.com/technirvor" 
+              <Link
+                href="https://instagram.com/technirvor"
                 target="_blank"
                 className="text-gray-400 hover:text-pink-500 transition-colors"
               >
                 <Instagram className="w-5 h-5" />
               </Link>
-              <Link 
-                href="https://youtube.com/@technirvor" 
+              <Link
+                href="https://youtube.com/@technirvor"
                 target="_blank"
                 className="text-gray-400 hover:text-red-500 transition-colors"
               >
@@ -65,32 +75,50 @@ export default function Footer() {
             <h3 className="text-lg font-semibold">দ্রুত লিংক</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/" className="text-gray-300 hover:text-white transition-colors text-sm">
+                <Link
+                  href="/"
+                  className="text-gray-300 hover:text-white transition-colors text-sm"
+                >
                   হোম
                 </Link>
               </li>
               <li>
-                <Link href="/products" className="text-gray-300 hover:text-white transition-colors text-sm">
+                <Link
+                  href="/products"
+                  className="text-gray-300 hover:text-white transition-colors text-sm"
+                >
                   সকল পণ্য
                 </Link>
               </li>
               <li>
-                <Link href="/categories" className="text-gray-300 hover:text-white transition-colors text-sm">
+                <Link
+                  href="/categories"
+                  className="text-gray-300 hover:text-white transition-colors text-sm"
+                >
                   ক্যাটেগরি
                 </Link>
               </li>
               <li>
-                <Link href="/combo-offers" className="text-gray-300 hover:text-white transition-colors text-sm">
+                <Link
+                  href="/combo-offers"
+                  className="text-gray-300 hover:text-white transition-colors text-sm"
+                >
                   কম্বো অফার
                 </Link>
               </li>
               <li>
-                <Link href="/flash-sale" className="text-gray-300 hover:text-white transition-colors text-sm">
+                <Link
+                  href="/flash-sale"
+                  className="text-gray-300 hover:text-white transition-colors text-sm"
+                >
                   ফ্ল্যাশ সেল
                 </Link>
               </li>
               <li>
-                <Link href="/track-order" className="text-gray-300 hover:text-white transition-colors text-sm">
+                <Link
+                  href="/track-order"
+                  className="text-gray-300 hover:text-white transition-colors text-sm"
+                >
                   অর্ডার ট্র্যাক
                 </Link>
               </li>
@@ -102,32 +130,50 @@ export default function Footer() {
             <h3 className="text-lg font-semibold">তথ্য</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/about-us" className="text-gray-300 hover:text-white transition-colors text-sm">
+                <Link
+                  href="/about-us"
+                  className="text-gray-300 hover:text-white transition-colors text-sm"
+                >
                   আমাদের সম্পর্কে
                 </Link>
               </li>
               <li>
-                <Link href="/contact-us" className="text-gray-300 hover:text-white transition-colors text-sm">
+                <Link
+                  href="/contact-us"
+                  className="text-gray-300 hover:text-white transition-colors text-sm"
+                >
                   যোগাযোগ করুন
                 </Link>
               </li>
               <li>
-                <Link href="/privacy-policy" className="text-gray-300 hover:text-white transition-colors text-sm">
+                <Link
+                  href="/privacy-policy"
+                  className="text-gray-300 hover:text-white transition-colors text-sm"
+                >
                   গোপনীয়তা নীতি
                 </Link>
               </li>
               <li>
-                <Link href="/terms-and-conditions" className="text-gray-300 hover:text-white transition-colors text-sm">
+                <Link
+                  href="/terms-and-conditions"
+                  className="text-gray-300 hover:text-white transition-colors text-sm"
+                >
                   শর্তাবলী
                 </Link>
               </li>
               <li>
-                <Link href="/return-policy" className="text-gray-300 hover:text-white transition-colors text-sm">
+                <Link
+                  href="/return-policy"
+                  className="text-gray-300 hover:text-white transition-colors text-sm"
+                >
                   ফেরত নীতি
                 </Link>
               </li>
               <li>
-                <Link href="/shipping-policy" className="text-gray-300 hover:text-white transition-colors text-sm">
+                <Link
+                  href="/shipping-policy"
+                  className="text-gray-300 hover:text-white transition-colors text-sm"
+                >
                   শিপিং নীতি
                 </Link>
               </li>

@@ -1,13 +1,20 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Send, Paperclip, MoreVertical, ArrowLeft, Phone, Video } from 'lucide-react';
-import { Message, Conversation } from '@/lib/types/user';
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Send,
+  Paperclip,
+  MoreVertical,
+  ArrowLeft,
+  Phone,
+  Video,
+} from "lucide-react";
+import { Message, Conversation } from "@/lib/types/user";
 import {
   getConversationMessages,
   sendMessage,
-  markMessagesAsRead
-} from '@/lib/services/messaging-service';
+  markMessagesAsRead,
+} from "@/lib/services/messaging-service";
 
 interface ChatInterfaceProps {
   sessionToken: string;
@@ -20,10 +27,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   sessionToken,
   conversation,
   onBack,
-  className = ''
+  className = "",
 }) => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState('');
+  const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [page, setPage] = useState(1);
@@ -46,20 +53,20 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         sessionToken,
         conversation.id,
         pageNum,
-        50
+        50,
       );
 
       if (response.success && response.data) {
         if (reset) {
           setMessages(response.data);
         } else {
-          setMessages(prev => [...response.data!, ...prev]);
+          setMessages((prev) => [...response.data!, ...prev]);
         }
         setHasMore(response.data.length === 50);
         setPage(pageNum);
       }
     } catch (error) {
-      console.error('Error loading messages:', error);
+      console.error("Error loading messages:", error);
     } finally {
       setLoading(false);
     }
@@ -70,14 +77,14 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     if (!newMessage.trim() || sending) return;
 
     const messageContent = newMessage.trim();
-    setNewMessage('');
+    setNewMessage("");
     setSending(true);
 
     try {
       const response = await sendMessage(
         sessionToken,
         conversation.id,
-        messageContent
+        messageContent,
       );
 
       if (response.success && response.data) {
@@ -85,7 +92,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         await loadMessages(1, true);
       }
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error("Error sending message:", error);
       setNewMessage(messageContent); // Restore message on error
     } finally {
       setSending(false);
@@ -100,44 +107,50 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       setTimeout(() => {
         if (messagesContainerRef.current) {
           const newScrollHeight = messagesContainerRef.current.scrollHeight;
-          messagesContainerRef.current.scrollTop = newScrollHeight - scrollHeight;
+          messagesContainerRef.current.scrollTop =
+            newScrollHeight - scrollHeight;
         }
       }, 100);
     }
   };
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   const formatMessageTime = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
     const isToday = date.toDateString() === now.toDateString();
-    
+
     if (isToday) {
-      return date.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
+      return date.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
       });
     } else {
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
       });
     }
   };
 
   const getOtherParticipant = () => {
-    return conversation.other_participant || {
-      id: conversation.participant_1 === conversation.participant_2 ? conversation.participant_1 : conversation.participant_2,
-      full_name: 'Unknown User',
-      email: ''
-    };
+    return (
+      conversation.other_participant || {
+        id:
+          conversation.participant_1 === conversation.participant_2
+            ? conversation.participant_1
+            : conversation.participant_2,
+        full_name: "Unknown User",
+        email: "",
+      }
+    );
   };
 
   const otherParticipant = getOtherParticipant();
@@ -163,9 +176,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               <h3 className="font-semibold text-gray-900">
                 {otherParticipant.full_name}
               </h3>
-              <p className="text-sm text-gray-500">
-                {otherParticipant.email}
-              </p>
+              <p className="text-sm text-gray-500">{otherParticipant.email}</p>
             </div>
           </div>
         </div>
@@ -183,7 +194,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       </div>
 
       {/* Messages */}
-      <div 
+      <div
         ref={messagesContainerRef}
         className="flex-1 overflow-y-auto p-4 space-y-4"
         onScroll={(e) => {
@@ -210,19 +221,22 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                   disabled={loading}
                   className="text-blue-600 hover:text-blue-700 text-sm font-medium disabled:opacity-50"
                 >
-                  {loading ? 'Loading...' : 'Load older messages'}
+                  {loading ? "Loading..." : "Load older messages"}
                 </button>
               </div>
             )}
             {messages.map((message, index) => {
-              const isOwnMessage = message.sender_id === conversation.participant_1; // Assuming current user is participant_1
-              const showAvatar = index === 0 || messages[index - 1].sender_id !== message.sender_id;
-              
+              const isOwnMessage =
+                message.sender_id === conversation.participant_1; // Assuming current user is participant_1
+              const showAvatar =
+                index === 0 ||
+                messages[index - 1].sender_id !== message.sender_id;
+
               return (
                 <div
                   key={message.id}
                   className={`flex items-end gap-2 ${
-                    isOwnMessage ? 'justify-end' : 'justify-start'
+                    isOwnMessage ? "justify-end" : "justify-start"
                   }`}
                 >
                   {!isOwnMessage && showAvatar && (
@@ -236,14 +250,16 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                   <div
                     className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
                       isOwnMessage
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-200 text-gray-900'
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-200 text-gray-900"
                     }`}
                   >
                     <p className="text-sm">{message.message}</p>
-                    <p className={`text-xs mt-1 ${
-                      isOwnMessage ? 'text-blue-100' : 'text-gray-500'
-                    }`}>
+                    <p
+                      className={`text-xs mt-1 ${
+                        isOwnMessage ? "text-blue-100" : "text-gray-500"
+                      }`}
+                    >
                       {formatMessageTime(message.created_at)}
                       {message.is_read && isOwnMessage && (
                         <span className="ml-1">✓</span>

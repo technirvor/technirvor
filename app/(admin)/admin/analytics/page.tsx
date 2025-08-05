@@ -81,61 +81,78 @@ export default function AdminAnalyticsPage() {
         .lt("created_at", startDate.toISOString());
 
       // Fetch products count
-      const { data: products } = await supabase
-        .from("products")
-        .select("id");
+      const { data: products } = await supabase.from("products").select("id");
 
       // Fetch order items with product details
       const { data: orderItems } = await supabase
         .from("order_items")
-        .select(`
+        .select(
+          `
           *,
           product:products(id, name),
           order:orders!inner(created_at)
-        `)
+        `,
+        )
         .gte("order.created_at", startDate.toISOString())
         .lte("order.created_at", endDate.toISOString());
 
       if (orders && previousOrders && products && orderItems) {
         // Calculate basic metrics
-        const totalRevenue = orders.reduce((sum, order) => sum + (order.total_amount || 0), 0);
+        const totalRevenue = orders.reduce(
+          (sum, order) => sum + (order.total_amount || 0),
+          0,
+        );
         const totalOrders = orders.length;
         const totalProducts = products.length;
-        const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+        const averageOrderValue =
+          totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
         // Calculate growth rates
-        const previousRevenue = previousOrders.reduce((sum, order) => sum + (order.total_amount || 0), 0);
+        const previousRevenue = previousOrders.reduce(
+          (sum, order) => sum + (order.total_amount || 0),
+          0,
+        );
         const previousOrderCount = previousOrders.length;
-        const revenueGrowth = previousRevenue > 0 ? ((totalRevenue - previousRevenue) / previousRevenue) * 100 : 0;
-        const orderGrowth = previousOrderCount > 0 ? ((totalOrders - previousOrderCount) / previousOrderCount) * 100 : 0;
+        const revenueGrowth =
+          previousRevenue > 0
+            ? ((totalRevenue - previousRevenue) / previousRevenue) * 100
+            : 0;
+        const orderGrowth =
+          previousOrderCount > 0
+            ? ((totalOrders - previousOrderCount) / previousOrderCount) * 100
+            : 0;
 
         // Calculate top products
-        const productSales = orderItems.reduce((acc, item) => {
-          const productId = item.product?.id;
-          const productName = item.product?.name || 'Unknown Product';
-          if (productId) {
-            if (!acc[productId]) {
-              acc[productId] = {
-                id: productId,
-                name: productName,
-                sales: 0,
-                revenue: 0,
-              };
+        const productSales = orderItems.reduce(
+          (acc, item) => {
+            const productId = item.product?.id;
+            const productName = item.product?.name || "Unknown Product";
+            if (productId) {
+              if (!acc[productId]) {
+                acc[productId] = {
+                  id: productId,
+                  name: productName,
+                  sales: 0,
+                  revenue: 0,
+                };
+              }
+              acc[productId].sales += item.quantity || 0;
+              acc[productId].revenue +=
+                (item.price || 0) * (item.quantity || 0);
             }
-            acc[productId].sales += item.quantity || 0;
-            acc[productId].revenue += (item.price || 0) * (item.quantity || 0);
-          }
-          return acc;
-        }, {} as Record<string, any>);
+            return acc;
+          },
+          {} as Record<string, any>,
+        );
 
         const topProducts = Object.values(productSales)
           .sort((a: any, b: any) => b.revenue - a.revenue)
           .slice(0, 5) as Array<{
-            id: string;
-            name: string;
-            sales: number;
-            revenue: number;
-          }>;
+          id: string;
+          name: string;
+          sales: number;
+          revenue: number;
+        }>;
 
         // Calculate daily stats
         const dailyStats = [];
@@ -143,32 +160,40 @@ export default function AdminAnalyticsPage() {
           const date = subDays(endDate, i);
           const dayStart = startOfDay(date);
           const dayEnd = endOfDay(date);
-          
-          const dayOrders = orders.filter(order => {
+
+          const dayOrders = orders.filter((order) => {
             const orderDate = new Date(order.created_at);
             return orderDate >= dayStart && orderDate <= dayEnd;
           });
-          
-          const dayRevenue = dayOrders.reduce((sum, order) => sum + (order.total_amount || 0), 0);
-          
+
+          const dayRevenue = dayOrders.reduce(
+            (sum, order) => sum + (order.total_amount || 0),
+            0,
+          );
+
           dailyStats.push({
-            date: format(date, 'MMM dd'),
+            date: format(date, "MMM dd"),
             orders: dayOrders.length,
             revenue: dayRevenue,
           });
         }
 
         // Calculate orders by status
-        const statusCounts = orders.reduce((acc, order) => {
-          const status = order.status || 'unknown';
-          acc[status] = (acc[status] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>);
+        const statusCounts = orders.reduce(
+          (acc, order) => {
+            const status = order.status || "unknown";
+            acc[status] = (acc[status] || 0) + 1;
+            return acc;
+          },
+          {} as Record<string, number>,
+        );
 
-        const ordersByStatus = Object.entries(statusCounts).map(([status, count]) => ({
-          status,
-          count: count as number,
-        }));
+        const ordersByStatus = Object.entries(statusCounts).map(
+          ([status, count]) => ({
+            status,
+            count: count as number,
+          }),
+        );
 
         setAnalytics({
           totalRevenue,
@@ -183,7 +208,7 @@ export default function AdminAnalyticsPage() {
         });
       }
     } catch (error) {
-      console.error('Error fetching analytics:', error);
+      console.error("Error fetching analytics:", error);
     } finally {
       setLoading(false);
     }
@@ -191,11 +216,16 @@ export default function AdminAnalyticsPage() {
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'processing': return 'bg-blue-100 text-blue-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case "completed":
+        return "bg-green-100 text-green-800";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "processing":
+        return "bg-blue-100 text-blue-800";
+      case "cancelled":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -220,14 +250,20 @@ export default function AdminAnalyticsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Analytics Dashboard</h1>
-          <p className="text-gray-600">Sales insights and performance metrics</p>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Analytics Dashboard
+          </h1>
+          <p className="text-gray-600">
+            Sales insights and performance metrics
+          </p>
         </div>
         <div className="flex gap-2">
           <button
             onClick={() => setDateRange(7)}
             className={`px-3 py-1 rounded text-sm ${
-              dateRange === 7 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
+              dateRange === 7
+                ? "bg-blue-600 text-white"
+                : "bg-gray-200 text-gray-700"
             }`}
           >
             7 Days
@@ -235,7 +271,9 @@ export default function AdminAnalyticsPage() {
           <button
             onClick={() => setDateRange(30)}
             className={`px-3 py-1 rounded text-sm ${
-              dateRange === 30 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
+              dateRange === 30
+                ? "bg-blue-600 text-white"
+                : "bg-gray-200 text-gray-700"
             }`}
           >
             30 Days
@@ -243,7 +281,9 @@ export default function AdminAnalyticsPage() {
           <button
             onClick={() => setDateRange(90)}
             className={`px-3 py-1 rounded text-sm ${
-              dateRange === 90 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
+              dateRange === 90
+                ? "bg-blue-600 text-white"
+                : "bg-gray-200 text-gray-700"
             }`}
           >
             90 Days
@@ -257,7 +297,9 @@ export default function AdminAnalyticsPage() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Revenue</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Total Revenue
+                </p>
                 <p className="text-2xl font-bold text-gray-900">
                   ৳{analytics.totalRevenue.toLocaleString()}
                 </p>
@@ -270,7 +312,13 @@ export default function AdminAnalyticsPage() {
               ) : (
                 <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
               )}
-              <span className={analytics.revenueGrowth >= 0 ? 'text-green-600' : 'text-red-600'}>
+              <span
+                className={
+                  analytics.revenueGrowth >= 0
+                    ? "text-green-600"
+                    : "text-red-600"
+                }
+              >
                 {analytics.revenueGrowth.toFixed(1)}% from last period
               </span>
             </div>
@@ -281,7 +329,9 @@ export default function AdminAnalyticsPage() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Orders</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Total Orders
+                </p>
                 <p className="text-2xl font-bold text-gray-900">
                   {analytics.totalOrders.toLocaleString()}
                 </p>
@@ -294,7 +344,11 @@ export default function AdminAnalyticsPage() {
               ) : (
                 <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
               )}
-              <span className={analytics.orderGrowth >= 0 ? 'text-green-600' : 'text-red-600'}>
+              <span
+                className={
+                  analytics.orderGrowth >= 0 ? "text-green-600" : "text-red-600"
+                }
+              >
                 {analytics.orderGrowth.toFixed(1)}% from last period
               </span>
             </div>
@@ -305,7 +359,9 @@ export default function AdminAnalyticsPage() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Avg Order Value</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Avg Order Value
+                </p>
                 <p className="text-2xl font-bold text-gray-900">
                   ৳{analytics.averageOrderValue.toFixed(0)}
                 </p>
@@ -319,7 +375,9 @@ export default function AdminAnalyticsPage() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Products</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Total Products
+                </p>
                 <p className="text-2xl font-bold text-gray-900">
                   {analytics.totalProducts.toLocaleString()}
                 </p>
@@ -342,18 +400,27 @@ export default function AdminAnalyticsPage() {
           <CardContent>
             <div className="space-y-4">
               {analytics.topProducts.map((product, index) => (
-                <div key={product.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div
+                  key={product.id}
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                >
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-sm font-semibold text-blue-600">
                       {index + 1}
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">{product.name}</p>
-                      <p className="text-sm text-gray-600">{product.sales} sold</p>
+                      <p className="font-medium text-gray-900">
+                        {product.name}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {product.sales} sold
+                      </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-gray-900">৳{product.revenue.toLocaleString()}</p>
+                    <p className="font-semibold text-gray-900">
+                      ৳{product.revenue.toLocaleString()}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -372,10 +439,14 @@ export default function AdminAnalyticsPage() {
           <CardContent>
             <div className="space-y-3">
               {analytics.ordersByStatus.map((status) => (
-                <div key={status.status} className="flex items-center justify-between">
+                <div
+                  key={status.status}
+                  className="flex items-center justify-between"
+                >
                   <div className="flex items-center gap-3">
                     <Badge className={getStatusColor(status.status)}>
-                      {status.status.charAt(0).toUpperCase() + status.status.slice(1)}
+                      {status.status.charAt(0).toUpperCase() +
+                        status.status.slice(1)}
                     </Badge>
                   </div>
                   <span className="font-semibold">{status.count}</span>
@@ -401,11 +472,15 @@ export default function AdminAnalyticsPage() {
                 <div key={day.date} className="text-center">
                   <div className="font-medium">{day.date}</div>
                   <div className="mt-2 p-2 bg-blue-50 rounded">
-                    <div className="text-blue-600 font-semibold">{day.orders}</div>
+                    <div className="text-blue-600 font-semibold">
+                      {day.orders}
+                    </div>
                     <div className="text-xs">orders</div>
                   </div>
                   <div className="mt-1 p-2 bg-green-50 rounded">
-                    <div className="text-green-600 font-semibold">৳{day.revenue.toLocaleString()}</div>
+                    <div className="text-green-600 font-semibold">
+                      ৳{day.revenue.toLocaleString()}
+                    </div>
                     <div className="text-xs">revenue</div>
                   </div>
                 </div>

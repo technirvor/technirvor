@@ -53,9 +53,11 @@ function Calendar({
         day_hidden: "invisible",
         ...classNames,
       }}
-      components={{
-        // Custom components can be added here if needed
-      }}
+      components={
+        {
+          // Custom components can be added here if needed
+        }
+      }
       {...props}
     />
   );

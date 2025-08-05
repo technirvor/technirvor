@@ -1,25 +1,38 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Phone, Shield, RefreshCw, CheckCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { PhoneVerificationData } from '@/lib/types/user';
-import { validateVerificationCode, formatBangladeshiPhone, maskPhoneNumber } from '@/lib/utils/phone-validation';
-import { sendPhoneVerification, verifyPhoneNumber } from '@/lib/services/user-auth';
+import React, { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Phone, Shield, RefreshCw, CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { PhoneVerificationData } from "@/lib/types/user";
+import {
+  validateVerificationCode,
+  formatBangladeshiPhone,
+  maskPhoneNumber,
+} from "@/lib/utils/phone-validation";
+import {
+  sendPhoneVerification,
+  verifyPhoneNumber,
+} from "@/lib/services/user-auth";
 
 // Validation schema
 const verificationSchema = z.object({
   verification_code: z.string().refine((code) => {
     const validation = validateVerificationCode(code);
     return validation.isValid;
-  }, 'Please enter a valid 6-digit verification code')
+  }, "Please enter a valid 6-digit verification code"),
 });
 
 type VerificationFormData = z.infer<typeof verificationSchema>;
@@ -30,7 +43,11 @@ interface PhoneVerificationFormProps {
   onBack?: () => void;
 }
 
-export default function PhoneVerificationForm({ phone, onSuccess, onBack }: PhoneVerificationFormProps) {
+export default function PhoneVerificationForm({
+  phone,
+  onSuccess,
+  onBack,
+}: PhoneVerificationFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,12 +62,12 @@ export default function PhoneVerificationForm({ phone, onSuccess, onBack }: Phon
     handleSubmit,
     formState: { errors },
     reset,
-    watch
+    watch,
   } = useForm<VerificationFormData>({
-    resolver: zodResolver(verificationSchema)
+    resolver: zodResolver(verificationSchema),
   });
 
-  const watchedCode = watch('verification_code');
+  const watchedCode = watch("verification_code");
 
   // Countdown timer for resend button
   useEffect(() => {
@@ -64,14 +81,20 @@ export default function PhoneVerificationForm({ phone, onSuccess, onBack }: Phon
 
   // Auto-submit when 6 digits are entered
   useEffect(() => {
-    if (watchedCode && watchedCode.length === 6 && /^[0-9]{6}$/.test(watchedCode)) {
+    if (
+      watchedCode &&
+      watchedCode.length === 6 &&
+      /^[0-9]{6}$/.test(watchedCode)
+    ) {
       handleSubmit(onSubmit)();
     }
   }, [watchedCode]);
 
   const onSubmit = async (data: VerificationFormData) => {
     if (attempts >= maxAttempts) {
-      setError('Too many failed attempts. Please request a new verification code.');
+      setError(
+        "Too many failed attempts. Please request a new verification code.",
+      );
       return;
     }
 
@@ -82,7 +105,7 @@ export default function PhoneVerificationForm({ phone, onSuccess, onBack }: Phon
     try {
       const verificationData: PhoneVerificationData = {
         phone: phone,
-        verification_code: data.verification_code
+        verification_code: data.verification_code,
       };
 
       const result = await verifyPhoneNumber(verificationData);
@@ -96,13 +119,13 @@ export default function PhoneVerificationForm({ phone, onSuccess, onBack }: Phon
         }, 1500);
       } else {
         setError(result.message);
-        setAttempts(prev => prev + 1);
+        setAttempts((prev) => prev + 1);
         reset();
       }
     } catch (error) {
-      console.error('Verification error:', error);
-      setError('An unexpected error occurred. Please try again.');
-      setAttempts(prev => prev + 1);
+      console.error("Verification error:", error);
+      setError("An unexpected error occurred. Please try again.");
+      setAttempts((prev) => prev + 1);
     } finally {
       setIsLoading(false);
     }
@@ -117,7 +140,7 @@ export default function PhoneVerificationForm({ phone, onSuccess, onBack }: Phon
       const result = await sendPhoneVerification(phone);
 
       if (result.success) {
-        setSuccess('Verification code sent successfully!');
+        setSuccess("Verification code sent successfully!");
         setTimeLeft(60);
         setCanResend(false);
         setAttempts(0); // Reset attempts on new code
@@ -126,8 +149,8 @@ export default function PhoneVerificationForm({ phone, onSuccess, onBack }: Phon
         setError(result.message);
       }
     } catch (error) {
-      console.error('Resend error:', error);
-      setError('Failed to resend verification code. Please try again.');
+      console.error("Resend error:", error);
+      setError("Failed to resend verification code. Please try again.");
     } finally {
       setIsResending(false);
     }
@@ -136,7 +159,7 @@ export default function PhoneVerificationForm({ phone, onSuccess, onBack }: Phon
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   return (
@@ -145,12 +168,14 @@ export default function PhoneVerificationForm({ phone, onSuccess, onBack }: Phon
         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
           <Phone className="h-6 w-6 text-blue-600" />
         </div>
-        <CardTitle className="text-2xl font-bold text-gray-900">Verify Your Phone</CardTitle>
+        <CardTitle className="text-2xl font-bold text-gray-900">
+          Verify Your Phone
+        </CardTitle>
         <CardDescription className="text-gray-600">
           We've sent a 6-digit verification code to
           <br />
           <span className="font-medium text-gray-900">
-            {formatBangladeshiPhone(phone, 'international')}
+            {formatBangladeshiPhone(phone, "international")}
           </span>
         </CardDescription>
       </CardHeader>
@@ -171,7 +196,10 @@ export default function PhoneVerificationForm({ phone, onSuccess, onBack }: Phon
 
           {/* Verification Code Input */}
           <div className="space-y-2">
-            <Label htmlFor="verification_code" className="text-sm font-medium text-gray-700">
+            <Label
+              htmlFor="verification_code"
+              className="text-sm font-medium text-gray-700"
+            >
               Verification Code
             </Label>
             <div className="relative">
@@ -182,20 +210,23 @@ export default function PhoneVerificationForm({ phone, onSuccess, onBack }: Phon
                 placeholder="Enter 6-digit code"
                 className="pl-10 text-center text-lg font-mono tracking-widest"
                 maxLength={6}
-                {...register('verification_code')}
+                {...register("verification_code")}
                 autoComplete="one-time-code"
                 inputMode="numeric"
                 pattern="[0-9]*"
               />
             </div>
             {errors.verification_code && (
-              <p className="text-sm text-red-600">{errors.verification_code.message}</p>
+              <p className="text-sm text-red-600">
+                {errors.verification_code.message}
+              </p>
             )}
-            
+
             {/* Attempts Warning */}
             {attempts > 0 && attempts < maxAttempts && (
               <p className="text-sm text-orange-600">
-                {maxAttempts - attempts} attempt{maxAttempts - attempts !== 1 ? 's' : ''} remaining
+                {maxAttempts - attempts} attempt
+                {maxAttempts - attempts !== 1 ? "s" : ""} remaining
               </p>
             )}
           </div>
@@ -212,15 +243,13 @@ export default function PhoneVerificationForm({ phone, onSuccess, onBack }: Phon
                 Verifying...
               </>
             ) : (
-              'Verify Phone Number'
+              "Verify Phone Number"
             )}
           </Button>
 
           {/* Resend Code */}
           <div className="text-center space-y-2">
-            <p className="text-sm text-gray-600">
-              Didn't receive the code?
-            </p>
+            <p className="text-sm text-gray-600">Didn't receive the code?</p>
             {canResend ? (
               <Button
                 type="button"
@@ -235,7 +264,7 @@ export default function PhoneVerificationForm({ phone, onSuccess, onBack }: Phon
                     Sending...
                   </>
                 ) : (
-                  'Resend Code'
+                  "Resend Code"
                 )}
               </Button>
             ) : (
@@ -262,7 +291,9 @@ export default function PhoneVerificationForm({ phone, onSuccess, onBack }: Phon
 
         {/* Help Text */}
         <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-          <h4 className="text-sm font-medium text-gray-900 mb-2">Having trouble?</h4>
+          <h4 className="text-sm font-medium text-gray-900 mb-2">
+            Having trouble?
+          </h4>
           <ul className="text-xs text-gray-600 space-y-1">
             <li>• Make sure your phone has good signal reception</li>
             <li>• Check if the SMS is in your spam/junk folder</li>

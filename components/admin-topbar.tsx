@@ -102,17 +102,18 @@ export default function AdminTopbar() {
 
   const handleSignOut = useCallback(async () => {
     if (loading) return; // Prevent multiple simultaneous logout attempts
-    
+
     setLoading(true);
     try {
       // Clear session cookie first to prevent middleware conflicts
-      document.cookie = "sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax";
-      
+      document.cookie =
+        "sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax";
+
       // Sign out from Supabase
-      await supabase.auth.signOut({ scope: 'local' });
-      
+      await supabase.auth.signOut({ scope: "local" });
+
       toast.success("Signed out successfully");
-      
+
       // Use window.location for immediate redirect to avoid router conflicts
       window.location.href = "/auth/login";
     } catch (error) {
@@ -140,12 +141,13 @@ export default function AdminTopbar() {
   }
 
   const pageTitle = getPageTitle(pathname);
-  const userInitials = adminUser?.email
-    ?.split("@")[0]
-    ?.split(".")
-    ?.map((n: string) => n[0])
-    ?.join("")
-    ?.toUpperCase() || "AD";
+  const userInitials =
+    adminUser?.email
+      ?.split("@")[0]
+      ?.split(".")
+      ?.map((n: string) => n[0])
+      ?.join("")
+      ?.toUpperCase() || "AD";
 
   return (
     <header className="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-40">

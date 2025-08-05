@@ -1,9 +1,12 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Ticket, Copy, Clock, CheckCircle } from 'lucide-react';
-import { Coupon } from '@/lib/types/user';
-import { calculateDiscount, isCouponValidForOrder } from '@/lib/services/coupon-service';
+import React, { useState } from "react";
+import { Ticket, Copy, Clock, CheckCircle } from "lucide-react";
+import { Coupon } from "@/lib/types/user";
+import {
+  calculateDiscount,
+  isCouponValidForOrder,
+} from "@/lib/services/coupon-service";
 
 interface CouponCardProps {
   coupon: Coupon;
@@ -20,14 +23,18 @@ const CouponCard: React.FC<CouponCardProps> = ({
   onApply,
   onCopy,
   showApplyButton = false,
-  className = ''
+  className = "",
 }) => {
   const [copied, setCopied] = useState(false);
 
   const isExpired = new Date(coupon.expires_at) < new Date();
   const isUsed = coupon.is_used;
-  const isValidForOrder = orderAmount ? isCouponValidForOrder(coupon, orderAmount) : true;
-  const discountAmount = orderAmount ? calculateDiscount(coupon, orderAmount) : 0;
+  const isValidForOrder = orderAmount
+    ? isCouponValidForOrder(coupon, orderAmount)
+    : true;
+  const discountAmount = orderAmount
+    ? calculateDiscount(coupon, orderAmount)
+    : 0;
 
   const handleCopy = async () => {
     try {
@@ -36,7 +43,7 @@ const CouponCard: React.FC<CouponCardProps> = ({
       onCopy?.(coupon.code);
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      console.error('Failed to copy coupon code:', error);
+      console.error("Failed to copy coupon code:", error);
     }
   };
 
@@ -49,15 +56,17 @@ const CouponCard: React.FC<CouponCardProps> = ({
   const formatExpiryTime = (expiresAt: string) => {
     const expiryDate = new Date(expiresAt);
     const now = new Date();
-    const diffInHours = Math.floor((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60));
-    
-    if (diffInHours < 0) return 'Expired';
+    const diffInHours = Math.floor(
+      (expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60),
+    );
+
+    if (diffInHours < 0) return "Expired";
     if (diffInHours < 24) return `${diffInHours}h left`;
     return `${Math.floor(diffInHours / 24)}d left`;
   };
 
   const getDiscountText = () => {
-    if (coupon.discount_type === 'percentage') {
+    if (coupon.discount_type === "percentage") {
       return `${coupon.discount_value}% OFF`;
     } else {
       return `৳${coupon.discount_value} OFF`;
@@ -65,37 +74,46 @@ const CouponCard: React.FC<CouponCardProps> = ({
   };
 
   const getStatusColor = () => {
-    if (isUsed) return 'bg-gray-100 border-gray-300';
-    if (isExpired) return 'bg-red-50 border-red-200';
-    if (!isValidForOrder) return 'bg-yellow-50 border-yellow-200';
-    return 'bg-green-50 border-green-200';
+    if (isUsed) return "bg-gray-100 border-gray-300";
+    if (isExpired) return "bg-red-50 border-red-200";
+    if (!isValidForOrder) return "bg-yellow-50 border-yellow-200";
+    return "bg-green-50 border-green-200";
   };
 
   const getStatusText = () => {
-    if (isUsed) return 'Used';
-    if (isExpired) return 'Expired';
+    if (isUsed) return "Used";
+    if (isExpired) return "Expired";
     if (!isValidForOrder && orderAmount) {
       return `Min order ৳${coupon.minimum_order_amount}`;
     }
-    return 'Available';
+    return "Available";
   };
 
   return (
-    <div className={`relative overflow-hidden rounded-lg border-2 border-dashed transition-all duration-200 hover:shadow-md ${getStatusColor()} ${className}`}>
+    <div
+      className={`relative overflow-hidden rounded-lg border-2 border-dashed transition-all duration-200 hover:shadow-md ${getStatusColor()} ${className}`}
+    >
       {/* Coupon Design */}
       <div className="relative p-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Ticket className="w-5 h-5 text-blue-600" />
-            <span className="text-sm font-medium text-gray-600">Welcome Coupon</span>
+            <span className="text-sm font-medium text-gray-600">
+              Welcome Coupon
+            </span>
           </div>
-          <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-            isUsed ? 'bg-gray-200 text-gray-600' :
-            isExpired ? 'bg-red-200 text-red-700' :
-            !isValidForOrder ? 'bg-yellow-200 text-yellow-700' :
-            'bg-green-200 text-green-700'
-          }`}>
+          <div
+            className={`px-2 py-1 rounded-full text-xs font-medium ${
+              isUsed
+                ? "bg-gray-200 text-gray-600"
+                : isExpired
+                  ? "bg-red-200 text-red-700"
+                  : !isValidForOrder
+                    ? "bg-yellow-200 text-yellow-700"
+                    : "bg-green-200 text-green-700"
+            }`}
+          >
             {getStatusText()}
           </div>
         </div>
@@ -161,22 +179,26 @@ const CouponCard: React.FC<CouponCardProps> = ({
             disabled={isExpired || isUsed || !isValidForOrder}
             className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
               isExpired || isUsed || !isValidForOrder
-                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                : 'bg-blue-600 text-white hover:bg-blue-700'
+                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700"
             }`}
           >
-            {isExpired ? 'Expired' :
-             isUsed ? 'Already Used' :
-             !isValidForOrder ? 'Not Applicable' :
-             'Apply Coupon'}
+            {isExpired
+              ? "Expired"
+              : isUsed
+                ? "Already Used"
+                : !isValidForOrder
+                  ? "Not Applicable"
+                  : "Apply Coupon"}
           </button>
         )}
 
         {/* Terms */}
         <div className="mt-3 text-xs text-gray-500">
-          • Valid for one-time use only<br />
-          • Cannot be combined with other offers<br />
-          • Expires in 72 hours from registration
+          • Valid for one-time use only
+          <br />
+          • Cannot be combined with other offers
+          <br />• Expires in 72 hours from registration
         </div>
       </div>
 

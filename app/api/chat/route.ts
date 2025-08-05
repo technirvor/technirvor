@@ -22,11 +22,13 @@ const generationConfig = {
 const getPersonalizedRecommendations = async () => {
   const { data: products } = await supabase
     .from("products")
-    .select(`
+    .select(
+      `
       id, name, slug, price, sale_price, image_url, stock,
       is_featured, is_flash_sale, flash_sale_end, created_at,
       category:categories(id, name, slug)
-    `)
+    `,
+    )
     .eq("is_featured", true)
     .gt("stock", 0)
     .limit(4);
@@ -36,11 +38,13 @@ const getPersonalizedRecommendations = async () => {
 const getFlashSaleItems = async () => {
   const { data: products } = await supabase
     .from("products")
-    .select(`
+    .select(
+      `
       id, name, slug, price, sale_price, image_url, stock,
       is_featured, is_flash_sale, flash_sale_end, created_at,
       category:categories(id, name, slug)
-    `)
+    `,
+    )
     .eq("is_flash_sale", true)
     .gt("stock", 0)
     .gte("flash_sale_end", new Date().toISOString())
@@ -51,11 +55,13 @@ const getFlashSaleItems = async () => {
 const searchProductsByCategory = async (category: string) => {
   const { data: products } = await supabase
     .from("products")
-    .select(`
+    .select(
+      `
       id, name, slug, price, sale_price, image_url, stock,
       is_featured, is_flash_sale, flash_sale_end, created_at,
       category:categories(id, name, slug)
-    `)
+    `,
+    )
     .or(`category.name.ilike.%${category}%`)
     .gt("stock", 0)
     .limit(6);
@@ -165,7 +171,9 @@ export async function POST(req: NextRequest) {
       if (error) {
         console.error("Error fetching products:", error);
         return NextResponse.json(
-          { text: "দুঃখিত, এই মুহূর্তে পণ্য খুঁজে পাচ্ছি না। আবার চেষ্টা করুন।" },
+          {
+            text: "দুঃখিত, এই মুহূর্তে পণ্য খুঁজে পাচ্ছি না। আবার চেষ্টা করুন।",
+          },
           { status: 500 },
         );
       }
@@ -224,7 +232,9 @@ export async function POST(req: NextRequest) {
       }
     } else if (parsedResponse.type === "order_tracking") {
       return NextResponse.json({
-        text: parsedResponse.message || "অর্ডার ট্র্যাক করতে আপনার অর্ডার নম্বর এবং ফোন নম্বর দিন।",
+        text:
+          parsedResponse.message ||
+          "অর্ডার ট্র্যাক করতে আপনার অর্ডার নম্বর এবং ফোন নম্বর দিন।",
       });
     } else if (parsedResponse.type === "text" && parsedResponse.message) {
       return NextResponse.json({ text: parsedResponse.message });

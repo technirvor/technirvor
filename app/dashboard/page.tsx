@@ -1,39 +1,41 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { 
-  Bell, 
-  MessageCircle, 
-  Ticket, 
-  Gift, 
-  User, 
-  ShoppingBag, 
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Bell,
+  MessageCircle,
+  Ticket,
+  Gift,
+  User,
+  ShoppingBag,
   Star,
   TrendingUp,
   Calendar,
   Award,
-  LogOut
-} from 'lucide-react';
-import { getUserProfile } from '@/lib/services/user-auth';
-import { getUnreadNotificationCount } from '@/lib/services/notification-service';
-import { getUnreadMessageCount } from '@/lib/services/messaging-service';
-import { getUserCoupons } from '@/lib/services/coupon-service';
-import { UserDashboardData, Coupon } from '@/lib/types/user';
-import UserDashboard from '@/components/user/UserDashboard';
-import NotificationCenter from '@/components/notifications/NotificationCenter';
-import MessagingDashboard from '@/components/messaging/MessagingDashboard';
-import CouponList from '@/components/coupons/CouponList';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
+  LogOut,
+} from "lucide-react";
+import { getUserProfile } from "@/lib/services/user-auth";
+import { getUnreadNotificationCount } from "@/lib/services/notification-service";
+import { getUnreadMessageCount } from "@/lib/services/messaging-service";
+import { getUserCoupons } from "@/lib/services/coupon-service";
+import { UserDashboardData, Coupon } from "@/lib/types/user";
+import UserDashboard from "@/components/user/UserDashboard";
+import NotificationCenter from "@/components/notifications/NotificationCenter";
+import MessagingDashboard from "@/components/messaging/MessagingDashboard";
+import CouponList from "@/components/coupons/CouponList";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 
-type TabType = 'overview' | 'notifications' | 'messages' | 'coupons';
+type TabType = "overview" | "notifications" | "messages" | "coupons";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<TabType>('overview');
-  const [sessionToken, setSessionToken] = useState<string>('');
-  const [userProfile, setUserProfile] = useState<UserDashboardData | null>(null);
+  const [activeTab, setActiveTab] = useState<TabType>("overview");
+  const [sessionToken, setSessionToken] = useState<string>("");
+  const [userProfile, setUserProfile] = useState<UserDashboardData | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [unreadMessages, setUnreadMessages] = useState(0);
@@ -41,9 +43,11 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('session_token') || localStorage.getItem('user_session_token');
+    const token =
+      localStorage.getItem("session_token") ||
+      localStorage.getItem("user_session_token");
     if (!token) {
-      router.push('/auth/user-login?redirect=/dashboard');
+      router.push("/auth/user-login?redirect=/dashboard");
       return;
     }
     setSessionToken(token);
@@ -53,19 +57,22 @@ export default function DashboardPage() {
   const loadDashboardData = async (token: string) => {
     try {
       setLoading(true);
-      
+
       // Load user profile
       const profileResponse = await getUserProfile(token);
       if (profileResponse.success && profileResponse.data) {
         setUserProfile(profileResponse.data);
       } else {
-        setError('Failed to load user profile');
+        setError("Failed to load user profile");
         return;
       }
 
       // Load notification count
       const notificationResponse = await getUnreadNotificationCount(token);
-      if (notificationResponse.success && notificationResponse.count !== undefined) {
+      if (
+        notificationResponse.success &&
+        notificationResponse.count !== undefined
+      ) {
         setUnreadNotifications(notificationResponse.count);
       }
 
@@ -79,49 +86,50 @@ export default function DashboardPage() {
       const couponResponse = await getUserCoupons(token);
       if (couponResponse.success && couponResponse.coupons) {
         const validCoupons = couponResponse.coupons.filter(
-          (coupon: Coupon) => !coupon.is_used && new Date(coupon.expires_at) > new Date()
+          (coupon: Coupon) =>
+            !coupon.is_used && new Date(coupon.expires_at) > new Date(),
         );
         setAvailableCoupons(validCoupons.length);
       }
     } catch (error) {
-      console.error('Error loading dashboard data:', error);
-      setError('Failed to load dashboard data');
+      console.error("Error loading dashboard data:", error);
+      setError("Failed to load dashboard data");
     } finally {
       setLoading(false);
     }
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('session_token');
-    localStorage.removeItem('user_session_token');
-    router.push('/auth/user-login');
+    localStorage.removeItem("session_token");
+    localStorage.removeItem("user_session_token");
+    router.push("/auth/user-login");
   };
 
   const tabs = [
     {
-      id: 'overview' as TabType,
-      label: 'Overview',
+      id: "overview" as TabType,
+      label: "Overview",
       icon: User,
-      badge: null
+      badge: null,
     },
     {
-      id: 'notifications' as TabType,
-      label: 'Notifications',
+      id: "notifications" as TabType,
+      label: "Notifications",
       icon: Bell,
-      badge: unreadNotifications > 0 ? unreadNotifications : null
+      badge: unreadNotifications > 0 ? unreadNotifications : null,
     },
     {
-      id: 'messages' as TabType,
-      label: 'Messages',
+      id: "messages" as TabType,
+      label: "Messages",
       icon: MessageCircle,
-      badge: unreadMessages > 0 ? unreadMessages : null
+      badge: unreadMessages > 0 ? unreadMessages : null,
     },
     {
-      id: 'coupons' as TabType,
-      label: 'Coupons',
+      id: "coupons" as TabType,
+      label: "Coupons",
       icon: Ticket,
-      badge: availableCoupons > 0 ? availableCoupons : null
-    }
+      badge: availableCoupons > 0 ? availableCoupons : null,
+    },
   ];
 
   const renderQuickStats = () => {
@@ -129,29 +137,29 @@ export default function DashboardPage() {
 
     const stats = [
       {
-        label: 'Total Orders',
+        label: "Total Orders",
         value: userProfile.orderStats?.total_orders || 0,
         icon: ShoppingBag,
-        color: 'bg-blue-500'
+        color: "bg-blue-500",
       },
       {
-        label: 'Reward Points',
+        label: "Reward Points",
         value: userProfile.rewards?.available_points || 0,
         icon: Star,
-        color: 'bg-yellow-500'
+        color: "bg-yellow-500",
       },
       {
-        label: 'Total Spent',
+        label: "Total Spent",
         value: `৳${(userProfile.orderStats?.total_spent || 0).toFixed(2)}`,
         icon: TrendingUp,
-        color: 'bg-green-500'
+        color: "bg-green-500",
       },
       {
-        label: 'Current Tier',
-        value: userProfile.currentTier?.tier_name || 'Bronze',
+        label: "Current Tier",
+        value: userProfile.currentTier?.tier_name || "Bronze",
         icon: Award,
-        color: 'bg-purple-500'
-      }
+        color: "bg-purple-500",
+      },
     ];
 
     return (
@@ -159,11 +167,18 @@ export default function DashboardPage() {
         {stats.map((stat, index) => {
           const Icon = stat.icon;
           return (
-            <div key={index} className="bg-white rounded-lg shadow-sm border p-6">
+            <div
+              key={index}
+              className="bg-white rounded-lg shadow-sm border p-6"
+            >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">{stat.label}</p>
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                  <p className="text-sm font-medium text-gray-600">
+                    {stat.label}
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {stat.value}
+                  </p>
                 </div>
                 <div className={`${stat.color} p-3 rounded-lg`}>
                   <Icon className="w-6 h-6 text-white" />
@@ -178,42 +193,32 @@ export default function DashboardPage() {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'overview':
-         return userProfile ? (
-           <UserDashboard 
-             userId={userProfile.user.id}
-           />
-         ) : null;
-       
-       case 'notifications':
-         return (
-           <NotificationCenter 
-             sessionToken={sessionToken}
-             onClose={() => {
-               // Refresh notification count
-               getUnreadNotificationCount(sessionToken).then(response => {
-                 if (response.success && response.count !== undefined) {
-                   setUnreadNotifications(response.count);
-                 }
-               });
-             }}
-           />
-         );
-      
-      case 'messages':
+      case "overview":
+        return userProfile ? (
+          <UserDashboard userId={userProfile.user.id} />
+        ) : null;
+
+      case "notifications":
         return (
-          <MessagingDashboard 
+          <NotificationCenter
             sessionToken={sessionToken}
+            onClose={() => {
+              // Refresh notification count
+              getUnreadNotificationCount(sessionToken).then((response) => {
+                if (response.success && response.count !== undefined) {
+                  setUnreadNotifications(response.count);
+                }
+              });
+            }}
           />
         );
-      
-      case 'coupons':
-        return (
-          <CouponList 
-            sessionToken={sessionToken}
-          />
-        );
-      
+
+      case "messages":
+        return <MessagingDashboard sessionToken={sessionToken} />;
+
+      case "coupons":
+        return <CouponList sessionToken={sessionToken} />;
+
       default:
         return null;
     }
@@ -237,8 +242,8 @@ export default function DashboardPage() {
           <Alert className="mb-4">
             <AlertDescription>{error}</AlertDescription>
           </Alert>
-          <Button 
-            onClick={() => router.push('/auth/user-login')}
+          <Button
+            onClick={() => router.push("/auth/user-login")}
             className="w-full"
           >
             Go to Login
@@ -259,40 +264,43 @@ export default function DashboardPage() {
               {userProfile && (
                 <div className="hidden md:block">
                   <p className="text-sm text-gray-600">
-                    Welcome back, <span className="font-medium">{userProfile.user.full_name}</span>
+                    Welcome back,{" "}
+                    <span className="font-medium">
+                      {userProfile.user.full_name}
+                    </span>
                   </p>
                 </div>
               )}
             </div>
-            
+
             <div className="flex items-center gap-4">
               {/* Quick Actions */}
               <div className="flex items-center gap-2">
                 {unreadNotifications > 0 && (
                   <button
-                    onClick={() => setActiveTab('notifications')}
+                    onClick={() => setActiveTab("notifications")}
                     className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors"
                   >
                     <Bell className="w-5 h-5" />
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                      {unreadNotifications > 9 ? '9+' : unreadNotifications}
+                      {unreadNotifications > 9 ? "9+" : unreadNotifications}
                     </span>
                   </button>
                 )}
-                
+
                 {unreadMessages > 0 && (
                   <button
-                    onClick={() => setActiveTab('messages')}
+                    onClick={() => setActiveTab("messages")}
                     className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors"
                   >
                     <MessageCircle className="w-5 h-5" />
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                      {unreadMessages > 9 ? '9+' : unreadMessages}
+                      {unreadMessages > 9 ? "9+" : unreadMessages}
                     </span>
                   </button>
                 )}
               </div>
-              
+
               <Button
                 onClick={handleLogout}
                 variant="outline"
@@ -310,8 +318,8 @@ export default function DashboardPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Quick Stats */}
-        {activeTab === 'overview' && renderQuickStats()}
-        
+        {activeTab === "overview" && renderQuickStats()}
+
         {/* Tab Navigation */}
         <div className="mb-8">
           <div className="border-b border-gray-200">
@@ -319,22 +327,22 @@ export default function DashboardPage() {
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
-                
+
                 return (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                       isActive
-                        ? 'border-blue-500 text-blue-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        ? "border-blue-500 text-blue-600"
+                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                     }`}
                   >
                     <Icon className="w-5 h-5" />
                     {tab.label}
                     {tab.badge && (
                       <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                        {tab.badge > 9 ? '9+' : tab.badge}
+                        {tab.badge > 9 ? "9+" : tab.badge}
                       </span>
                     )}
                   </button>
@@ -345,9 +353,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Tab Content */}
-        <div className="min-h-[600px]">
-          {renderTabContent()}
-        </div>
+        <div className="min-h-[600px]">{renderTabContent()}</div>
       </main>
     </div>
   );

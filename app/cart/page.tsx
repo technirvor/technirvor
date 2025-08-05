@@ -101,14 +101,18 @@ export default function CartPage() {
                     </p>
                     {item.isCombo && item.comboItems && (
                       <div className="text-xs text-gray-500 mt-1">
-                        Includes: {item.comboItems.map(ci => ci.product.name).join(", ")}
+                        Includes:{" "}
+                        {item.comboItems
+                          .map((ci) => ci.product.name)
+                          .join(", ")}
                       </div>
                     )}
-                    {item.product.has_free_delivery === true && item.product.free_delivery_note && (
-                      <div className="text-xs text-green-600 font-medium mt-1">
-                        {item.product.free_delivery_note}
-                      </div>
-                    )}
+                    {item.product.has_free_delivery === true &&
+                      item.product.free_delivery_note && (
+                        <div className="text-xs text-green-600 font-medium mt-1">
+                          {item.product.free_delivery_note}
+                        </div>
+                      )}
                   </div>
 
                   <div className="flex items-center justify-center gap-2">
@@ -178,24 +182,37 @@ export default function CartPage() {
                 </div>
                 {(() => {
                   // Check delivery logic: Free delivery only if ALL products have free delivery
-                  const freeDeliveryProducts = items.filter(item => item.product.has_free_delivery === true);
-                  const regularProducts = items.filter(item => item.product.has_free_delivery !== true);
-                  const allProductsHaveFreeDelivery = items.length > 0 && regularProducts.length === 0;
+                  const freeDeliveryProducts = items.filter(
+                    (item) => item.product.has_free_delivery === true,
+                  );
+                  const regularProducts = items.filter(
+                    (item) => item.product.has_free_delivery !== true,
+                  );
+                  const allProductsHaveFreeDelivery =
+                    items.length > 0 && regularProducts.length === 0;
                   const deliveryCharge = allProductsHaveFreeDelivery ? 0 : 60;
-                  
+
                   return (
                     <>
                       <div className="bg-gray-50 rounded-lg p-3 border">
                         <div className="flex justify-between text-sm sm:text-base mb-2">
-                          <span className="text-gray-700 font-medium">Delivery Charge</span>
+                          <span className="text-gray-700 font-medium">
+                            Delivery Charge
+                          </span>
                           <div className="text-right">
                             {allProductsHaveFreeDelivery ? (
                               <>
-                                <span className="line-through text-gray-400 text-xs">৳60</span>
-                                <span className="font-bold text-green-600 ml-2 text-sm">FREE</span>
+                                <span className="line-through text-gray-400 text-xs">
+                                  ৳60
+                                </span>
+                                <span className="font-bold text-green-600 ml-2 text-sm">
+                                  FREE
+                                </span>
                               </>
                             ) : (
-                              <span className="font-semibold text-gray-900">৳60</span>
+                              <span className="font-semibold text-gray-900">
+                                ৳60
+                              </span>
                             )}
                           </div>
                         </div>
@@ -204,18 +221,25 @@ export default function CartPage() {
                             🎉 Free delivery applied to all items!
                           </div>
                         )}
-                        {freeDeliveryProducts.length > 0 && regularProducts.length > 0 && (
-                          <div className="text-xs text-amber-700 font-medium bg-amber-50 px-2 py-1 rounded border border-amber-200">
-                            ⚠️ Mixed cart: Delivery charge applies due to regular products
-                          </div>
-                        )}
+                        {freeDeliveryProducts.length > 0 &&
+                          regularProducts.length > 0 && (
+                            <div className="text-xs text-amber-700 font-medium bg-amber-50 px-2 py-1 rounded border border-amber-200">
+                              ⚠️ Mixed cart: Delivery charge applies due to
+                              regular products
+                            </div>
+                          )}
                       </div>
                       <div className="border-t-2 border-gray-200 pt-4 mt-4">
-                         <div className="flex justify-between text-lg sm:text-xl font-bold text-gray-900">
-                           <span>Total Amount</span>
-                           <span className="text-blue-600">৳{(getTotalPrice() + deliveryCharge).toLocaleString()}</span>
-                         </div>
-                       </div>
+                        <div className="flex justify-between text-lg sm:text-xl font-bold text-gray-900">
+                          <span>Total Amount</span>
+                          <span className="text-blue-600">
+                            ৳
+                            {(
+                              getTotalPrice() + deliveryCharge
+                            ).toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
                     </>
                   );
                 })()}
@@ -223,7 +247,10 @@ export default function CartPage() {
 
               <div className="space-y-3 mt-6">
                 <Link href="/checkout">
-                  <Button size="lg" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
+                  <Button
+                    size="lg"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                  >
                     Proceed to Checkout
                   </Button>
                 </Link>

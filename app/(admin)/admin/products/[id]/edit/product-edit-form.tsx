@@ -101,7 +101,7 @@ export default function ProductEditForm({ product, categories }: Props) {
       tags: product.tags?.join(", ") || "",
       meta_title: product.meta_title || "",
       meta_description: product.meta_description || "",
-      meta_keywords: product.meta_keywords?.join(", ") || ""
+      meta_keywords: product.meta_keywords?.join(", ") || "",
     };
   });
 
@@ -491,7 +491,10 @@ export default function ProductEditForm({ product, categories }: Props) {
                           placeholder="e.g., Free delivery on orders above ৳500"
                           value={formData.free_delivery_note}
                           onChange={(e) =>
-                            handleInputChange("free_delivery_note", e.target.value)
+                            handleInputChange(
+                              "free_delivery_note",
+                              e.target.value,
+                            )
                           }
                           rows={2}
                         />

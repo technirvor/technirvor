@@ -108,7 +108,7 @@ export async function validateRequest(
         isValid: true,
         user,
       };
-    } catch (error) {
+    } catch (_error) {
       return {
         isValid: false,
         error: "Authentication failed",
@@ -123,7 +123,7 @@ export async function validateRequest(
 export async function logAdminActivity(
   adminUserId: string,
   action: string,
-  details?: any,
+  details?: Record<string, unknown>,
 ) {
   try {
     await supabase.from("admin_activity_logs").insert({

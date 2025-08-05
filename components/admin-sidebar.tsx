@@ -139,7 +139,7 @@ export default function AdminSidebar() {
     <div
       className={cn(
         "fixed left-0 top-0 h-full bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 border-r border-slate-700/50 transition-all duration-300 flex flex-col shadow-2xl z-30 backdrop-blur-sm",
-        collapsed ? "w-16" : "w-72"
+        collapsed ? "w-16" : "w-72",
       )}
     >
       {/* Logo and Toggle */}
@@ -151,7 +151,9 @@ export default function AdminSidebar() {
                 <Shield className="h-6 w-6 text-white" />
               </div>
               <div>
-                <span className="font-bold text-white text-lg">Tech Nirvor</span>
+                <span className="font-bold text-white text-lg">
+                  Tech Nirvor
+                </span>
                 <p className="text-slate-400 text-xs">Admin Dashboard</p>
               </div>
             </div>
@@ -182,30 +184,33 @@ export default function AdminSidebar() {
           {navigationSections.map((section) => (
             <div key={section.title}>
               {!collapsed && (
-                 <h3 className="px-3 mb-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                   {section.title}
-                 </h3>
-               )}
+                <h3 className="px-3 mb-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                  {section.title}
+                </h3>
+              )}
               <div className="space-y-1">
                 {section.items.map((item) => {
                   const Icon = item.icon;
                   const isActive =
-                    pathname === item.href || pathname.startsWith(item.href + "/");
+                    pathname === item.href ||
+                    pathname.startsWith(item.href + "/");
 
                   return (
                     <Link key={item.name} href={item.href}>
                       <div
                         className={cn(
-                           "flex items-center gap-3 px-3 py-3 mx-1 rounded-xl text-sm font-medium transition-all duration-200 group relative",
-                           isActive
-                             ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25"
-                             : "text-slate-300 hover:bg-slate-700/50 hover:text-white hover:shadow-sm"
-                         )}
+                          "flex items-center gap-3 px-3 py-3 mx-1 rounded-xl text-sm font-medium transition-all duration-200 group relative",
+                          isActive
+                            ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25"
+                            : "text-slate-300 hover:bg-slate-700/50 hover:text-white hover:shadow-sm",
+                        )}
                       >
-                        <Icon className={cn(
-                           "h-5 w-5 flex-shrink-0",
-                           isActive ? "text-white" : "text-slate-400"
-                         )} />
+                        <Icon
+                          className={cn(
+                            "h-5 w-5 flex-shrink-0",
+                            isActive ? "text-white" : "text-slate-400",
+                          )}
+                        />
                         {!collapsed && (
                           <>
                             <div className="flex-1">
@@ -222,10 +227,12 @@ export default function AdminSidebar() {
                                   )}
                                 </div>
                               </div>
-                              <p className={cn(
-                                 "text-xs mt-0.5",
-                                 isActive ? "text-blue-100" : "text-slate-500"
-                               )}>
+                              <p
+                                className={cn(
+                                  "text-xs mt-0.5",
+                                  isActive ? "text-blue-100" : "text-slate-500",
+                                )}
+                              >
                                 {item.description}
                               </p>
                             </div>
@@ -234,7 +241,9 @@ export default function AdminSidebar() {
                         {collapsed && (
                           <div className="absolute left-full ml-3 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 z-50 whitespace-nowrap shadow-lg">
                             <div className="font-medium">{item.name}</div>
-                            <div className="text-gray-300 text-xs">{item.description}</div>
+                            <div className="text-gray-300 text-xs">
+                              {item.description}
+                            </div>
                           </div>
                         )}
                       </div>
@@ -242,9 +251,11 @@ export default function AdminSidebar() {
                   );
                 })}
               </div>
-              {!collapsed && section !== navigationSections[navigationSections.length - 1] && (
-                 <Separator className="my-4 mx-3 bg-slate-700/50" />
-               )}
+              {!collapsed &&
+                section !==
+                  navigationSections[navigationSections.length - 1] && (
+                  <Separator className="my-4 mx-3 bg-slate-700/50" />
+                )}
             </div>
           ))}
         </nav>

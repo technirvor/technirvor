@@ -6,8 +6,14 @@ import { Shield, Eye, Lock, UserCheck, Database, Globe } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Privacy Policy - Tech Nirvor",
-  description: "Tech Nirvor's Privacy Policy. Learn how we collect, use, and protect your personal information when you shop with us.",
-  keywords: ["privacy policy", "data protection", "personal information", "tech nirvor privacy"],
+  description:
+    "Tech Nirvor's Privacy Policy. Learn how we collect, use, and protect your personal information when you shop with us.",
+  keywords: [
+    "privacy policy",
+    "data protection",
+    "personal information",
+    "tech nirvor privacy",
+  ],
 };
 
 export default function PrivacyPolicyPage() {
@@ -25,8 +31,8 @@ export default function PrivacyPolicyPage() {
             "নাম, ইমেইল ঠিকানা এবং ফোন নম্বর",
             "বিলিং এবং শিপিং ঠিকানা",
             "পেমেন্ট তথ্য (তৃতীয় পক্ষের প্রদানকারীর মাধ্যমে নিরাপদে প্রক্রিয়াজাত)",
-            "অ্যাকাউন্ট শংসাপত্র এবং পছন্দ"
-          ]
+            "অ্যাকাউন্ট শংসাপত্র এবং পছন্দ",
+          ],
         },
         {
           subtitle: "স্বয়ংক্রিয়ভাবে সংগৃহীত তথ্য",
@@ -34,8 +40,8 @@ export default function PrivacyPolicyPage() {
             "আইপি ঠিকানা এবং ব্রাউজার তথ্য",
             "ডিভাইসের ধরন এবং অপারেটিং সিস্টেম",
             "পরিদর্শিত পৃষ্ঠা এবং আমাদের ওয়েবসাইটে কাটানো সময়",
-            "কুকিজ এবং অনুরূপ ট্র্যাকিং প্রযুক্তি"
-          ]
+            "কুকিজ এবং অনুরূপ ট্র্যাকিং প্রযুক্তি",
+          ],
         },
         {
           subtitle: "লেনদেনের তথ্য",
@@ -43,10 +49,10 @@ export default function PrivacyPolicyPage() {
             "ক্রয়ের ইতিহাস এবং অর্ডারের বিবরণ",
             "পণ্যের রিভিউ এবং রেটিং",
             "গ্রাহক সেবার মিথস্ক্রিয়া",
-            "ফেরত এবং রিফান্ডের অনুরোধ"
-          ]
-        }
-      ]
+            "ফেরত এবং রিফান্ডের অনুরোধ",
+          ],
+        },
+      ],
     },
     {
       id: "information-use",
@@ -59,8 +65,8 @@ export default function PrivacyPolicyPage() {
             "আপনার অর্ডার প্রক্রিয়া এবং পূরণ করা",
             "গ্রাহক সহায়তা এবং সহায়তা প্রদান",
             "অর্ডার নিশ্চিতকরণ এবং শিপিং আপডেট পাঠানো",
-            "আপনার অ্যাকাউন্ট এবং পছন্দ পরিচালনা"
-          ]
+            "আপনার অ্যাকাউন্ট এবং পছন্দ পরিচালনা",
+          ],
         },
         {
           subtitle: "যোগাযোগ",
@@ -68,8 +74,8 @@ export default function PrivacyPolicyPage() {
             "প্রচারণামূলক ইমেইল এবং নিউজলেটার পাঠানো (আপনার সম্মতিতে)",
             "নতুন পণ্য এবং বিশেষ অফার সম্পর্কে আপনাকে অবহিত করা",
             "আপনার অনুসন্ধান এবং ফিডব্যাকের উত্তর দেওয়া",
-            "গুরুত্বপূর্ণ অ্যাকাউন্ট এবং সেবা আপডেট পাঠানো"
-          ]
+            "গুরুত্বপূর্ণ অ্যাকাউন্ট এবং সেবা আপডেট পাঠানো",
+          ],
         },
         {
           subtitle: "উন্নতি এবং বিশ্লেষণ",
@@ -77,10 +83,10 @@ export default function PrivacyPolicyPage() {
             "ওয়েবসাইট ব্যবহার এবং গ্রাহকের আচরণ বিশ্লেষণ",
             "আমাদের পণ্য এবং সেবা উন্নত করা",
             "আপনার কেনাকাটার অভিজ্ঞতা ব্যক্তিগতকরণ",
-            "বাজার গবেষণা এবং সমীক্ষা পরিচালনা"
-          ]
-        }
-      ]
+            "বাজার গবেষণা এবং সমীক্ষা পরিচালনা",
+          ],
+        },
+      ],
     },
     {
       id: "information-sharing",
@@ -93,8 +99,8 @@ export default function PrivacyPolicyPage() {
             "Payment processors for secure transaction handling",
             "Shipping and logistics partners for order delivery",
             "Email service providers for communication",
-            "Analytics services for website improvement"
-          ]
+            "Analytics services for website improvement",
+          ],
         },
         {
           subtitle: "Legal Requirements",
@@ -102,18 +108,18 @@ export default function PrivacyPolicyPage() {
             "Comply with applicable laws and regulations",
             "Respond to legal requests and court orders",
             "Protect our rights and prevent fraud",
-            "Ensure the safety and security of our users"
-          ]
+            "Ensure the safety and security of our users",
+          ],
         },
         {
           subtitle: "Business Transfers",
           items: [
             "In case of merger, acquisition, or sale of assets",
             "During business restructuring or reorganization",
-            "With proper notice and protection of your rights"
-          ]
-        }
-      ]
+            "With proper notice and protection of your rights",
+          ],
+        },
+      ],
     },
     {
       id: "data-security",
@@ -126,8 +132,8 @@ export default function PrivacyPolicyPage() {
             "SSL encryption for all data transmission",
             "Secure servers with regular security updates",
             "Access controls and authentication systems",
-            "Regular security audits and monitoring"
-          ]
+            "Regular security audits and monitoring",
+          ],
         },
         {
           subtitle: "Payment Security",
@@ -135,8 +141,8 @@ export default function PrivacyPolicyPage() {
             "PCI DSS compliant payment processing",
             "Tokenization of sensitive payment data",
             "No storage of complete credit card information",
-            "Fraud detection and prevention systems"
-          ]
+            "Fraud detection and prevention systems",
+          ],
         },
         {
           subtitle: "Data Retention",
@@ -144,10 +150,10 @@ export default function PrivacyPolicyPage() {
             "Personal data retained only as long as necessary",
             "Account data kept while account is active",
             "Transaction records maintained for legal requirements",
-            "Secure deletion of data when no longer needed"
-          ]
-        }
-      ]
+            "Secure deletion of data when no longer needed",
+          ],
+        },
+      ],
     },
     {
       id: "user-rights",
@@ -160,8 +166,8 @@ export default function PrivacyPolicyPage() {
             "Access and review your personal information",
             "Update or correct your account details",
             "Download a copy of your data",
-            "Delete your account and associated data"
-          ]
+            "Delete your account and associated data",
+          ],
         },
         {
           subtitle: "Communication Preferences",
@@ -169,18 +175,18 @@ export default function PrivacyPolicyPage() {
             "Opt-out of promotional emails and newsletters",
             "Manage notification preferences",
             "Unsubscribe from marketing communications",
-            "Control cookie and tracking preferences"
-          ]
+            "Control cookie and tracking preferences",
+          ],
         },
         {
           subtitle: "Data Portability",
           items: [
             "Request transfer of your data to another service",
             "Export your order history and preferences",
-            "Receive data in a structured, machine-readable format"
-          ]
-        }
-      ]
+            "Receive data in a structured, machine-readable format",
+          ],
+        },
+      ],
     },
     {
       id: "cookies-tracking",
@@ -193,8 +199,8 @@ export default function PrivacyPolicyPage() {
             "Essential cookies for website functionality",
             "Performance cookies for analytics and optimization",
             "Functional cookies for enhanced user experience",
-            "Marketing cookies for personalized advertising"
-          ]
+            "Marketing cookies for personalized advertising",
+          ],
         },
         {
           subtitle: "Cookie Management",
@@ -202,11 +208,11 @@ export default function PrivacyPolicyPage() {
             "Browser settings to control cookie acceptance",
             "Opt-out options for non-essential cookies",
             "Third-party cookie policies and controls",
-            "Regular review and update of cookie practices"
-          ]
-        }
-      ]
-    }
+            "Regular review and update of cookie practices",
+          ],
+        },
+      ],
+    },
   ];
 
   return (
@@ -218,7 +224,8 @@ export default function PrivacyPolicyPage() {
             গোপনীয়তা নীতি
           </h1>
           <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto leading-relaxed">
-            আপনার গোপনীয়তা আমাদের কাছে গুরুত্বপূর্ণ। জানুন আমরা কীভাবে আপনার তথ্য সংগ্রহ, ব্যবহার এবং সুরক্ষিত রাখি।
+            আপনার গোপনীয়তা আমাদের কাছে গুরুত্বপূর্ণ। জানুন আমরা কীভাবে আপনার
+            তথ্য সংগ্রহ, ব্যবহার এবং সুরক্ষিত রাখি।
           </p>
           <div className="flex items-center justify-center space-x-4">
             <Badge variant="secondary" className="text-lg px-4 py-2">
@@ -241,18 +248,24 @@ export default function PrivacyPolicyPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-lg text-gray-700 leading-relaxed">
-                  At Tech Nirvor, we are committed to protecting your privacy and ensuring the security of your personal information. 
-                  This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our 
-                  website or use our services.
+                  At Tech Nirvor, we are committed to protecting your privacy
+                  and ensuring the security of your personal information. This
+                  Privacy Policy explains how we collect, use, disclose, and
+                  safeguard your information when you visit our website or use
+                  our services.
                 </p>
                 <p className="text-gray-700 leading-relaxed">
-                  By using our website and services, you agree to the collection and use of information in accordance with this policy. 
-                  We will not use or share your information with anyone except as described in this Privacy Policy.
+                  By using our website and services, you agree to the collection
+                  and use of information in accordance with this policy. We will
+                  not use or share your information with anyone except as
+                  described in this Privacy Policy.
                 </p>
                 <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                   <p className="text-blue-800 font-medium">
-                    <strong>Important:</strong> If you do not agree with our policies and practices, please do not use our services. 
-                    By continuing to use our services, you accept this Privacy Policy.
+                    <strong>Important:</strong> If you do not agree with our
+                    policies and practices, please do not use our services. By
+                    continuing to use our services, you accept this Privacy
+                    Policy.
                   </p>
                 </div>
               </CardContent>
@@ -278,7 +291,10 @@ export default function PrivacyPolicyPage() {
                           </h4>
                           <ul className="space-y-2">
                             {subsection.items.map((item, itemIndex) => (
-                              <li key={itemIndex} className="flex items-start space-x-2">
+                              <li
+                                key={itemIndex}
+                                className="flex items-start space-x-2"
+                              >
                                 <span className="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0"></span>
                                 <span className="text-gray-700">{item}</span>
                               </li>
@@ -304,14 +320,24 @@ export default function PrivacyPolicyPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-gray-700">
-                  If you have any questions, concerns, or requests regarding this Privacy Policy or our data practices, 
-                  please contact us:
+                  If you have any questions, concerns, or requests regarding
+                  this Privacy Policy or our data practices, please contact us:
                 </p>
                 <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                  <p><strong>Email:</strong> privacy@technirvor.com</p>
-                  <p><strong>Phone:</strong> +880 1410-077761</p>
-                  <p><strong>Address:</strong> 123 Commerce Street, Dhaka 1000, Bangladesh</p>
-                  <p><strong>Response Time:</strong> We will respond to your inquiry within 48 hours</p>
+                  <p>
+                    <strong>Email:</strong> privacy@technirvor.com
+                  </p>
+                  <p>
+                    <strong>Phone:</strong> +880 1410-077761
+                  </p>
+                  <p>
+                    <strong>Address:</strong> 123 Commerce Street, Dhaka 1000,
+                    Bangladesh
+                  </p>
+                  <p>
+                    <strong>Response Time:</strong> We will respond to your
+                    inquiry within 48 hours
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -325,25 +351,34 @@ export default function PrivacyPolicyPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-gray-700">
-                  We may update this Privacy Policy from time to time to reflect changes in our practices or for other 
-                  operational, legal, or regulatory reasons. We will notify you of any material changes by:
+                  We may update this Privacy Policy from time to time to reflect
+                  changes in our practices or for other operational, legal, or
+                  regulatory reasons. We will notify you of any material changes
+                  by:
                 </p>
                 <ul className="space-y-2">
                   <li className="flex items-start space-x-2">
                     <span className="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0"></span>
-                    <span className="text-gray-700">Posting the updated policy on our website</span>
+                    <span className="text-gray-700">
+                      Posting the updated policy on our website
+                    </span>
                   </li>
                   <li className="flex items-start space-x-2">
                     <span className="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0"></span>
-                    <span className="text-gray-700">Sending email notifications to registered users</span>
+                    <span className="text-gray-700">
+                      Sending email notifications to registered users
+                    </span>
                   </li>
                   <li className="flex items-start space-x-2">
                     <span className="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0"></span>
-                    <span className="text-gray-700">Displaying prominent notices on our website</span>
+                    <span className="text-gray-700">
+                      Displaying prominent notices on our website
+                    </span>
                   </li>
                 </ul>
                 <p className="text-gray-700">
-                  Your continued use of our services after any changes indicates your acceptance of the updated Privacy Policy.
+                  Your continued use of our services after any changes indicates
+                  your acceptance of the updated Privacy Policy.
                 </p>
               </CardContent>
             </Card>

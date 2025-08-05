@@ -1,10 +1,13 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { Ticket, Gift, Clock, CheckCircle } from 'lucide-react';
-import { Coupon } from '@/lib/types/user';
-import { getUserCoupons, calculateDiscount } from '@/lib/services/coupon-service';
-import CouponCard from './CouponCard';
+import React, { useState, useEffect } from "react";
+import { Ticket, Gift, Clock, CheckCircle } from "lucide-react";
+import { Coupon } from "@/lib/types/user";
+import {
+  getUserCoupons,
+  calculateDiscount,
+} from "@/lib/services/coupon-service";
+import CouponCard from "./CouponCard";
 
 interface CouponListProps {
   sessionToken: string;
@@ -17,11 +20,13 @@ const CouponList: React.FC<CouponListProps> = ({
   sessionToken,
   orderTotal,
   onCouponApplied,
-  className = ''
+  className = "",
 }) => {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'valid' | 'used' | 'expired'>('all');
+  const [filter, setFilter] = useState<"all" | "valid" | "used" | "expired">(
+    "all",
+  );
 
   useEffect(() => {
     loadCoupons();
@@ -31,12 +36,12 @@ const CouponList: React.FC<CouponListProps> = ({
     try {
       setLoading(true);
       const response = await getUserCoupons(sessionToken);
-      
+
       if (response.success && response.coupons) {
         setCoupons(response.coupons);
       }
     } catch (error) {
-      console.error('Error loading coupons:', error);
+      console.error("Error loading coupons:", error);
     } finally {
       setLoading(false);
     }
@@ -44,14 +49,14 @@ const CouponList: React.FC<CouponListProps> = ({
 
   const getFilteredCoupons = () => {
     const now = new Date();
-    
-    return coupons.filter(coupon => {
+
+    return coupons.filter((coupon) => {
       switch (filter) {
-        case 'valid':
+        case "valid":
           return !coupon.is_used && new Date(coupon.expires_at) > now;
-        case 'used':
+        case "used":
           return coupon.is_used;
-        case 'expired':
+        case "expired":
           return !coupon.is_used && new Date(coupon.expires_at) <= now;
         default:
           return true;
@@ -61,10 +66,14 @@ const CouponList: React.FC<CouponListProps> = ({
 
   const getCouponStats = () => {
     const now = new Date();
-    const valid = coupons.filter(c => !c.is_used && new Date(c.expires_at) > now).length;
-    const used = coupons.filter(c => c.is_used).length;
-    const expired = coupons.filter(c => !c.is_used && new Date(c.expires_at) <= now).length;
-    
+    const valid = coupons.filter(
+      (c) => !c.is_used && new Date(c.expires_at) > now,
+    ).length;
+    const used = coupons.filter((c) => c.is_used).length;
+    const expired = coupons.filter(
+      (c) => !c.is_used && new Date(c.expires_at) <= now,
+    ).length;
+
     return { valid, used, expired, total: coupons.length };
   };
 
@@ -72,10 +81,10 @@ const CouponList: React.FC<CouponListProps> = ({
   const stats = getCouponStats();
 
   const filterOptions = [
-    { key: 'all', label: 'All', count: stats.total, icon: Ticket },
-    { key: 'valid', label: 'Valid', count: stats.valid, icon: Gift },
-    { key: 'used', label: 'Used', count: stats.used, icon: CheckCircle },
-    { key: 'expired', label: 'Expired', count: stats.expired, icon: Clock }
+    { key: "all", label: "All", count: stats.total, icon: Ticket },
+    { key: "valid", label: "Valid", count: stats.valid, icon: Gift },
+    { key: "used", label: "Used", count: stats.used, icon: CheckCircle },
+    { key: "expired", label: "Expired", count: stats.expired, icon: Clock },
   ] as const;
 
   return (
@@ -89,11 +98,12 @@ const CouponList: React.FC<CouponListProps> = ({
           </h2>
           {orderTotal && (
             <div className="text-sm text-gray-600">
-              Order Total: <span className="font-medium">৳{orderTotal.toFixed(2)}</span>
+              Order Total:{" "}
+              <span className="font-medium">৳{orderTotal.toFixed(2)}</span>
             </div>
           )}
         </div>
-        
+
         {/* Filter Tabs */}
         <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
           {filterOptions.map(({ key, label, count, icon: Icon }) => (
@@ -102,17 +112,19 @@ const CouponList: React.FC<CouponListProps> = ({
               onClick={() => setFilter(key)}
               className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                 filter === key
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? "bg-white text-blue-600 shadow-sm"
+                  : "text-gray-600 hover:text-gray-900"
               }`}
             >
               <Icon className="w-4 h-4" />
               {label}
-              <span className={`px-2 py-0.5 rounded-full text-xs ${
-                filter === key
-                  ? 'bg-blue-100 text-blue-600'
-                  : 'bg-gray-200 text-gray-600'
-              }`}>
+              <span
+                className={`px-2 py-0.5 rounded-full text-xs ${
+                  filter === key
+                    ? "bg-blue-100 text-blue-600"
+                    : "bg-gray-200 text-gray-600"
+                }`}
+              >
                 {count}
               </span>
             </button>
@@ -131,13 +143,14 @@ const CouponList: React.FC<CouponListProps> = ({
           <div className="text-center py-8">
             <Ticket className="w-12 h-12 mx-auto mb-4 text-gray-300" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {filter === 'all' ? 'No coupons available' : `No ${filter} coupons`}
+              {filter === "all"
+                ? "No coupons available"
+                : `No ${filter} coupons`}
             </h3>
             <p className="text-gray-500">
-              {filter === 'all' 
-                ? 'You don\'t have any coupons yet. Complete orders to earn coupons!'
-                : `You don't have any ${filter} coupons.`
-              }
+              {filter === "all"
+                ? "You don't have any coupons yet. Complete orders to earn coupons!"
+                : `You don't have any ${filter} coupons.`}
             </p>
           </div>
         ) : (
@@ -147,10 +160,17 @@ const CouponList: React.FC<CouponListProps> = ({
                 key={coupon.id}
                 coupon={coupon}
                 orderAmount={orderTotal}
-                onApply={onCouponApplied ? (coupon) => {
-                  const discountAmount = calculateDiscount(coupon, orderTotal || 0);
-                  onCouponApplied(coupon, discountAmount);
-                } : undefined}
+                onApply={
+                  onCouponApplied
+                    ? (coupon) => {
+                        const discountAmount = calculateDiscount(
+                          coupon,
+                          orderTotal || 0,
+                        );
+                        onCouponApplied(coupon, discountAmount);
+                      }
+                    : undefined
+                }
                 showApplyButton={!!orderTotal && !!onCouponApplied}
               />
             ))}

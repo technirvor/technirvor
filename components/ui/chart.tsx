@@ -107,8 +107,8 @@ interface ChartTooltipContentProps extends React.ComponentProps<"div"> {
   payload?: Array<{
     name?: string;
     dataKey?: string;
-    value?: any;
-    payload?: any;
+    value?: string | number;
+    payload?: Record<string, unknown>;
     color?: string;
     fill?: string;
   }>;
@@ -118,8 +118,8 @@ interface ChartTooltipContentProps extends React.ComponentProps<"div"> {
   indicator?: "line" | "dot" | "dashed";
   nameKey?: string;
   labelKey?: string;
-  labelFormatter?: (value: any, name: string) => React.ReactNode;
-  formatter?: (value: any, name: string) => React.ReactNode;
+  labelFormatter?: (value: React.ReactNode, name: string) => React.ReactNode;
+  formatter?: (value: React.ReactNode, name: string) => React.ReactNode;
   color?: string;
   labelClassName?: string;
 }
@@ -164,7 +164,7 @@ const ChartTooltipContent = React.forwardRef<
       if (labelFormatter) {
         return (
           <div className={cn("font-medium", labelClassName)}>
-            {labelFormatter(value, label || '')}
+            {labelFormatter(value, label || "")}
           </div>
         );
       }
@@ -214,7 +214,7 @@ const ChartTooltipContent = React.forwardRef<
                 )}
               >
                 {formatter && item?.value !== undefined && item.name ? (
-                  formatter(item.value, item.name || item.dataKey || 'value')
+                  formatter(item.value, item.name || item.dataKey || "value")
                 ) : (
                   <>
                     {itemConfig?.icon ? (
@@ -290,7 +290,13 @@ const ChartLegendContent = React.forwardRef<
   ChartLegendContentProps
 >(
   (
-    { className, hideIcon = false, payload = [], verticalAlign = "bottom", nameKey },
+    {
+      className,
+      hideIcon = false,
+      payload = [],
+      verticalAlign = "bottom",
+      nameKey,
+    },
     ref,
   ) => {
     const { config } = useChart();
@@ -308,31 +314,39 @@ const ChartLegendContent = React.forwardRef<
           className,
         )}
       >
-        {payload.map((item: { dataKey?: string; value?: string; color?: string; type?: string; payload?: { fill?: string } }) => {
-          const key = `${nameKey || item.dataKey || "value"}`;
-          const itemConfig = getPayloadConfigFromPayload(config, item, key);
+        {payload.map(
+          (item: {
+            dataKey?: string;
+            value?: string;
+            color?: string;
+            type?: string;
+            payload?: { fill?: string };
+          }) => {
+            const key = `${nameKey || item.dataKey || "value"}`;
+            const itemConfig = getPayloadConfigFromPayload(config, item, key);
 
-          return (
-            <div
-              key={item.value}
-              className={cn(
-                "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground",
-              )}
-            >
-              {itemConfig?.icon && !hideIcon ? (
-                <itemConfig.icon />
-              ) : (
-                <div
-                  className="h-2 w-2 shrink-0 rounded-[2px]"
-                  style={{
-                    backgroundColor: item.color,
-                  }}
-                />
-              )}
-              {itemConfig?.label}
-            </div>
-          );
-        })}
+            return (
+              <div
+                key={item.value}
+                className={cn(
+                  "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground",
+                )}
+              >
+                {itemConfig?.icon && !hideIcon ? (
+                  <itemConfig.icon />
+                ) : (
+                  <div
+                    className="h-2 w-2 shrink-0 rounded-[2px]"
+                    style={{
+                      backgroundColor: item.color,
+                    }}
+                  />
+                )}
+                {itemConfig?.label}
+              </div>
+            );
+          },
+        )}
       </div>
     );
   },

@@ -1,7 +1,13 @@
 "use client";
 
 import type React from "react";
-import { MapPin, CreditCard, Smartphone, Building2, Banknote } from "lucide-react";
+import {
+  MapPin,
+  CreditCard,
+  Smartphone,
+  Building2,
+  Banknote,
+} from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -66,7 +72,7 @@ export default function CheckoutPage() {
       // Separate regular products and combo products
       const regularItems = items.filter((item) => !item.isCombo);
       const comboItems = items.filter((item) => item.isCombo);
-      
+
       // Validate regular products
       if (regularItems.length > 0) {
         const productIds = regularItems.map((item) => item.product.id);
@@ -88,7 +94,7 @@ export default function CheckoutPage() {
           return;
         }
       }
-      
+
       // Validate combo products
       if (comboItems.length > 0) {
         const comboIds = comboItems.map((item) => item.comboId).filter(Boolean);
@@ -233,23 +239,32 @@ export default function CheckoutPage() {
           }));
         } else {
           // Regular product
-          return [{
-            product_id: item.product.id,
-            quantity: item.quantity,
-            price: item.product.sale_price || item.product.price,
-            is_combo: false,
-          }];
+          return [
+            {
+              product_id: item.product.id,
+              quantity: item.quantity,
+              price: item.product.sale_price || item.product.price,
+              is_combo: false,
+            },
+          ];
         }
       });
 
       const subtotal = getTotalPrice();
-      
+
       // Check delivery logic: Free delivery only if ALL products have free delivery
-      const freeDeliveryProducts = items.filter(item => item.product.has_free_delivery === true);
-      const regularProducts = items.filter(item => item.product.has_free_delivery !== true);
-      const allProductsHaveFreeDelivery = items.length > 0 && regularProducts.length === 0;
+      const freeDeliveryProducts = items.filter(
+        (item) => item.product.has_free_delivery === true,
+      );
+      const regularProducts = items.filter(
+        (item) => item.product.has_free_delivery !== true,
+      );
+      const allProductsHaveFreeDelivery =
+        items.length > 0 && regularProducts.length === 0;
       const baseDeliveryCharge = selectedDistrict?.delivery_charge || 60;
-      const deliveryCharge = allProductsHaveFreeDelivery ? 0 : baseDeliveryCharge;
+      const deliveryCharge = allProductsHaveFreeDelivery
+        ? 0
+        : baseDeliveryCharge;
       const totalAmount = subtotal + deliveryCharge;
 
       const orderData = {
@@ -258,7 +273,7 @@ export default function CheckoutPage() {
         district: selectedDistrict?.name,
         address: formData.address,
         payment_method: formData.paymentMethod,
-      transaction_id: formData.transactionId || null,
+        transaction_id: formData.transactionId || null,
         items: orderItems,
         total_amount: totalAmount,
       };
@@ -302,11 +317,16 @@ export default function CheckoutPage() {
   };
 
   const subtotal = getTotalPrice();
-  
+
   // Check delivery logic: Free delivery only if ALL products have free delivery
-  const freeDeliveryProducts = items.filter(item => item.product.has_free_delivery === true);
-  const regularProducts = items.filter(item => item.product.has_free_delivery !== true);
-  const allProductsHaveFreeDelivery = items.length > 0 && regularProducts.length === 0;
+  const freeDeliveryProducts = items.filter(
+    (item) => item.product.has_free_delivery === true,
+  );
+  const regularProducts = items.filter(
+    (item) => item.product.has_free_delivery !== true,
+  );
+  const allProductsHaveFreeDelivery =
+    items.length > 0 && regularProducts.length === 0;
   const baseDeliveryCharge = selectedDistrict?.delivery_charge || 60;
   const deliveryCharge = allProductsHaveFreeDelivery ? 0 : baseDeliveryCharge;
   const total = subtotal + deliveryCharge;
@@ -391,7 +411,9 @@ export default function CheckoutPage() {
                 </div>
 
                 <div>
-                  <Label className="text-lg font-bold text-gray-900 mb-6 block">Choose Payment Method</Label>
+                  <Label className="text-lg font-bold text-gray-900 mb-6 block">
+                    Choose Payment Method
+                  </Label>
                   <RadioGroup
                     value={formData.paymentMethod}
                     onValueChange={(value) =>
@@ -403,223 +425,393 @@ export default function CheckoutPage() {
                     <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-4 rounded-xl border border-pink-200">
                       <div className="flex items-center gap-2 mb-4">
                         <Smartphone className="w-5 h-5 text-pink-600" />
-                        <h4 className="text-base font-semibold text-gray-800">Mobile Financial Services</h4>
-                        <span className="text-xs bg-pink-100 text-pink-700 px-2 py-1 rounded-full font-medium">Most Popular</span>
+                        <h4 className="text-base font-semibold text-gray-800">
+                          Mobile Financial Services
+                        </h4>
+                        <span className="text-xs bg-pink-100 text-pink-700 px-2 py-1 rounded-full font-medium">
+                          Most Popular
+                        </span>
                       </div>
-                      
+
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div className={`flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer ${
-                          formData.paymentMethod === 'bkash' 
-                            ? 'border-pink-500 bg-pink-50 shadow-md' 
-                            : 'border-gray-200 bg-white hover:border-pink-300 hover:shadow-sm'
-                        }`}>
-                          <RadioGroupItem value="bkash" id="bkash" className="text-pink-600" />
+                        <div
+                          className={`flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer ${
+                            formData.paymentMethod === "bkash"
+                              ? "border-pink-500 bg-pink-50 shadow-md"
+                              : "border-gray-200 bg-white hover:border-pink-300 hover:shadow-sm"
+                          }`}
+                        >
+                          <RadioGroupItem
+                            value="bkash"
+                            id="bkash"
+                            className="text-pink-600"
+                          />
                           <div className="flex items-center space-x-3 flex-1">
                             <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-pink-600 rounded-lg flex items-center justify-center shadow-sm">
-                              <span className="text-white font-bold text-sm">bK</span>
+                              <span className="text-white font-bold text-sm">
+                                bK
+                              </span>
                             </div>
                             <div>
-                              <Label htmlFor="bkash" className="font-semibold cursor-pointer text-gray-800">bKash</Label>
-                              <p className="text-xs text-gray-600">Most trusted mobile wallet</p>
+                              <Label
+                                htmlFor="bkash"
+                                className="font-semibold cursor-pointer text-gray-800"
+                              >
+                                bKash
+                              </Label>
+                              <p className="text-xs text-gray-600">
+                                Most trusted mobile wallet
+                              </p>
                             </div>
                           </div>
                         </div>
-                        
-                        <div className={`flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer ${
-                          formData.paymentMethod === 'nagad' 
-                            ? 'border-orange-500 bg-orange-50 shadow-md' 
-                            : 'border-gray-200 bg-white hover:border-orange-300 hover:shadow-sm'
-                        }`}>
-                          <RadioGroupItem value="nagad" id="nagad" className="text-orange-600" />
+
+                        <div
+                          className={`flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer ${
+                            formData.paymentMethod === "nagad"
+                              ? "border-orange-500 bg-orange-50 shadow-md"
+                              : "border-gray-200 bg-white hover:border-orange-300 hover:shadow-sm"
+                          }`}
+                        >
+                          <RadioGroupItem
+                            value="nagad"
+                            id="nagad"
+                            className="text-orange-600"
+                          />
                           <div className="flex items-center space-x-3 flex-1">
                             <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center shadow-sm">
-                              <span className="text-white font-bold text-sm">N</span>
+                              <span className="text-white font-bold text-sm">
+                                N
+                              </span>
                             </div>
                             <div>
-                              <Label htmlFor="nagad" className="font-semibold cursor-pointer text-gray-800">Nagad</Label>
-                              <p className="text-xs text-gray-600">Government backed service</p>
+                              <Label
+                                htmlFor="nagad"
+                                className="font-semibold cursor-pointer text-gray-800"
+                              >
+                                Nagad
+                              </Label>
+                              <p className="text-xs text-gray-600">
+                                Government backed service
+                              </p>
                             </div>
                           </div>
                         </div>
-                        
-                        <div className={`flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer ${
-                          formData.paymentMethod === 'rocket' 
-                            ? 'border-purple-500 bg-purple-50 shadow-md' 
-                            : 'border-gray-200 bg-white hover:border-purple-300 hover:shadow-sm'
-                        }`}>
-                          <RadioGroupItem value="rocket" id="rocket" className="text-purple-600" />
+
+                        <div
+                          className={`flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer ${
+                            formData.paymentMethod === "rocket"
+                              ? "border-purple-500 bg-purple-50 shadow-md"
+                              : "border-gray-200 bg-white hover:border-purple-300 hover:shadow-sm"
+                          }`}
+                        >
+                          <RadioGroupItem
+                            value="rocket"
+                            id="rocket"
+                            className="text-purple-600"
+                          />
                           <div className="flex items-center space-x-3 flex-1">
                             <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-sm">
-                              <span className="text-white font-bold text-sm">R</span>
+                              <span className="text-white font-bold text-sm">
+                                R
+                              </span>
                             </div>
                             <div>
-                              <Label htmlFor="rocket" className="font-semibold cursor-pointer text-gray-800">Rocket</Label>
-                              <p className="text-xs text-gray-600">DBBL mobile banking</p>
+                              <Label
+                                htmlFor="rocket"
+                                className="font-semibold cursor-pointer text-gray-800"
+                              >
+                                Rocket
+                              </Label>
+                              <p className="text-xs text-gray-600">
+                                DBBL mobile banking
+                              </p>
                             </div>
                           </div>
                         </div>
-                        
-                        <div className={`flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer ${
-                          formData.paymentMethod === 'upay' 
-                            ? 'border-blue-500 bg-blue-50 shadow-md' 
-                            : 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-sm'
-                        }`}>
-                          <RadioGroupItem value="upay" id="upay" className="text-blue-600" />
+
+                        <div
+                          className={`flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer ${
+                            formData.paymentMethod === "upay"
+                              ? "border-blue-500 bg-blue-50 shadow-md"
+                              : "border-gray-200 bg-white hover:border-blue-300 hover:shadow-sm"
+                          }`}
+                        >
+                          <RadioGroupItem
+                            value="upay"
+                            id="upay"
+                            className="text-blue-600"
+                          />
                           <div className="flex items-center space-x-3 flex-1">
                             <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-sm">
-                              <span className="text-white font-bold text-sm">U</span>
+                              <span className="text-white font-bold text-sm">
+                                U
+                              </span>
                             </div>
                             <div>
-                              <Label htmlFor="upay" className="font-semibold cursor-pointer text-gray-800">Upay</Label>
-                              <p className="text-xs text-gray-600">UCB Fintech wallet</p>
+                              <Label
+                                htmlFor="upay"
+                                className="font-semibold cursor-pointer text-gray-800"
+                              >
+                                Upay
+                              </Label>
+                              <p className="text-xs text-gray-600">
+                                UCB Fintech wallet
+                              </p>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                    
+
                     {/* Other Payment Methods */}
                     <div className="bg-gradient-to-r from-blue-50 to-green-50 p-4 rounded-xl border border-blue-200">
                       <div className="flex items-center gap-2 mb-4">
                         <CreditCard className="w-5 h-5 text-blue-600" />
-                        <h4 className="text-base font-semibold text-gray-800">Other Payment Options</h4>
+                        <h4 className="text-base font-semibold text-gray-800">
+                          Other Payment Options
+                        </h4>
                       </div>
-                      
+
                       <div className="space-y-3">
-                        <div className={`flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer ${
-                          formData.paymentMethod === 'card' 
-                            ? 'border-blue-500 bg-blue-50 shadow-md' 
-                            : 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-sm'
-                        }`}>
-                          <RadioGroupItem value="card" id="card" className="text-blue-600" />
+                        <div
+                          className={`flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer ${
+                            formData.paymentMethod === "card"
+                              ? "border-blue-500 bg-blue-50 shadow-md"
+                              : "border-gray-200 bg-white hover:border-blue-300 hover:shadow-sm"
+                          }`}
+                        >
+                          <RadioGroupItem
+                            value="card"
+                            id="card"
+                            className="text-blue-600"
+                          />
                           <div className="flex items-center space-x-3 flex-1">
                             <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center shadow-sm">
                               <CreditCard className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                              <Label htmlFor="card" className="font-semibold cursor-pointer text-gray-800">Credit/Debit Card</Label>
-                              <p className="text-xs text-gray-600">Visa, Mastercard, American Express</p>
+                              <Label
+                                htmlFor="card"
+                                className="font-semibold cursor-pointer text-gray-800"
+                              >
+                                Credit/Debit Card
+                              </Label>
+                              <p className="text-xs text-gray-600">
+                                Visa, Mastercard, American Express
+                              </p>
                             </div>
                           </div>
-                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">Secure</span>
+                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">
+                            Secure
+                          </span>
                         </div>
-                        
-                        <div className={`flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer ${
-                          formData.paymentMethod === 'bank_transfer' 
-                            ? 'border-green-500 bg-green-50 shadow-md' 
-                            : 'border-gray-200 bg-white hover:border-green-300 hover:shadow-sm'
-                        }`}>
-                          <RadioGroupItem value="bank_transfer" id="bank_transfer" className="text-green-600" />
+
+                        <div
+                          className={`flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer ${
+                            formData.paymentMethod === "bank_transfer"
+                              ? "border-green-500 bg-green-50 shadow-md"
+                              : "border-gray-200 bg-white hover:border-green-300 hover:shadow-sm"
+                          }`}
+                        >
+                          <RadioGroupItem
+                            value="bank_transfer"
+                            id="bank_transfer"
+                            className="text-green-600"
+                          />
                           <div className="flex items-center space-x-3 flex-1">
                             <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center shadow-sm">
                               <Building2 className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                              <Label htmlFor="bank_transfer" className="font-semibold cursor-pointer text-gray-800">Bank Transfer</Label>
-                              <p className="text-xs text-gray-600">Direct bank account transfer</p>
+                              <Label
+                                htmlFor="bank_transfer"
+                                className="font-semibold cursor-pointer text-gray-800"
+                              >
+                                Bank Transfer
+                              </Label>
+                              <p className="text-xs text-gray-600">
+                                Direct bank account transfer
+                              </p>
                             </div>
                           </div>
                         </div>
-                        
-                        <div className={`flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer ${
-                          formData.paymentMethod === 'cod' 
-                            ? 'border-gray-500 bg-gray-50 shadow-md' 
-                            : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
-                        }`}>
-                          <RadioGroupItem value="cod" id="cod" className="text-gray-600" />
+
+                        <div
+                          className={`flex items-center space-x-3 p-4 border-2 rounded-xl transition-all cursor-pointer ${
+                            formData.paymentMethod === "cod"
+                              ? "border-gray-500 bg-gray-50 shadow-md"
+                              : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm"
+                          }`}
+                        >
+                          <RadioGroupItem
+                            value="cod"
+                            id="cod"
+                            className="text-gray-600"
+                          />
                           <div className="flex items-center space-x-3 flex-1">
                             <div className="w-10 h-10 bg-gradient-to-br from-gray-500 to-gray-600 rounded-lg flex items-center justify-center shadow-sm">
                               <Banknote className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                              <Label htmlFor="cod" className="font-semibold cursor-pointer text-gray-800">Cash on Delivery</Label>
-                              <p className="text-xs text-gray-600">Pay when you receive your order</p>
+                              <Label
+                                htmlFor="cod"
+                                className="font-semibold cursor-pointer text-gray-800"
+                              >
+                                Cash on Delivery
+                              </Label>
+                              <p className="text-xs text-gray-600">
+                                Pay when you receive your order
+                              </p>
                             </div>
                           </div>
-                          <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">Safe</span>
+                          <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">
+                            Safe
+                          </span>
                         </div>
                       </div>
                     </div>
                   </RadioGroup>
-                  
+
                   {/* Payment Instructions */}
-                  {formData.paymentMethod && formData.paymentMethod !== 'cod' && (
-                    <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                      <h4 className="font-medium text-blue-900 mb-2">Payment Instructions</h4>
-                      {formData.paymentMethod === 'bkash' && (
-                        <div className="text-sm text-blue-800">
-                          <p className="mb-2">• Dial *247# or use bKash app</p>
-                          <p className="mb-2">• Select "Send Money"</p>
-                          <p className="mb-2">• Enter merchant number: <strong>01410077761</strong></p>
-                          <p className="mb-2">• Enter amount: <strong>৳{total.toLocaleString()}</strong></p>
-                          <p>• Save the transaction ID for order confirmation</p>
-                        </div>
-                      )}
-                      {formData.paymentMethod === 'nagad' && (
-                        <div className="text-sm text-blue-800">
-                          <p className="mb-2">• Dial *167# or use Nagad app</p>
-                          <p className="mb-2">• Select "Send Money"</p>
-                          <p className="mb-2">• Enter merchant number: <strong>01410077761</strong></p>
-                          <p className="mb-2">• Enter amount: <strong>৳{total.toLocaleString()}</strong></p>
-                          <p>• Save the transaction ID for order confirmation</p>
-                        </div>
-                      )}
-                      {formData.paymentMethod === 'rocket' && (
-                        <div className="text-sm text-blue-800">
-                          <p className="mb-2">• Dial *322# or use Rocket app</p>
-                          <p className="mb-2">• Select "Send Money"</p>
-                          <p className="mb-2">• Enter merchant number: <strong>01410077761</strong></p>
-                          <p className="mb-2">• Enter amount: <strong>৳{total.toLocaleString()}</strong></p>
-                          <p>• Save the transaction ID for order confirmation</p>
-                        </div>
-                      )}
-                      {formData.paymentMethod === 'upay' && (
-                        <div className="text-sm text-blue-800">
-                          <p className="mb-2">• Use Upay app</p>
-                          <p className="mb-2">• Select "Send Money"</p>
-                          <p className="mb-2">• Enter merchant number: <strong>01410077761</strong></p>
-                          <p className="mb-2">• Enter amount: <strong>৳{total.toLocaleString()}</strong></p>
-                          <p>• Save the transaction ID for order confirmation</p>
-                        </div>
-                      )}
-                      {formData.paymentMethod === 'bank_transfer' && (
-                        <div className="text-sm text-blue-800">
-                          <p className="mb-2"><strong>Bank Details:</strong></p>
-                          <p className="mb-1">• Bank: Dutch-Bangla Bank Limited</p>
-                          <p className="mb-1">• Account Name: Technirvor</p>
-                          <p className="mb-1">• Account Number: <strong>XXXXXXXXXX</strong></p>
-                          <p className="mb-1">• Routing Number: <strong>XXXXXXXXX</strong></p>
-                          <p>• Amount: <strong>৳{total.toLocaleString()}</strong></p>
-                        </div>
-                      )}
-                      {formData.paymentMethod === 'card' && (
-                        <div className="text-sm text-blue-800">
-                          <p className="mb-2">• You will be redirected to secure payment gateway</p>
-                          <p className="mb-2">• Supports Visa, Mastercard, American Express</p>
-                          <p>• SSL encrypted secure transaction</p>
-                        </div>
-                      )}
+                  {formData.paymentMethod &&
+                    formData.paymentMethod !== "cod" && (
+                      <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <h4 className="font-medium text-blue-900 mb-2">
+                          Payment Instructions
+                        </h4>
+                        {formData.paymentMethod === "bkash" && (
+                          <div className="text-sm text-blue-800">
+                            <p className="mb-2">
+                              • Dial *247# or use bKash app
+                            </p>
+                            <p className="mb-2">• Select "Send Money"</p>
+                            <p className="mb-2">
+                              • Enter merchant number:{" "}
+                              <strong>01410077761</strong>
+                            </p>
+                            <p className="mb-2">
+                              • Enter amount:{" "}
+                              <strong>৳{total.toLocaleString()}</strong>
+                            </p>
+                            <p>
+                              • Save the transaction ID for order confirmation
+                            </p>
+                          </div>
+                        )}
+                        {formData.paymentMethod === "nagad" && (
+                          <div className="text-sm text-blue-800">
+                            <p className="mb-2">
+                              • Dial *167# or use Nagad app
+                            </p>
+                            <p className="mb-2">• Select "Send Money"</p>
+                            <p className="mb-2">
+                              • Enter merchant number:{" "}
+                              <strong>01410077761</strong>
+                            </p>
+                            <p className="mb-2">
+                              • Enter amount:{" "}
+                              <strong>৳{total.toLocaleString()}</strong>
+                            </p>
+                            <p>
+                              • Save the transaction ID for order confirmation
+                            </p>
+                          </div>
+                        )}
+                        {formData.paymentMethod === "rocket" && (
+                          <div className="text-sm text-blue-800">
+                            <p className="mb-2">
+                              • Dial *322# or use Rocket app
+                            </p>
+                            <p className="mb-2">• Select "Send Money"</p>
+                            <p className="mb-2">
+                              • Enter merchant number:{" "}
+                              <strong>01410077761</strong>
+                            </p>
+                            <p className="mb-2">
+                              • Enter amount:{" "}
+                              <strong>৳{total.toLocaleString()}</strong>
+                            </p>
+                            <p>
+                              • Save the transaction ID for order confirmation
+                            </p>
+                          </div>
+                        )}
+                        {formData.paymentMethod === "upay" && (
+                          <div className="text-sm text-blue-800">
+                            <p className="mb-2">• Use Upay app</p>
+                            <p className="mb-2">• Select "Send Money"</p>
+                            <p className="mb-2">
+                              • Enter merchant number:{" "}
+                              <strong>01410077761</strong>
+                            </p>
+                            <p className="mb-2">
+                              • Enter amount:{" "}
+                              <strong>৳{total.toLocaleString()}</strong>
+                            </p>
+                            <p>
+                              • Save the transaction ID for order confirmation
+                            </p>
+                          </div>
+                        )}
+                        {formData.paymentMethod === "bank_transfer" && (
+                          <div className="text-sm text-blue-800">
+                            <p className="mb-2">
+                              <strong>Bank Details:</strong>
+                            </p>
+                            <p className="mb-1">
+                              • Bank: Dutch-Bangla Bank Limited
+                            </p>
+                            <p className="mb-1">• Account Name: Technirvor</p>
+                            <p className="mb-1">
+                              • Account Number: <strong>XXXXXXXXXX</strong>
+                            </p>
+                            <p className="mb-1">
+                              • Routing Number: <strong>XXXXXXXXX</strong>
+                            </p>
+                            <p>
+                              • Amount:{" "}
+                              <strong>৳{total.toLocaleString()}</strong>
+                            </p>
+                          </div>
+                        )}
+                        {formData.paymentMethod === "card" && (
+                          <div className="text-sm text-blue-800">
+                            <p className="mb-2">
+                              • You will be redirected to secure payment gateway
+                            </p>
+                            <p className="mb-2">
+                              • Supports Visa, Mastercard, American Express
+                            </p>
+                            <p>• SSL encrypted secure transaction</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                  {/* Transaction ID field for mobile payments */}
+                  {["bkash", "nagad", "rocket", "upay"].includes(
+                    formData.paymentMethod,
+                  ) && (
+                    <div className="mt-4">
+                      <Label htmlFor="transactionId">Transaction ID *</Label>
+                      <Input
+                        id="transactionId"
+                        type="text"
+                        value={formData.transactionId}
+                        onChange={(e) =>
+                          handleInputChange("transactionId", e.target.value)
+                        }
+                        placeholder="Enter transaction ID after payment"
+                        required
+                        className="mt-1"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Complete the payment first, then enter the transaction
+                        ID here
+                      </p>
                     </div>
-                   )}
-                   
-                   {/* Transaction ID field for mobile payments */}
-                   {['bkash', 'nagad', 'rocket', 'upay'].includes(formData.paymentMethod) && (
-                     <div className="mt-4">
-                       <Label htmlFor="transactionId">Transaction ID *</Label>
-                       <Input
-                         id="transactionId"
-                         type="text"
-                         value={formData.transactionId}
-                         onChange={(e) => handleInputChange("transactionId", e.target.value)}
-                         placeholder="Enter transaction ID after payment"
-                         required
-                         className="mt-1"
-                       />
-                       <p className="text-xs text-gray-500 mt-1">
-                         Complete the payment first, then enter the transaction ID here
-                       </p>
-                     </div>
-                   )}
+                  )}
                 </div>
 
                 <Button type="submit" className="w-full" disabled={loading}>
@@ -660,7 +852,10 @@ export default function CheckoutPage() {
                     </p>
                     {item.isCombo && item.comboItems && (
                       <p className="text-xs text-gray-500 mt-1">
-                        Includes: {item.comboItems.map(ci => ci.product.name).join(", ")}
+                        Includes:{" "}
+                        {item.comboItems
+                          .map((ci) => ci.product.name)
+                          .join(", ")}
                       </p>
                     )}
                   </div>
@@ -688,8 +883,12 @@ export default function CheckoutPage() {
                   <div className="text-right">
                     {allProductsHaveFreeDelivery ? (
                       <div>
-                        <span className="line-through text-gray-400 text-sm">৳{baseDeliveryCharge.toLocaleString()}</span>
-                        <span className="text-green-600 font-medium ml-2">FREE</span>
+                        <span className="line-through text-gray-400 text-sm">
+                          ৳{baseDeliveryCharge.toLocaleString()}
+                        </span>
+                        <span className="text-green-600 font-medium ml-2">
+                          FREE
+                        </span>
                       </div>
                     ) : (
                       <span>৳{deliveryCharge.toLocaleString()}</span>
@@ -701,11 +900,13 @@ export default function CheckoutPage() {
                     🎉 Free delivery applied!
                   </div>
                 )}
-                {freeDeliveryProducts.length > 0 && regularProducts.length > 0 && (
-                  <div className="text-xs text-amber-600 font-medium">
-                    ⚠️ Mix of free delivery and regular products - delivery charge applies
-                  </div>
-                )}
+                {freeDeliveryProducts.length > 0 &&
+                  regularProducts.length > 0 && (
+                    <div className="text-xs text-amber-600 font-medium">
+                      ⚠️ Mix of free delivery and regular products - delivery
+                      charge applies
+                    </div>
+                  )}
                 <Separator />
                 <div className="flex justify-between font-bold text-lg">
                   <span>Total</span>

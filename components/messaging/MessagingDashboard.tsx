@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { Conversation } from '@/lib/types/user';
-import ConversationList from './ConversationList';
-import ChatInterface from './ChatInterface';
-import { MessageCircle, Users } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Conversation } from "@/lib/types/user";
+import ConversationList from "./ConversationList";
+import ChatInterface from "./ChatInterface";
+import { MessageCircle, Users } from "lucide-react";
 
 interface MessagingDashboardProps {
   sessionToken: string;
@@ -13,9 +13,10 @@ interface MessagingDashboardProps {
 
 const MessagingDashboard: React.FC<MessagingDashboardProps> = ({
   sessionToken,
-  className = ''
+  className = "",
 }) => {
-  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
+  const [selectedConversation, setSelectedConversation] =
+    useState<Conversation | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [showConversationList, setShowConversationList] = useState(true);
 
@@ -23,10 +24,10 @@ const MessagingDashboard: React.FC<MessagingDashboardProps> = ({
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
+
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   const handleSelectConversation = (conversation: Conversation) => {
@@ -44,13 +45,19 @@ const MessagingDashboard: React.FC<MessagingDashboardProps> = ({
   };
 
   return (
-    <div className={`flex h-full bg-white rounded-lg shadow-sm border ${className}`}>
+    <div
+      className={`flex h-full bg-white rounded-lg shadow-sm border ${className}`}
+    >
       {/* Conversation List */}
-      <div className={`${
-        isMobile 
-          ? (showConversationList ? 'w-full' : 'hidden')
-          : 'w-1/3 min-w-[300px] max-w-[400px]'
-      } border-r border-gray-200`}>
+      <div
+        className={`${
+          isMobile
+            ? showConversationList
+              ? "w-full"
+              : "hidden"
+            : "w-1/3 min-w-[300px] max-w-[400px]"
+        } border-r border-gray-200`}
+      >
         <ConversationList
           sessionToken={sessionToken}
           onSelectConversation={handleSelectConversation}
@@ -59,11 +66,11 @@ const MessagingDashboard: React.FC<MessagingDashboardProps> = ({
       </div>
 
       {/* Chat Interface */}
-      <div className={`${
-        isMobile 
-          ? (showConversationList ? 'hidden' : 'w-full')
-          : 'flex-1'
-      }`}>
+      <div
+        className={`${
+          isMobile ? (showConversationList ? "hidden" : "w-full") : "flex-1"
+        }`}
+      >
         {selectedConversation ? (
           <ChatInterface
             sessionToken={sessionToken}
@@ -78,7 +85,8 @@ const MessagingDashboard: React.FC<MessagingDashboardProps> = ({
                 Welcome to Messages
               </h3>
               <p className="text-gray-500 mb-6 max-w-sm">
-                Select a conversation from the sidebar to start chatting, or create a new conversation.
+                Select a conversation from the sidebar to start chatting, or
+                create a new conversation.
               </p>
               <div className="flex items-center justify-center gap-4 text-sm text-gray-400">
                 <div className="flex items-center gap-2">

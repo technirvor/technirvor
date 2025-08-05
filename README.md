@@ -5,6 +5,7 @@
 ## 🌟 Features
 
 ### Customer Features
+
 - **Product Catalog**: Browse products by categories and subcategories
 - **Advanced Search**: Real-time product search with filtering
 - **Shopping Cart**: Add/remove products with persistent cart state
@@ -17,6 +18,7 @@
 - **PWA Support**: Progressive Web App capabilities
 
 ### Admin Features
+
 - **Dashboard**: Comprehensive analytics and overview
 - **Product Management**: Add, edit, and manage products
 - **Category Management**: Organize products into categories
@@ -96,18 +98,19 @@ NEXT_PUBLIC_API_KEY=your_api_key
 
 1. Create a new Supabase project
 2. Run the SQL scripts in the `scripts/` directory in this order:
+
    ```bash
    # Core tables
    scripts/create-tables.sql
-   
+
    # Admin security
    scripts/admin-security.sql
-   
+
    # Additional features
    scripts/create-reviews-table.sql
    scripts/notifications.sql
    scripts/create-admin-activity-logs.sql
-   
+
    # Sample data (optional)
    scripts/seed-data.sql
    ```
@@ -165,6 +168,7 @@ technirvor/
 ### Database Schema
 
 The application uses the following main tables:
+
 - `products` - Product catalog
 - `categories` - Product categories
 - `orders` - Customer orders
@@ -178,6 +182,7 @@ The application uses the following main tables:
 ### Authentication
 
 The app uses Supabase Auth with custom admin role management:
+
 - Customer authentication for order tracking
 - Admin authentication with role-based access
 - Session management with secure cookies
@@ -185,6 +190,7 @@ The app uses Supabase Auth with custom admin role management:
 ### AI Chat Integration
 
 The AI chat feature uses Google Gemini AI to provide:
+
 - Product recommendations
 - Order assistance
 - Customer support in Bengali and English
@@ -201,6 +207,7 @@ The AI chat feature uses Google Gemini AI to provide:
 ### Environment Variables for Production
 
 Ensure all environment variables are set in your production environment:
+
 - Supabase credentials
 - Gemini AI API key
 - Analytics tracking IDs
@@ -209,6 +216,7 @@ Ensure all environment variables are set in your production environment:
 ## 📱 PWA Features
 
 The application includes Progressive Web App capabilities:
+
 - Offline support
 - App-like experience on mobile
 - Push notifications (configurable)
@@ -264,6 +272,7 @@ This project is proprietary software. All rights reserved.
 ## 🆘 Support
 
 For support and questions:
+
 - Check the documentation
 - Review the code comments
 - Contact the development team

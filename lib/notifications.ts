@@ -23,7 +23,11 @@ export class NotificationService {
     try {
       if (typeof window !== "undefined") {
         this.audioContext = new (window.AudioContext ||
-          (window as any).webkitAudioContext)();
+          (
+            window as typeof window & {
+              webkitAudioContext?: typeof AudioContext;
+            }
+          ).webkitAudioContext)();
 
         // Handle suspended audio context
         if (this.audioContext.state === "suspended") {
