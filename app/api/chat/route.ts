@@ -56,14 +56,65 @@ const searchProductsByCategory = async (category: string) => {
       is_featured, is_flash_sale, flash_sale_end, created_at,
       category:categories(id, name, slug)
     `)
-    .or(`category.name.ilike.%${category}%`)
+    .ilike("category.name", `%${category}%`)
     .gt("stock", 0)
-    .limit(6);
+    .limit(8);
   return products || [];
 };
 
+// Function to log chat conversations
+const logChatConversation = async ({
+  sessionId,
+  userMessage,
+  aiResponse,
+  responseType,
+  userIp,
+  userAgent,
+  productsReturned,
+  conversationContext,
+  responseTimeMs
+}: {
+  sessionId: string;
+  userMessage: string;
+  aiResponse: string;
+  responseType?: string;
+  userIp?: string;
+  userAgent?: string;
+  productsReturned?: any[];
+  conversationContext?: any;
+  responseTimeMs?: number;
+}) => {
+  try {
+    const { error } = await supabase
+      .from('chat_logs')
+      .insert({
+        session_id: sessionId,
+        user_message: userMessage,
+        ai_response: aiResponse,
+        response_type: responseType,
+        user_ip: userIp,
+        user_agent: userAgent,
+        products_returned: productsReturned ? JSON.stringify(productsReturned.map(p => ({ id: p.id, name: p.name }))) : null,
+        conversation_context: conversationContext ? JSON.stringify(conversationContext) : null,
+        response_time_ms: responseTimeMs
+      });
+    
+    if (error) {
+      console.error('Failed to log chat conversation:', error);
+    }
+  } catch (error) {
+    console.error('Error logging chat conversation:', error);
+  }
+};
+
 export async function POST(req: NextRequest) {
-  const { history, message } = await req.json();
+  const startTime = Date.now();
+  const { history, message, sessionId } = await req.json();
+  
+  // Extract user info for logging
+  const userIp = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+  const userAgent = req.headers.get('user-agent') || 'unknown';
+  const finalSessionId = sessionId || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
   const model = genAI.getGenerativeModel({
     model: "gemini-2.0-flash",
@@ -216,8 +267,23 @@ export async function POST(req: NextRequest) {
     }
 
     if (!text) {
+      const errorText = "দুঃখিত, AI থেকে কোনো উত্তর পাইনি। আবার চেষ্টা করুন।";
+      
+      // Log the error conversation
+      await logChatConversation({
+        sessionId: finalSessionId,
+        userMessage: message,
+        aiResponse: errorText,
+        responseType: 'error',
+        userIp,
+        userAgent,
+        productsReturned: [],
+        conversationContext: { error: 'no_ai_response' },
+        responseTimeMs: Date.now() - startTime
+      });
+      
       return NextResponse.json(
-        { text: "দুঃখিত, AI থেকে কোনো উত্তর পাইনি। আবার চেষ্টা করুন।" },
+        { text: errorText },
         { status: 500 },
       );
     }
@@ -227,8 +293,23 @@ export async function POST(req: NextRequest) {
       parsedResponse = JSON.parse(text);
     } catch (parseError) {
       console.error("Failed to parse AI response as JSON:", text, parseError);
+      const parseErrorText = "দুঃখিত, আমি একটি অপঠনযোগ্য উত্তর পেয়েছি। আবার চেষ্টা করুন।";
+      
+      // Log the error conversation
+      await logChatConversation({
+        sessionId: finalSessionId,
+        userMessage: message,
+        aiResponse: parseErrorText,
+        responseType: 'error',
+        userIp,
+        userAgent,
+        productsReturned: [],
+        conversationContext: { error: 'json_parse_error', rawResponse: text },
+        responseTimeMs: Date.now() - startTime
+      });
+      
       return NextResponse.json(
-        { text: "দুঃখিত, আমি একটি অপঠনযোগ্য উত্তর পেয়েছি। আবার চেষ্টা করুন।" },
+        { text: parseErrorText },
         { status: 500 },
       );
     }
@@ -251,8 +332,23 @@ export async function POST(req: NextRequest) {
 
       if (error) {
         console.error("Error fetching products:", error);
+        const dbErrorText = "দুঃখিত, এই মুহূর্তে পণ্য খুঁজে পাচ্ছি না। আবার চেষ্টা করুন।";
+        
+        // Log the error conversation
+        await logChatConversation({
+          sessionId: finalSessionId,
+          userMessage: message,
+          aiResponse: dbErrorText,
+          responseType: 'error',
+          userIp,
+          userAgent,
+          productsReturned: [],
+          conversationContext: { error: 'database_error', query: searchQuery },
+          responseTimeMs: Date.now() - startTime
+        });
+        
         return NextResponse.json(
-          { text: "দুঃখিত, এই মুহূর্তে পণ্য খুঁজে পাচ্ছি না। আবার চেষ্টা করুন।" },
+          { text: dbErrorText },
           { status: 500 },
         );
       }
@@ -266,13 +362,41 @@ export async function POST(req: NextRequest) {
         let responseText = `"${searchQuery}" সম্পর্কিত ${formattedProducts.length}টি পণ্য পেয়েছি:`;
         responseText += ` বিস্তারিত দেখতে যেকোনো পণ্যে ক্লিক করুন।`;
 
+        // Log the conversation
+        await logChatConversation({
+          sessionId: finalSessionId,
+          userMessage: message,
+          aiResponse: responseText,
+          responseType: 'product_search',
+          userIp,
+          userAgent,
+          productsReturned: formattedProducts,
+          conversationContext: { query: searchQuery },
+          responseTimeMs: Date.now() - startTime
+        });
+
         return NextResponse.json({
           text: responseText,
           products: formattedProducts,
         });
       } else {
+        const noResultsText = `"${searchQuery}" এর জন্য কোনো পণ্য পাওয়া যায়নি। অন্য কিছু খুঁজে দেখুন।`;
+        
+        // Log the conversation
+        await logChatConversation({
+          sessionId: finalSessionId,
+          userMessage: message,
+          aiResponse: noResultsText,
+          responseType: 'product_search',
+          userIp,
+          userAgent,
+          productsReturned: [],
+          conversationContext: { query: searchQuery },
+          responseTimeMs: Date.now() - startTime
+        });
+        
         return NextResponse.json({
-          text: `"${searchQuery}" এর জন্য কোনো পণ্য পাওয়া যায়নি। অন্য কিছু খুঁজে দেখুন।`,
+          text: noResultsText,
         });
       }
     } else if (parsedResponse.type === "category_search" && parsedResponse.category) {
@@ -288,13 +412,41 @@ export async function POST(req: NextRequest) {
         let responseText = `"${categoryQuery}" ক্যাটাগরিতে ${formattedProducts.length}টি পণ্য পেয়েছি:`;
         responseText += ` বিস্তারিত দেখতে যেকোনো পণ্যে ক্লিক করুন।`;
 
+        // Log the conversation
+        await logChatConversation({
+          sessionId: finalSessionId,
+          userMessage: message,
+          aiResponse: responseText,
+          responseType: 'category_search',
+          userIp,
+          userAgent,
+          productsReturned: formattedProducts,
+          conversationContext: { category: categoryQuery },
+          responseTimeMs: Date.now() - startTime
+        });
+
         return NextResponse.json({
           text: responseText,
           products: formattedProducts,
         });
       } else {
+        const noResultsText = `"${categoryQuery}" ক্যাটাগরিতে কোনো পণ্য পাওয়া যায়নি। অন্য ক্যাটাগরি দেখুন।`;
+        
+        // Log the conversation
+        await logChatConversation({
+          sessionId: finalSessionId,
+          userMessage: message,
+          aiResponse: noResultsText,
+          responseType: 'category_search',
+          userIp,
+          userAgent,
+          productsReturned: [],
+          conversationContext: { category: categoryQuery },
+          responseTimeMs: Date.now() - startTime
+        });
+        
         return NextResponse.json({
-          text: `"${categoryQuery}" ক্যাটাগরিতে কোনো পণ্য পাওয়া যায়নি। অন্য ক্যাটাগরি দেখুন।`,
+          text: noResultsText,
         });
       }
     } else if (parsedResponse.type === "recommendations") {
@@ -305,13 +457,43 @@ export async function POST(req: NextRequest) {
           category: Array.isArray(p.category) ? p.category[0] : p.category,
         })) as Product[];
 
+        const recommendationsText = "আমাদের বিশেষভাবে নির্বাচিত পণ্যসমূহ যা আপনার পছন্দ হতে পারে:";
+        
+        // Log the conversation
+        await logChatConversation({
+          sessionId: finalSessionId,
+          userMessage: message,
+          aiResponse: recommendationsText,
+          responseType: 'recommendations',
+          userIp,
+          userAgent,
+          productsReturned: formattedProducts,
+          conversationContext: {},
+          responseTimeMs: Date.now() - startTime
+        });
+        
         return NextResponse.json({
-          text: "আমাদের বিশেষভাবে নির্বাচিত পণ্যসমূহ যা আপনার পছন্দ হতে পারে:",
+          text: recommendationsText,
           products: formattedProducts,
         });
       } else {
+        const noRecommendationsText = "এই মুহূর্তে কোনো বিশেষ সুপারিশ নেই। আমাদের পণ্যের তালিকা দেখুন।";
+        
+        // Log the conversation
+        await logChatConversation({
+          sessionId: finalSessionId,
+          userMessage: message,
+          aiResponse: noRecommendationsText,
+          responseType: 'recommendations',
+          userIp,
+          userAgent,
+          productsReturned: [],
+          conversationContext: {},
+          responseTimeMs: Date.now() - startTime
+        });
+        
         return NextResponse.json({
-          text: "এই মুহূর্তে কোনো বিশেষ সুপারিশ নেই। আমাদের পণ্যের তালিকা দেখুন।",
+          text: noRecommendationsText,
         });
       }
     } else if (parsedResponse.type === "flash_sale") {
@@ -322,24 +504,97 @@ export async function POST(req: NextRequest) {
           category: Array.isArray(p.category) ? p.category[0] : p.category,
         })) as Product[];
 
+        const flashSaleText = "🔥 চলমান ফ্ল্যাশ সেল! সীমিত সময়ের জন্য বিশেষ ছাড়:";
+        
+        // Log the conversation
+        await logChatConversation({
+          sessionId: finalSessionId,
+          userMessage: message,
+          aiResponse: flashSaleText,
+          responseType: 'flash_sale',
+          userIp,
+          userAgent,
+          productsReturned: formattedProducts,
+          conversationContext: {},
+          responseTimeMs: Date.now() - startTime
+        });
+        
         return NextResponse.json({
-          text: "🔥 চলমান ফ্ল্যাশ সেল! সীমিত সময়ের জন্য বিশেষ ছাড়:",
+          text: flashSaleText,
           products: formattedProducts,
         });
       } else {
+        const noFlashSaleText = "এই মুহূর্তে কোনো ফ্ল্যাশ সেল চালু নেই। শীঘ্রই নতুন অফার আসছে!";
+        
+        // Log the conversation
+        await logChatConversation({
+          sessionId: finalSessionId,
+          userMessage: message,
+          aiResponse: noFlashSaleText,
+          responseType: 'flash_sale',
+          userIp,
+          userAgent,
+          productsReturned: [],
+          conversationContext: {},
+          responseTimeMs: Date.now() - startTime
+        });
+        
         return NextResponse.json({
-          text: "এই মুহূর্তে কোনো ফ্ল্যাশ সেল চালু নেই। শীঘ্রই নতুন অফার আসছে!",
+          text: noFlashSaleText,
         });
       }
     } else if (parsedResponse.type === "order_tracking") {
+      const orderTrackingText = parsedResponse.message || "অর্ডার ট্র্যাক করতে আপনার অর্ডার নম্বর এবং ফোন নম্বর দিন।";
+      
+      // Log the conversation
+      await logChatConversation({
+        sessionId: finalSessionId,
+        userMessage: message,
+        aiResponse: orderTrackingText,
+        responseType: 'order_tracking',
+        userIp,
+        userAgent,
+        productsReturned: [],
+        conversationContext: {},
+        responseTimeMs: Date.now() - startTime
+      });
+      
       return NextResponse.json({
-        text: parsedResponse.message || "অর্ডার ট্র্যাক করতে আপনার অর্ডার নম্বর এবং ফোন নম্বর দিন।",
+        text: orderTrackingText,
       });
     } else if (parsedResponse.type === "text" && parsedResponse.message) {
+      // Log the conversation
+      await logChatConversation({
+        sessionId: finalSessionId,
+        userMessage: message,
+        aiResponse: parsedResponse.message,
+        responseType: 'text',
+        userIp,
+        userAgent,
+        productsReturned: [],
+        conversationContext: {},
+        responseTimeMs: Date.now() - startTime
+      });
+      
       return NextResponse.json({ text: parsedResponse.message });
     } else {
+      const fallbackText = "দুঃখিত, আমি বুঝতে পারলাম না। আবার বলুন তো?";
+      
+      // Log the conversation
+      await logChatConversation({
+        sessionId: finalSessionId,
+        userMessage: message,
+        aiResponse: fallbackText,
+        responseType: 'fallback',
+        userIp,
+        userAgent,
+        productsReturned: [],
+        conversationContext: {},
+        responseTimeMs: Date.now() - startTime
+      });
+      
       return NextResponse.json({
-        text: "দুঃখিত, আমি বুঝতে পারলাম না। আবার বলুন তো?",
+        text: fallbackText,
       });
     }
   } catch (error) {
