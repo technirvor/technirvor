@@ -48,6 +48,7 @@ export default function ChatAgent() {
   const [message, setMessage] = useState("");
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
+  const [sessionId] = useState(() => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
   const [isOpen, setIsOpen] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -100,7 +101,7 @@ export default function ChatAgent() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ history: apiHistory, message: currentMessage }),
+        body: JSON.stringify({ history: apiHistory, message: currentMessage, sessionId }),
       });
 
       if (!res.ok) {
