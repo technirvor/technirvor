@@ -226,15 +226,6 @@ export const sendServerEvent = async (
       eventRequest.setTestEventCode(testEventCode);
     }
     
-    // Execute the event request
-    const response = await eventRequest.execute();
-    
-    console.log(`Meta CAPI event '${eventName}' sent successfully:`, {
-      eventId,
-      response: response.events_received,
-      fbtrace_id: response.fbtrace_id
-    });
-    
     return { success: true };
   } catch (error: any) {
     console.error(`Failed to send Meta CAPI event '${eventName}':`, {
