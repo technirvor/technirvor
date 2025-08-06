@@ -331,3 +331,60 @@ export const getMetaConfig = () => {
     environment: process.env.NODE_ENV
   };
 };
+
+// Client-side Meta Pixel tracking functions
+// These generate the fbq() calls for client-side tracking
+
+/**
+ * Generate client-side ViewContent tracking code
+ * Based on Meta's standard pixel code for product views
+ */
+export const generateViewContentPixelCode = (contentData: {
+  content_ids: string[];
+  content_type?: string;
+  content_name?: string;
+  content_category?: string;
+  value?: number;
+  currency?: string;
+}): string => {
+  const eventData: Record<string, any> = {
+    content_ids: contentData.content_ids,
+    content_type: contentData.content_type || 'product'
+  };
+
+  // Add optional parameters if provided
+  if (contentData.content_name) eventData.content_name = contentData.content_name;
+  if (contentData.content_category) eventData.content_category = contentData.content_category;
+  if (contentData.value) eventData.value = contentData.value;
+  if (contentData.currency) eventData.currency = contentData.currency;
+
+  return `fbq('track', 'ViewContent', ${JSON.stringify(eventData)});`;
+};
+
+/**
+ * Execute client-side ViewContent tracking
+ * This function can be called directly in the browser
+ */
+export const trackViewContentClient = (contentData: {
+  content_ids: string[];
+  content_type?: string;
+  content_name?: string;
+  content_category?: string;
+  value?: number;
+  currency?: string;
+}) => {
+  if (typeof window !== 'undefined' && (window as any).fbq) {
+    const eventData: Record<string, any> = {
+      content_ids: contentData.content_ids,
+      content_type: contentData.content_type || 'product'
+    };
+
+    // Add optional parameters if provided
+    if (contentData.content_name) eventData.content_name = contentData.content_name;
+    if (contentData.content_category) eventData.content_category = contentData.content_category;
+    if (contentData.value) eventData.value = contentData.value;
+    if (contentData.currency) eventData.currency = contentData.currency;
+
+    (window as any).fbq('track', 'ViewContent', eventData);
+  }
+};
