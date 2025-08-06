@@ -3,7 +3,7 @@ import { sendServerEvent } from "@/lib/meta";
 
 export async function POST(req: NextRequest) {
   try {
-    const { eventName, eventData, userInfo } = await req.json();
+    const { eventName, eventData, userInfo, config } = await req.json();
     
     // Validate required parameters
     if (!eventName) {
@@ -13,7 +13,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const result = await sendServerEvent(eventName, eventData || {}, userInfo || {}, req);
+    const result = await sendServerEvent(
+      eventName, 
+      eventData || {}, 
+      userInfo || {}, 
+      req,
+      config || {}
+    );
     
     if (!result.success) {
       console.error(`Meta CAPI event failed: ${result.error}`);
