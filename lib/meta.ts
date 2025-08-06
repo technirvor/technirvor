@@ -6,7 +6,7 @@ import {
   CustomData,
 } from "facebook-nodejs-business-sdk";
 import { NextRequest } from "next/server";
-import crypto from "crypto";
+import { createHash } from "crypto";
 
 // Types for better type safety
 export interface MetaEventData {
@@ -19,6 +19,17 @@ export interface MetaEventData {
   num_items?: number;
   order_id?: string;
   search_string?: string;
+  // Enhanced Custom Data Parameters
+  contents?: Array<{
+    id: string;
+    quantity?: number;
+    item_price?: number;
+    delivery_category?: 'home_delivery' | 'in_store' | 'curbside';
+  }>;
+  content_brand?: string;
+  predicted_ltv?: number;
+  status?: string;
+  delivery_category?: 'home_delivery' | 'in_store' | 'curbside';
   custom_data?: Record<string, any>;
 }
 
@@ -35,6 +46,28 @@ export interface MetaUserInfo {
   fbp?: string;
   userAgent?: string;
   clientIpAddress?: string;
+  // Enhanced User Data Parameters
+  dateOfBirth?: string; // YYYYMMDD format
+  gender?: 'm' | 'f';
+  externalId?: string;
+  subscriptionId?: string;
+  leadId?: string;
+  // Advanced Matching Parameters
+  madid?: string; // Mobile Advertiser ID
+  anon_id?: string; // Anonymous ID
+  click_id?: string; // Click ID from ad
+  browser_id?: string; // Browser ID
+}
+
+// Enhanced Server Event Configuration
+export interface MetaServerEventConfig {
+  event_id?: string;
+  opt_out?: boolean;
+  data_processing_options?: string[];
+  data_processing_options_country?: number;
+  data_processing_options_state?: number;
+  partner_agent?: string;
+  test_event_code?: string;
 }
 
 export type MetaEventName = 
@@ -85,7 +118,7 @@ const initializeMetaAPI = (): boolean => {
 
 // Utility functions
 const hashData = (data: string): string => {
-  return crypto.createHash('sha256').update(data.toLowerCase().trim()).digest('hex');
+  return createHash('sha256').update(data.toLowerCase().trim()).digest('hex');
 };
 
 const extractUserDataFromRequest = (request?: NextRequest): Partial<MetaUserInfo> => {
@@ -105,6 +138,7 @@ const extractUserDataFromRequest = (request?: NextRequest): Partial<MetaUserInfo
 const createUserData = (userInfo: MetaUserInfo): UserData => {
   const userData = new UserData();
   
+  // Basic user information (hashed)
   if (userInfo.email) {
     userData.setEmail(hashData(userInfo.email));
   }
@@ -129,6 +163,24 @@ const createUserData = (userInfo: MetaUserInfo): UserData => {
   if (userInfo.zipCode) {
     userData.setZip(hashData(userInfo.zipCode));
   }
+  
+  // Enhanced user data parameters (hashed)
+  if (userInfo.dateOfBirth) {
+    userData.setDateOfBirth(hashData(userInfo.dateOfBirth));
+  }
+  if (userInfo.gender) {
+    userData.setGender(hashData(userInfo.gender));
+  }
+  if (userInfo.externalId) {
+    userData.setExternalId(hashData(userInfo.externalId));
+  }
+  
+  // Advanced matching parameters (hashed)
+  if (userInfo.madid) {
+    userData.setMadid(hashData(userInfo.madid));
+  }
+  
+  // Browser and tracking data (not hashed)
   if (userInfo.fbc) {
     userData.setFbc(userInfo.fbc);
   }
@@ -141,6 +193,17 @@ const createUserData = (userInfo: MetaUserInfo): UserData => {
   if (userInfo.clientIpAddress) {
     userData.setClientIpAddress(userInfo.clientIpAddress);
   }
+  // Note: click_id and browser_id may need to be added to custom_data
+  // as they might not have direct setter methods in the SDK
+  if (userInfo.subscriptionId) {
+    userData.setSubscriptionId(userInfo.subscriptionId);
+  }
+  if (userInfo.leadId) {
+    userData.setLeadId(userInfo.leadId);
+  }
+  if (userInfo.anon_id) {
+    userData.setAnonId(userInfo.anon_id);
+  }
   
   return userData;
 };
@@ -148,6 +211,7 @@ const createUserData = (userInfo: MetaUserInfo): UserData => {
 const createCustomData = (eventData: MetaEventData): CustomData => {
   const customData = new CustomData();
   
+  // Basic event data
   if (eventData.value !== undefined) {
     customData.setValue(eventData.value);
   }
@@ -175,8 +239,35 @@ const createCustomData = (eventData: MetaEventData): CustomData => {
   if (eventData.search_string) {
     customData.setSearchString(eventData.search_string);
   }
+  
+  // Enhanced custom data parameters - add to custom properties
+  const customProperties: Record<string, any> = {};
+  
+  // Add enhanced parameters to custom properties
+  if (eventData.contents && eventData.contents.length > 0) {
+    customProperties.contents = eventData.contents;
+  }
+  if (eventData.content_brand) {
+    customProperties.content_brand = eventData.content_brand;
+  }
+  if (eventData.predicted_ltv !== undefined) {
+    customProperties.predicted_ltv = eventData.predicted_ltv;
+  }
+  if (eventData.status) {
+    customProperties.status = eventData.status;
+  }
+  if (eventData.delivery_category) {
+    customProperties.delivery_category = eventData.delivery_category;
+  }
+  
+  // Add any additional custom data
   if (eventData.custom_data) {
-    customData.setCustomProperties(eventData.custom_data);
+    Object.assign(customProperties, eventData.custom_data);
+  }
+  
+  // Set custom properties if any exist
+  if (Object.keys(customProperties).length > 0) {
+    customData.setCustomProperties(customProperties);
   }
   
   return customData;
@@ -187,7 +278,8 @@ export const sendServerEvent = async (
   eventName: MetaEventName,
   eventData: MetaEventData = {},
   userInfo: MetaUserInfo = {},
-  request?: NextRequest
+  request?: NextRequest,
+  config: MetaServerEventConfig = {}
 ): Promise<{ success: boolean; error?: string }> => {
   try {
     if (!initializeMetaAPI()) {
@@ -206,8 +298,8 @@ export const sendServerEvent = async (
     const userData = createUserData(mergedUserInfo);
     const customData = createCustomData(eventData);
     
-    // Generate a unique event ID to prevent duplicate events
-    const eventId = `${eventName}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    // Generate a unique event ID to prevent duplicate events (use config if provided)
+    const eventId = config.event_id || `${eventName}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
     const serverEvent = new ServerEvent()
       .setEventName(eventName)
@@ -218,12 +310,26 @@ export const sendServerEvent = async (
       .setEventSourceUrl(request?.url || 'https://technirvor.com')
       .setActionSource('website');
     
+    // Add opt_out if specified
+    if (config.opt_out !== undefined) {
+      serverEvent.setOptOut(config.opt_out);
+    }
+    
     const eventRequest = new EventRequest(accessToken!, pixelId!)
       .setEvents([serverEvent]);
     
-    // Add test event code if in development
-    if (testEventCode && process.env.NODE_ENV === 'development') {
-      eventRequest.setTestEventCode(testEventCode);
+    // Add test event code (prioritize config, then environment)
+    const testCode = config.test_event_code || (process.env.NODE_ENV === 'development' ? testEventCode : undefined);
+    if (testCode) {
+      eventRequest.setTestEventCode(testCode);
+    }
+    
+    // Note: Data processing options may need to be set at the API level
+    // or through custom properties depending on SDK version
+    
+    // Add partner agent if specified
+    if (config.partner_agent) {
+      eventRequest.setPartnerAgent(config.partner_agent);
     }
     
     return { success: true };
