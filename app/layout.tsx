@@ -10,6 +10,7 @@ import {
   googleAnalyticsScriptTags,
   metaPixelScriptTags,
 } from "@/lib/analytics";
+import { isMetaConfigured, getMetaConfig } from "@/lib/meta";
 import ConditionalLayout from "@/components/conditional-layout";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -344,7 +345,8 @@ export default function RootLayout({
             );
           }
         })}
-        {metaPixelScriptTags().map((tag, i) => {
+        {/* Enhanced Meta Pixel with CAPI Integration */}
+        {isMetaConfigured() && metaPixelScriptTags().map((tag, i) => {
           if (tag.startsWith("<script")) {
             return (
               <script
@@ -366,6 +368,115 @@ export default function RootLayout({
           }
           return null;
         })}
+        {/* Meta CAPI Configuration Debug Info (Development Only) */}
+        {process.env.NODE_ENV === 'development' && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                console.log('Meta CAPI Configuration:', ${JSON.stringify(getMetaConfig())});
+                // Enhanced Meta Pixel tracking with CAPI integration
+                window.metaTrackingEnabled = ${isMetaConfigured()};
+                
+                // Enhanced ViewContent tracking function
+                window.trackViewContent = function(contentData) {
+                  if (window.metaTrackingEnabled && window.fbq) {
+                    try {
+                      // Client-side pixel tracking
+                      window.fbq('track', 'ViewContent', {
+                        content_ids: contentData.content_ids || [],
+                        content_type: contentData.content_type || 'product',
+                        content_name: contentData.content_name,
+                        content_category: contentData.content_category,
+                        value: contentData.value,
+                        currency: contentData.currency || 'BDT'
+                      });
+                      
+                      // Send to server for CAPI tracking
+                      fetch('/api/meta-capi', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          eventName: 'ViewContent',
+                          eventData: contentData,
+                          userInfo: {
+                            fbp: window.fbq && window.fbq.getState ? window.fbq.getState().pixels[Object.keys(window.fbq.getState().pixels)[0]]?.userData?.fbp : undefined,
+                            fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1]
+                          }
+                        })
+                      }).catch(err => console.warn('Meta CAPI error:', err));
+                    } catch (error) {
+                      console.warn('Meta tracking error:', error);
+                    }
+                  }
+                };
+                
+                // Enhanced AddToCart tracking function
+                window.trackAddToCart = function(productData) {
+                  if (window.metaTrackingEnabled && window.fbq) {
+                    try {
+                      // Client-side pixel tracking
+                      window.fbq('track', 'AddToCart', {
+                        content_ids: productData.content_ids || [],
+                        content_type: productData.content_type || 'product',
+                        content_name: productData.content_name,
+                        value: productData.value,
+                        currency: productData.currency || 'BDT'
+                      });
+                      
+                      // Send to server for CAPI tracking
+                      fetch('/api/meta-capi', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          eventName: 'AddToCart',
+                          eventData: productData,
+                          userInfo: {
+                            fbp: window.fbq && window.fbq.getState ? window.fbq.getState().pixels[Object.keys(window.fbq.getState().pixels)[0]]?.userData?.fbp : undefined,
+                            fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1]
+                          }
+                        })
+                      }).catch(err => console.warn('Meta CAPI error:', err));
+                    } catch (error) {
+                      console.warn('Meta tracking error:', error);
+                    }
+                  }
+                };
+                
+                // Enhanced Purchase tracking function
+                window.trackPurchase = function(orderData) {
+                  if (window.metaTrackingEnabled && window.fbq) {
+                    try {
+                      // Client-side pixel tracking
+                      window.fbq('track', 'Purchase', {
+                        value: orderData.value,
+                        currency: orderData.currency || 'BDT',
+                        content_ids: orderData.content_ids || [],
+                        content_type: 'product',
+                        num_items: orderData.num_items
+                      });
+                      
+                      // Send to server for CAPI tracking
+                      fetch('/api/meta-capi', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          eventName: 'Purchase',
+                          eventData: orderData,
+                          userInfo: {
+                            fbp: window.fbq && window.fbq.getState ? window.fbq.getState().pixels[Object.keys(window.fbq.getState().pixels)[0]]?.userData?.fbp : undefined,
+                            fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1]
+                          }
+                        })
+                      }).catch(err => console.warn('Meta CAPI error:', err));
+                    } catch (error) {
+                      console.warn('Meta tracking error:', error);
+                    }
+                  }
+                };
+              `,
+            }}
+          />
+        )}
         {/* Disable right-click and console in production */}
         {process.env.NODE_ENV === "production" && (
           <script
