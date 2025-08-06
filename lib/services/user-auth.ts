@@ -22,10 +22,28 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key';
 
 // Service role client for admin operations
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+let supabaseAdmin: any = null;
+let supabaseAnon: any = null;
 
-// Anonymous client for public operations
-const supabaseAnon = createClient(supabaseUrl, supabaseAnonKey);
+// Initialize clients only when needed
+function getSupabaseAdmin() {
+  if (!supabaseAdmin) {
+    supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    });
+  }
+  return supabaseAdmin;
+}
+
+function getSupabaseAnon() {
+  if (!supabaseAnon) {
+    supabaseAnon = createClient(supabaseUrl, supabaseAnonKey);
+  }
+  return supabaseAnon;
+}
 
 /**
  * Registers a new user with phone verification
@@ -46,7 +64,7 @@ export async function registerUser(
     const normalizedPhone = phoneValidation.normalized_phone!;
 
     // Check if phone number is already registered
-    const { data: existingUser } = await supabaseAdmin
+    const { data: existingUser } = await getSupabaseAdmin()
       .from("users")
       .select("id")
       .eq("phone", normalizedPhone)
@@ -62,7 +80,7 @@ export async function registerUser(
 
     // Check if email is already registered (if provided)
     if (userData.email) {
-      const { data: existingEmail } = await supabaseAdmin
+      const { data: existingEmail } = await getSupabaseAdmin()
         .from("users")
         .select("id")
         .eq("email", userData.email.toLowerCase())
@@ -79,7 +97,7 @@ export async function registerUser(
 
     // Create auth user with Supabase Auth
     const { data: authData, error: authError } =
-      await supabaseAdmin.auth.admin.createUser({
+      await getSupabaseAdmin().auth.admin.createUser({
         email: userData.email || `${normalizedPhone}@temp.technirvor.com`, // Temporary email if not provided
         password: userData.password,
         phone: `+${normalizedPhone}`,
@@ -96,7 +114,7 @@ export async function registerUser(
     }
 
     // Create user profile in our users table
-    const { data: userProfile, error: profileError } = await supabaseAdmin
+    const { data: userProfile, error: profileError } = await getSupabaseAdmin()
       .from("users")
       .insert({
         auth_user_id: authData.user.id,
@@ -116,7 +134,7 @@ export async function registerUser(
     if (profileError || !userProfile) {
       console.error("User profile creation error:", profileError);
       // Clean up auth user if profile creation fails
-      await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
+      await getSupabaseAdmin().auth.admin.deleteUser(authData.user.id);
       return {
         success: false,
         message: "Failed to create user profile. Please try again.",
@@ -158,7 +176,7 @@ export async function sendPhoneVerification(
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     // Store verification code in database
-    const { error } = await supabaseAdmin.from("phone_verifications").upsert(
+    const { error } = await getSupabaseAdmin().from("phone_verifications").upsert(
       {
         phone: normalizedPhone,
         verification_code: verificationCode,
@@ -209,7 +227,7 @@ export async function verifyPhoneNumber(
     const normalizedPhone = normalizeBangladeshiPhone(data.phone);
 
     // Get verification record
-    const { data: verification, error: fetchError } = await supabaseAdmin
+    const { data: verification, error: fetchError } = await getSupabaseAdmin()
       .from("phone_verifications")
       .select("*")
       .eq("phone", normalizedPhone)
@@ -241,7 +259,7 @@ export async function verifyPhoneNumber(
     // Verify code
     if (verification.verification_code !== data.verification_code) {
       // Increment attempts
-      await supabaseAdmin
+      await getSupabaseAdmin()
         .from("phone_verifications")
         .update({ attempts: verification.attempts + 1 })
         .eq("phone", normalizedPhone);
@@ -253,7 +271,7 @@ export async function verifyPhoneNumber(
     }
 
     // Mark phone as verified
-    const { error: updateError } = await supabaseAdmin
+    const { error: updateError } = await getSupabaseAdmin()
       .from("phone_verifications")
       .update({ is_verified: true })
       .eq("phone", normalizedPhone);
@@ -267,7 +285,7 @@ export async function verifyPhoneNumber(
     }
 
     // Update user profile
-    await supabaseAdmin
+    await getSupabaseAdmin()
       .from("users")
       .update({ is_phone_verified: true })
       .eq("phone", normalizedPhone);
@@ -293,7 +311,7 @@ export async function loginUser(data: LoginData): Promise<LoginResponse> {
     const normalizedPhone = normalizeBangladeshiPhone(data.phone);
 
     // Get user by phone
-    const { data: user, error: userError } = await supabaseAdmin
+    const { data: user, error: userError } = await getSupabaseAdmin()
       .from("users")
       .select("*")
       .eq("phone", normalizedPhone)
@@ -315,7 +333,7 @@ export async function loginUser(data: LoginData): Promise<LoginResponse> {
 
     // Sign in with Supabase Auth
     const { data: authData, error: authError } =
-      await supabaseAnon.auth.signInWithPassword({
+      await getSupabaseAnon().auth.signInWithPassword({
         email: user.email || `${normalizedPhone}@temp.technirvor.com`,
         password: data.password,
       });
@@ -328,7 +346,7 @@ export async function loginUser(data: LoginData): Promise<LoginResponse> {
     }
 
     // Update last login
-    await supabaseAdmin
+    await getSupabaseAdmin()
       .from("users")
       .update({ last_login: new Date().toISOString() })
       .eq("id", user.id);
@@ -356,7 +374,7 @@ export async function getUserProfile(
 ): Promise<UserProfileResponse> {
   try {
     // Get user data
-    const { data: user, error: userError } = await supabaseAdmin
+    const { data: user, error: userError } = await getSupabaseAdmin()
       .from("users")
       .select("*")
       .eq("id", userId)
@@ -369,14 +387,14 @@ export async function getUserProfile(
     }
 
     // Get rewards data
-    const { data: rewards } = await supabaseAdmin
+    const { data: rewards } = await getSupabaseAdmin()
       .from("user_rewards")
       .select("*")
       .eq("user_id", userId)
       .single();
 
     // Get recent transactions
-    const { data: transactions } = await supabaseAdmin
+    const { data: transactions } = await getSupabaseAdmin()
       .from("reward_transactions")
       .select("*")
       .eq("user_id", userId)
@@ -450,7 +468,7 @@ async function handleReferral(
 ): Promise<void> {
   try {
     // Find the referrer
-    const { data: referral, error: referralError } = await supabaseAdmin
+    const { data: referral, error: referralError } = await getSupabaseAdmin()
       .from("user_referrals")
       .select("referrer_id")
       .eq("referral_code", referralCode)
@@ -463,7 +481,7 @@ async function handleReferral(
     }
 
     // Update referral status
-    await supabaseAdmin
+    await getSupabaseAdmin()
       .from("user_referrals")
       .update({
         referred_id: newUserId,
@@ -473,14 +491,14 @@ async function handleReferral(
       .eq("referral_code", referralCode);
 
     // Award points to referrer
-    await supabaseAdmin.rpc("add_reward_points", {
+    await getSupabaseAdmin().rpc("add_reward_points", {
       p_user_id: referral.referrer_id,
       p_points: 100,
       p_description: "Referral bonus - friend joined",
     });
 
     // Award welcome bonus to new user
-    await supabaseAdmin.rpc("add_reward_points", {
+    await getSupabaseAdmin().rpc("add_reward_points", {
       p_user_id: newUserId,
       p_points: 50,
       p_description: "Welcome bonus - joined via referral",
@@ -498,7 +516,7 @@ export async function generateUserReferralCode(
 ): Promise<string | null> {
   try {
     // Check if user already has a referral code
-    const { data: existingReferral } = await supabaseAdmin
+    const { data: existingReferral } = await getSupabaseAdmin()
       .from("user_referrals")
       .select("referral_code")
       .eq("referrer_id", userId)
@@ -509,7 +527,7 @@ export async function generateUserReferralCode(
     }
 
     // Generate new referral code
-    const { data, error } = await supabaseAdmin.rpc("generate_referral_code");
+    const { data, error } = await getSupabaseAdmin().rpc("generate_referral_code");
 
     if (error || !data) {
       console.error("Referral code generation error:", error);
@@ -517,7 +535,7 @@ export async function generateUserReferralCode(
     }
 
     // Create referral record
-    await supabaseAdmin.from("user_referrals").insert({
+    await getSupabaseAdmin().from("user_referrals").insert({
       referrer_id: userId,
       referral_code: data,
       status: "pending",
@@ -539,7 +557,7 @@ export async function checkPhoneAvailability(
   try {
     const normalizedPhone = normalizeBangladeshiPhone(phone);
 
-    const { data: existingUser } = await supabaseAdmin
+    const { data: existingUser } = await getSupabaseAdmin()
       .from("users")
       .select("id")
       .eq("phone", normalizedPhone)
