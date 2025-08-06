@@ -32,7 +32,7 @@ function AdminLoginForm() {
     try {
       const hasAccess = await adminAuth.checkAdminAccess();
       if (hasAccess) {
-        const returnUrl = searchParams.get('returnUrl') || '/admin';
+        const returnUrl = searchParams.get("returnUrl") || "/admin";
         router.push(returnUrl);
       }
     } catch (error) {
@@ -77,10 +77,10 @@ function AdminLoginForm() {
     try {
       await adminAuth.signIn(formData.email, formData.password);
       toast.success("Login successful!");
-      
+
       // Add a small delay to ensure cookie is set before redirect
       setTimeout(() => {
-        const returnUrl = searchParams.get('returnUrl') || '/admin';
+        const returnUrl = searchParams.get("returnUrl") || "/admin";
         router.push(returnUrl);
       }, 100);
     } catch (error: any) {

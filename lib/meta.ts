@@ -24,12 +24,12 @@ export interface MetaEventData {
     id: string;
     quantity?: number;
     item_price?: number;
-    delivery_category?: 'home_delivery' | 'in_store' | 'curbside';
+    delivery_category?: "home_delivery" | "in_store" | "curbside";
   }>;
   content_brand?: string;
   predicted_ltv?: number;
   status?: string;
-  delivery_category?: 'home_delivery' | 'in_store' | 'curbside';
+  delivery_category?: "home_delivery" | "in_store" | "curbside";
   custom_data?: Record<string, any>;
 }
 
@@ -48,7 +48,7 @@ export interface MetaUserInfo {
   clientIpAddress?: string;
   // Enhanced User Data Parameters
   dateOfBirth?: string; // YYYYMMDD format
-  gender?: 'm' | 'f';
+  gender?: "m" | "f";
   externalId?: string;
   subscriptionId?: string;
   leadId?: string;
@@ -70,39 +70,45 @@ export interface MetaServerEventConfig {
   test_event_code?: string;
 }
 
-export type MetaEventName = 
-  | 'PageView'
-  | 'ViewContent'
-  | 'Search'
-  | 'AddToCart'
-  | 'AddToWishlist'
-  | 'InitiateCheckout'
-  | 'AddPaymentInfo'
-  | 'Purchase'
-  | 'Lead'
-  | 'CompleteRegistration'
-  | 'Contact'
-  | 'CustomizeProduct'
-  | 'Donate'
-  | 'FindLocation'
-  | 'Schedule'
-  | 'StartTrial'
-  | 'SubmitApplication'
-  | 'Subscribe';
+export type MetaEventName =
+  | "PageView"
+  | "ViewContent"
+  | "Search"
+  | "AddToCart"
+  | "AddToWishlist"
+  | "InitiateCheckout"
+  | "AddPaymentInfo"
+  | "Purchase"
+  | "Lead"
+  | "CompleteRegistration"
+  | "Contact"
+  | "CustomizeProduct"
+  | "Donate"
+  | "FindLocation"
+  | "Schedule"
+  | "StartTrial"
+  | "SubmitApplication"
+  | "Subscribe";
 
 // Configuration - Use server-side only environment variables for security
-const accessToken = process.env.META_CAPI_ACCESS_TOKEN || process.env.NEXT_PUBLIC_META_CAPI_ACCESS_TOKEN;
+const accessToken =
+  process.env.META_CAPI_ACCESS_TOKEN ||
+  process.env.NEXT_PUBLIC_META_CAPI_ACCESS_TOKEN;
 const pixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID;
-const testEventCode = process.env.META_CAPI_TEST_CODE || process.env.NEXT_PUBLIC_META_CAPI_TEST_CODE;
+const testEventCode =
+  process.env.META_CAPI_TEST_CODE ||
+  process.env.NEXT_PUBLIC_META_CAPI_TEST_CODE;
 
 // Initialize Facebook Ads API
 let isInitialized = false;
 
 const initializeMetaAPI = (): boolean => {
   if (isInitialized) return true;
-  
+
   if (!accessToken || !pixelId) {
-    console.warn('Meta CAPI credentials not configured. Please set META_CAPI_ACCESS_TOKEN and META_PIXEL_ID environment variables.');
+    console.warn(
+      "Meta CAPI credentials not configured. Please set META_CAPI_ACCESS_TOKEN and META_PIXEL_ID environment variables.",
+    );
     return false;
   }
 
@@ -111,24 +117,27 @@ const initializeMetaAPI = (): boolean => {
     isInitialized = true;
     return true;
   } catch (error) {
-    console.error('Failed to initialize Meta API:', error);
+    console.error("Failed to initialize Meta API:", error);
     return false;
   }
 };
 
 // Utility functions
 const hashData = (data: string): string => {
-  return createHash('sha256').update(data.toLowerCase().trim()).digest('hex');
+  return createHash("sha256").update(data.toLowerCase().trim()).digest("hex");
 };
 
-const extractUserDataFromRequest = (request?: NextRequest): Partial<MetaUserInfo> => {
+const extractUserDataFromRequest = (
+  request?: NextRequest,
+): Partial<MetaUserInfo> => {
   if (!request) return {};
-  
-  const userAgent = request.headers.get('user-agent') || undefined;
-  const clientIpAddress = request.headers.get('x-forwarded-for')?.split(',')[0] || 
-                         request.headers.get('x-real-ip') || 
-                         undefined;
-  
+
+  const userAgent = request.headers.get("user-agent") || undefined;
+  const clientIpAddress =
+    request.headers.get("x-forwarded-for")?.split(",")[0] ||
+    request.headers.get("x-real-ip") ||
+    undefined;
+
   return {
     userAgent,
     clientIpAddress,
@@ -137,7 +146,7 @@ const extractUserDataFromRequest = (request?: NextRequest): Partial<MetaUserInfo
 
 const createUserData = (userInfo: MetaUserInfo): UserData => {
   const userData = new UserData();
-  
+
   // Basic user information (hashed)
   if (userInfo.email) {
     userData.setEmail(hashData(userInfo.email));
@@ -163,7 +172,7 @@ const createUserData = (userInfo: MetaUserInfo): UserData => {
   if (userInfo.zipCode) {
     userData.setZip(hashData(userInfo.zipCode));
   }
-  
+
   // Enhanced user data parameters (hashed)
   if (userInfo.dateOfBirth) {
     userData.setDateOfBirth(hashData(userInfo.dateOfBirth));
@@ -174,12 +183,12 @@ const createUserData = (userInfo: MetaUserInfo): UserData => {
   if (userInfo.externalId) {
     userData.setExternalId(hashData(userInfo.externalId));
   }
-  
+
   // Advanced matching parameters (hashed)
   if (userInfo.madid) {
     userData.setMadid(hashData(userInfo.madid));
   }
-  
+
   // Browser and tracking data (not hashed)
   if (userInfo.fbc) {
     userData.setFbc(userInfo.fbc);
@@ -204,13 +213,13 @@ const createUserData = (userInfo: MetaUserInfo): UserData => {
   if (userInfo.anon_id) {
     userData.setAnonId(userInfo.anon_id);
   }
-  
+
   return userData;
 };
 
 const createCustomData = (eventData: MetaEventData): CustomData => {
   const customData = new CustomData();
-  
+
   // Basic event data
   if (eventData.value !== undefined) {
     customData.setValue(eventData.value);
@@ -239,10 +248,10 @@ const createCustomData = (eventData: MetaEventData): CustomData => {
   if (eventData.search_string) {
     customData.setSearchString(eventData.search_string);
   }
-  
+
   // Enhanced custom data parameters - add to custom properties
   const customProperties: Record<string, any> = {};
-  
+
   // Add enhanced parameters to custom properties
   if (eventData.contents && eventData.contents.length > 0) {
     customProperties.contents = eventData.contents;
@@ -259,17 +268,17 @@ const createCustomData = (eventData: MetaEventData): CustomData => {
   if (eventData.delivery_category) {
     customProperties.delivery_category = eventData.delivery_category;
   }
-  
+
   // Add any additional custom data
   if (eventData.custom_data) {
     Object.assign(customProperties, eventData.custom_data);
   }
-  
+
   // Set custom properties if any exist
   if (Object.keys(customProperties).length > 0) {
     customData.setCustomProperties(customProperties);
   }
-  
+
   return customData;
 };
 
@@ -279,59 +288,73 @@ export const sendServerEvent = async (
   eventData: MetaEventData = {},
   userInfo: MetaUserInfo = {},
   request?: NextRequest,
-  config: MetaServerEventConfig = {}
+  config: MetaServerEventConfig = {},
 ): Promise<{ success: boolean; error?: string }> => {
   try {
     if (!initializeMetaAPI()) {
-      return { success: false, error: 'Meta API not initialized' };
+      return { success: false, error: "Meta API not initialized" };
     }
 
     // Validate required parameters for ViewContent events
-    if (eventName === 'ViewContent' && (!eventData.content_ids || eventData.content_ids.length === 0)) {
-      console.warn('ViewContent event missing required content_ids parameter');
-      return { success: false, error: 'ViewContent event requires content_ids' };
+    if (
+      eventName === "ViewContent" &&
+      (!eventData.content_ids || eventData.content_ids.length === 0)
+    ) {
+      console.warn("ViewContent event missing required content_ids parameter");
+      return {
+        success: false,
+        error: "ViewContent event requires content_ids",
+      };
     }
 
     // Merge user info from request if available
-    const mergedUserInfo = { ...userInfo, ...extractUserDataFromRequest(request) };
-    
+    const mergedUserInfo = {
+      ...userInfo,
+      ...extractUserDataFromRequest(request),
+    };
+
     const userData = createUserData(mergedUserInfo);
     const customData = createCustomData(eventData);
-    
+
     // Generate a unique event ID to prevent duplicate events (use config if provided)
-    const eventId = config.event_id || `${eventName}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
+    const eventId =
+      config.event_id ||
+      `${eventName}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
     const serverEvent = new ServerEvent()
       .setEventName(eventName)
       .setEventTime(Math.floor(Date.now() / 1000))
       .setEventId(eventId)
       .setUserData(userData)
       .setCustomData(customData)
-      .setEventSourceUrl(request?.url || 'https://technirvor.com')
-      .setActionSource('website');
-    
+      .setEventSourceUrl(request?.url || "https://technirvor.com")
+      .setActionSource("website");
+
     // Add opt_out if specified
     if (config.opt_out !== undefined) {
       serverEvent.setOptOut(config.opt_out);
     }
-    
-    const eventRequest = new EventRequest(accessToken!, pixelId!)
-      .setEvents([serverEvent]);
-    
+
+    const eventRequest = new EventRequest(accessToken!, pixelId!).setEvents([
+      serverEvent,
+    ]);
+
     // Add test event code (prioritize config, then environment)
-    const testCode = config.test_event_code || (process.env.NODE_ENV === 'development' ? testEventCode : undefined);
+    const testCode =
+      config.test_event_code ||
+      (process.env.NODE_ENV === "development" ? testEventCode : undefined);
     if (testCode) {
       eventRequest.setTestEventCode(testCode);
     }
-    
+
     // Note: Data processing options may need to be set at the API level
     // or through custom properties depending on SDK version
-    
+
     // Add partner agent if specified
     if (config.partner_agent) {
       eventRequest.setPartnerAgent(config.partner_agent);
     }
-    
+
     return { success: true };
   } catch (error: any) {
     console.error(`Failed to send Meta CAPI event '${eventName}':`, {
@@ -339,11 +362,11 @@ export const sendServerEvent = async (
       response: error.response?.data,
       status: error.response?.status,
       eventData,
-      userInfo
+      userInfo,
     });
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Unknown error' 
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 };
@@ -351,9 +374,9 @@ export const sendServerEvent = async (
 // Convenience functions for common events
 export const trackPageView = async (
   userInfo: MetaUserInfo = {},
-  request?: NextRequest
+  request?: NextRequest,
 ) => {
-  return sendServerEvent('PageView', {}, userInfo, request);
+  return sendServerEvent("PageView", {}, userInfo, request);
 };
 
 export const trackPurchase = async (
@@ -365,9 +388,9 @@ export const trackPurchase = async (
     num_items?: number;
   },
   userInfo: MetaUserInfo = {},
-  request?: NextRequest
+  request?: NextRequest,
 ) => {
-  return sendServerEvent('Purchase', orderData, userInfo, request);
+  return sendServerEvent("Purchase", orderData, userInfo, request);
 };
 
 export const trackAddToCart = async (
@@ -379,9 +402,9 @@ export const trackAddToCart = async (
     currency?: string;
   },
   userInfo: MetaUserInfo = {},
-  request?: NextRequest
+  request?: NextRequest,
 ) => {
-  return sendServerEvent('AddToCart', productData, userInfo, request);
+  return sendServerEvent("AddToCart", productData, userInfo, request);
 };
 
 export const trackViewContent = async (
@@ -394,9 +417,9 @@ export const trackViewContent = async (
     currency?: string;
   },
   userInfo: MetaUserInfo = {},
-  request?: NextRequest
+  request?: NextRequest,
 ) => {
-  return sendServerEvent('ViewContent', contentData, userInfo, request);
+  return sendServerEvent("ViewContent", contentData, userInfo, request);
 };
 
 export const trackSearch = async (
@@ -405,9 +428,9 @@ export const trackSearch = async (
     content_category?: string;
   },
   userInfo: MetaUserInfo = {},
-  request?: NextRequest
+  request?: NextRequest,
 ) => {
-  return sendServerEvent('Search', searchData, userInfo, request);
+  return sendServerEvent("Search", searchData, userInfo, request);
 };
 
 export const trackLead = async (
@@ -418,9 +441,9 @@ export const trackLead = async (
     currency?: string;
   },
   userInfo: MetaUserInfo = {},
-  request?: NextRequest
+  request?: NextRequest,
 ) => {
-  return sendServerEvent('Lead', leadData, userInfo, request);
+  return sendServerEvent("Lead", leadData, userInfo, request);
 };
 
 // Utility to check if Meta CAPI is properly configured
@@ -435,7 +458,7 @@ export const getMetaConfig = () => {
     hasPixelId: !!pixelId,
     hasTestEventCode: !!testEventCode,
     isInitialized,
-    environment: process.env.NODE_ENV
+    environment: process.env.NODE_ENV,
   };
 };
 
@@ -456,12 +479,14 @@ export const generateViewContentPixelCode = (contentData: {
 }): string => {
   const eventData: Record<string, any> = {
     content_ids: contentData.content_ids,
-    content_type: contentData.content_type || 'product'
+    content_type: contentData.content_type || "product",
   };
 
   // Add optional parameters if provided
-  if (contentData.content_name) eventData.content_name = contentData.content_name;
-  if (contentData.content_category) eventData.content_category = contentData.content_category;
+  if (contentData.content_name)
+    eventData.content_name = contentData.content_name;
+  if (contentData.content_category)
+    eventData.content_category = contentData.content_category;
   if (contentData.value) eventData.value = contentData.value;
   if (contentData.currency) eventData.currency = contentData.currency;
 
@@ -480,18 +505,20 @@ export const trackViewContentClient = (contentData: {
   value?: number;
   currency?: string;
 }) => {
-  if (typeof window !== 'undefined' && (window as any).fbq) {
+  if (typeof window !== "undefined" && (window as any).fbq) {
     const eventData: Record<string, any> = {
       content_ids: contentData.content_ids,
-      content_type: contentData.content_type || 'product'
+      content_type: contentData.content_type || "product",
     };
 
     // Add optional parameters if provided
-    if (contentData.content_name) eventData.content_name = contentData.content_name;
-    if (contentData.content_category) eventData.content_category = contentData.content_category;
+    if (contentData.content_name)
+      eventData.content_name = contentData.content_name;
+    if (contentData.content_category)
+      eventData.content_category = contentData.content_category;
     if (contentData.value) eventData.value = contentData.value;
     if (contentData.currency) eventData.currency = contentData.currency;
 
-    (window as any).fbq('track', 'ViewContent', eventData);
+    (window as any).fbq("track", "ViewContent", eventData);
   }
 };

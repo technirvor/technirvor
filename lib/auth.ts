@@ -62,11 +62,10 @@ export const adminAuth = {
         .eq("id", adminUser.id);
 
       // Log successful login
-      await adminSecurity.logActivity(
-        adminUser.id,
-        "admin_login",
-        { email, success: true }
-      );
+      await adminSecurity.logActivity(adminUser.id, "admin_login", {
+        email,
+        success: true,
+      });
 
       // Store session in cookie for middleware
       if (data.session) {
@@ -91,10 +90,11 @@ export const adminAuth = {
   async signOut() {
     try {
       // Clear session cookie first to prevent middleware conflicts
-      document.cookie = "sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax";
-      
+      document.cookie =
+        "sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax";
+
       // Sign out from Supabase with local scope to avoid WebSocket issues
-      await supabase.auth.signOut({ scope: 'local' });
+      await supabase.auth.signOut({ scope: "local" });
     } catch (error) {
       console.error("Sign out error:", error);
       // Don't throw error to prevent blocking logout flow

@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
 // Test page for Facebook Commerce API formats
 export async function GET(request: NextRequest) {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-  
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
   const html = `
     <!DOCTYPE html>
     <html>
@@ -69,10 +69,10 @@ export async function GET(request: NextRequest) {
     </body>
     </html>
   `;
-  
+
   return new NextResponse(html, {
     headers: {
-      'Content-Type': 'text/html',
+      "Content-Type": "text/html",
     },
   });
 }

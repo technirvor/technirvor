@@ -3,17 +3,17 @@ import { NextRequest } from "next/server";
 
 // Create Supabase client only when needed and in server environment
 function getSupabaseClient() {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     // Client-side: use anon key
     return createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     );
   } else {
     // Server-side: use service role key
     return createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
     );
   }
 }
@@ -48,10 +48,13 @@ export class AdminSecurity {
     if (!attempts) return false;
 
     const lockoutTime = new Date(
-      attempts.lastAttempt.getTime() + this.config.lockoutDuration! * 60 * 1000
+      attempts.lastAttempt.getTime() + this.config.lockoutDuration! * 60 * 1000,
     );
-    
-    if (attempts.count >= this.config.maxLoginAttempts! && new Date() < lockoutTime) {
+
+    if (
+      attempts.count >= this.config.maxLoginAttempts! &&
+      new Date() < lockoutTime
+    ) {
       return true;
     }
 
@@ -65,7 +68,10 @@ export class AdminSecurity {
 
   // Record a failed login attempt
   recordFailedAttempt(ip: string): void {
-    const existing = loginAttempts.get(ip) || { count: 0, lastAttempt: new Date() };
+    const existing = loginAttempts.get(ip) || {
+      count: 0,
+      lastAttempt: new Date(),
+    };
     existing.count += 1;
     existing.lastAttempt = new Date();
     loginAttempts.set(ip, existing);
@@ -81,13 +87,13 @@ export class AdminSecurity {
     adminUserId: string,
     action: string,
     details?: any,
-    request?: NextRequest
+    request?: NextRequest,
   ): Promise<void> {
     // Skip logging on client-side
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       return;
     }
-    
+
     try {
       const supabase = getSupabaseClient();
       const ip = request?.headers.get("x-forwarded-for") || "unknown";
@@ -114,8 +120,11 @@ export class AdminSecurity {
   }> {
     try {
       const supabase = getSupabaseClient();
-      const { data: { user }, error } = await supabase.auth.getUser(token);
-      
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser(token);
+
       if (error || !user) {
         return { isValid: false, error: "Invalid session" };
       }
@@ -133,9 +142,11 @@ export class AdminSecurity {
       }
 
       // Check session timeout
-      const lastActivity = new Date(adminUser.last_login || adminUser.created_at);
+      const lastActivity = new Date(
+        adminUser.last_login || adminUser.created_at,
+      );
       const sessionExpiry = new Date(
-        lastActivity.getTime() + this.config.sessionTimeout! * 60 * 1000
+        lastActivity.getTime() + this.config.sessionTimeout! * 60 * 1000,
       );
 
       if (new Date() > sessionExpiry) {
@@ -154,14 +165,14 @@ export class AdminSecurity {
     reasons: string[];
   }> {
     // Skip on client-side
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       return { isSuspicious: false, reasons: [] };
     }
-    
+
     try {
       const supabase = getSupabaseClient();
       const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-      
+
       const { data: recentActivity } = await supabase
         .from("admin_activity_logs")
         .select("*")
@@ -169,7 +180,7 @@ export class AdminSecurity {
         .gte("created_at", oneHourAgo.toISOString());
 
       const reasons: string[] = [];
-      
+
       if (recentActivity) {
         // Check for too many actions in short time
         if (recentActivity.length > 100) {
@@ -177,14 +188,15 @@ export class AdminSecurity {
         }
 
         // Check for multiple IP addresses
-        const uniqueIPs = new Set(recentActivity.map(log => log.ip_address));
+        const uniqueIPs = new Set(recentActivity.map((log) => log.ip_address));
         if (uniqueIPs.size > 3) {
           reasons.push("Activity from multiple IP addresses");
         }
 
         // Check for failed operations
-        const failedActions = recentActivity.filter(log => 
-          log.action.includes("failed") || log.action.includes("error")
+        const failedActions = recentActivity.filter(
+          (log) =>
+            log.action.includes("failed") || log.action.includes("error"),
         );
         if (failedActions.length > 10) {
           reasons.push("Multiple failed operations");
@@ -193,7 +205,7 @@ export class AdminSecurity {
 
       return {
         isSuspicious: reasons.length > 0,
-        reasons
+        reasons,
       };
     } catch (error) {
       console.error("Error checking suspicious activity:", error);
@@ -209,7 +221,7 @@ export class AdminSecurity {
     lastLogin: Date | null;
   }> {
     // Skip on client-side
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       return {
         totalSessions: 0,
         recentActivity: [],
@@ -217,11 +229,11 @@ export class AdminSecurity {
         lastLogin: null,
       };
     }
-    
+
     try {
       const supabase = getSupabaseClient();
       const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-      
+
       const { data: recentActivity } = await supabase
         .from("admin_activity_logs")
         .select("*")
@@ -237,12 +249,14 @@ export class AdminSecurity {
         .single();
 
       const suspiciousCheck = await this.checkSuspiciousActivity(adminUserId);
-      
+
       return {
         totalSessions: recentActivity?.length || 0,
         recentActivity: recentActivity || [],
         securityAlerts: suspiciousCheck.reasons,
-        lastLogin: adminUser?.last_login ? new Date(adminUser.last_login) : null,
+        lastLogin: adminUser?.last_login
+          ? new Date(adminUser.last_login)
+          : null,
       };
     } catch (error) {
       console.error("Error generating security report:", error);

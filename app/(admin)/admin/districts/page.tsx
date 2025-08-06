@@ -20,14 +20,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import {
-  Edit,
-  Trash2,
-  Plus,
-  Search,
-  MapPin,
-  DollarSign,
-} from "lucide-react";
+import { Edit, Trash2, Plus, Search, MapPin, DollarSign } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 
@@ -73,7 +66,7 @@ export default function AdminDistrictsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       if (editingDistrict) {
         // Update existing district
@@ -85,22 +78,22 @@ export default function AdminDistrictsPage() {
             updated_at: new Date().toISOString(),
           })
           .eq("id", editingDistrict.id);
-        
+
         if (error) throw error;
         toast.success("District updated successfully");
       } else {
         // Create new district
-        const { error } = await supabase
-          .from("districts")
-          .insert([{
+        const { error } = await supabase.from("districts").insert([
+          {
             name: formData.name,
             delivery_charge: formData.delivery_charge,
-          }]);
-        
+          },
+        ]);
+
         if (error) throw error;
         toast.success("District created successfully");
       }
-      
+
       setIsDialogOpen(false);
       setEditingDistrict(null);
       resetForm();
@@ -121,16 +114,18 @@ export default function AdminDistrictsPage() {
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete "${name}"? This may affect existing orders.`)) return;
+    if (
+      !confirm(
+        `Are you sure you want to delete "${name}"? This may affect existing orders.`,
+      )
+    )
+      return;
 
     try {
-      const { error } = await supabase
-        .from("districts")
-        .delete()
-        .eq("id", id);
-      
+      const { error } = await supabase.from("districts").delete().eq("id", id);
+
       if (error) throw error;
-      
+
       setDistricts(districts.filter((district) => district.id !== id));
       toast.success("District deleted successfully");
     } catch (error) {
@@ -147,7 +142,7 @@ export default function AdminDistrictsPage() {
   };
 
   const filteredDistricts = districts.filter((district) =>
-    district.name.toLowerCase().includes(searchQuery.toLowerCase())
+    district.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   if (loading) {
@@ -171,7 +166,12 @@ export default function AdminDistrictsPage() {
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={() => { resetForm(); setEditingDistrict(null); }}>
+            <Button
+              onClick={() => {
+                resetForm();
+                setEditingDistrict(null);
+              }}
+            >
               <Plus className="h-4 w-4 mr-2" />
               Add District
             </Button>
@@ -188,12 +188,14 @@ export default function AdminDistrictsPage() {
                 <Input
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   placeholder="e.g., Dhaka, Chittagong"
                   required
                 />
               </div>
-              
+
               <div>
                 <Label htmlFor="delivery_charge">Delivery Charge (৳)</Label>
                 <Input
@@ -202,14 +204,23 @@ export default function AdminDistrictsPage() {
                   min="0"
                   step="1"
                   value={formData.delivery_charge}
-                  onChange={(e) => setFormData({ ...formData, delivery_charge: parseInt(e.target.value) || 0 })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      delivery_charge: parseInt(e.target.value) || 0,
+                    })
+                  }
                   placeholder="60"
                   required
                 />
               </div>
-              
+
               <div className="flex justify-end space-x-2">
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsDialogOpen(false)}
+                >
                   Cancel
                 </Button>
                 <Button type="submit">
@@ -233,8 +244,21 @@ export default function AdminDistrictsPage() {
           />
         </div>
         <div className="flex items-center gap-4 text-sm text-gray-600">
-          <span>Total Districts: <strong>{districts.length}</strong></span>
-          <span>Avg Delivery: <strong>৳{districts.length > 0 ? Math.round(districts.reduce((sum, d) => sum + d.delivery_charge, 0) / districts.length) : 0}</strong></span>
+          <span>
+            Total Districts: <strong>{districts.length}</strong>
+          </span>
+          <span>
+            Avg Delivery:{" "}
+            <strong>
+              ৳
+              {districts.length > 0
+                ? Math.round(
+                    districts.reduce((sum, d) => sum + d.delivery_charge, 0) /
+                      districts.length,
+                  )
+                : 0}
+            </strong>
+          </span>
         </div>
       </div>
 
@@ -251,7 +275,9 @@ export default function AdminDistrictsPage() {
             <div className="text-center py-8">
               <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">
-                {searchQuery ? "No districts found matching your search" : "No districts found"}
+                {searchQuery
+                  ? "No districts found matching your search"
+                  : "No districts found"}
               </p>
             </div>
           ) : (
@@ -298,7 +324,9 @@ export default function AdminDistrictsPage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleDelete(district.id, district.name)}
+                          onClick={() =>
+                            handleDelete(district.id, district.name)
+                          }
                           className="text-red-600 hover:text-red-700"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -326,7 +354,7 @@ export default function AdminDistrictsPage() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
@@ -334,13 +362,16 @@ export default function AdminDistrictsPage() {
               <div>
                 <p className="text-sm text-gray-600">Lowest Charge</p>
                 <p className="text-xl font-bold">
-                  ৳{districts.length > 0 ? Math.min(...districts.map(d => d.delivery_charge)) : 0}
+                  ৳
+                  {districts.length > 0
+                    ? Math.min(...districts.map((d) => d.delivery_charge))
+                    : 0}
                 </p>
               </div>
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
@@ -348,7 +379,10 @@ export default function AdminDistrictsPage() {
               <div>
                 <p className="text-sm text-gray-600">Highest Charge</p>
                 <p className="text-xl font-bold">
-                  ৳{districts.length > 0 ? Math.max(...districts.map(d => d.delivery_charge)) : 0}
+                  ৳
+                  {districts.length > 0
+                    ? Math.max(...districts.map((d) => d.delivery_charge))
+                    : 0}
                 </p>
               </div>
             </div>

@@ -305,7 +305,7 @@ export default function NewProductPage() {
                       onChange={(urls) =>
                         setFormData((prev) => ({
                           ...prev,
-                          imageUrl: typeof urls[0] === 'string' ? urls[0] : "",
+                          imageUrl: typeof urls[0] === "string" ? urls[0] : "",
                         }))
                       }
                       maxFiles={1}
@@ -322,7 +322,12 @@ export default function NewProductPage() {
                     <ImageUpload
                       value={formData.images}
                       onChange={(urls) =>
-                        setFormData((prev) => ({ ...prev, images: urls.filter((url): url is string => typeof url === 'string') }))
+                        setFormData((prev) => ({
+                          ...prev,
+                          images: urls.filter(
+                            (url): url is string => typeof url === "string",
+                          ),
+                        }))
                       }
                       maxFiles={5} // Example: allow up to 5 additional images
                       options={{

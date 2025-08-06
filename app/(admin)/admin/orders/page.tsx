@@ -20,7 +20,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Eye, Printer, Package, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Eye,
+  Printer,
+  Package,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import type { Order } from "@/lib/types";
 import { toast } from "sonner";
@@ -58,7 +65,7 @@ export default function AdminOrdersPage() {
   const fetchOrders = async (page = 1, searchQuery = "", status = "all") => {
     try {
       setLoading(true);
-      
+
       let query = supabase
         .from("orders")
         .select(
@@ -69,13 +76,15 @@ export default function AdminOrdersPage() {
             product:products(*)
           )
         `,
-          { count: 'exact' }
+          { count: "exact" },
         )
         .order("created_at", { ascending: false });
 
       // Add search filter if provided
       if (searchQuery.trim()) {
-        query = query.or(`order_number.ilike.%${searchQuery}%,customer_name.ilike.%${searchQuery}%,customer_phone.ilike.%${searchQuery}%`);
+        query = query.or(
+          `order_number.ilike.%${searchQuery}%,customer_name.ilike.%${searchQuery}%,customer_phone.ilike.%${searchQuery}%`,
+        );
       }
 
       // Add status filter if not "all"
@@ -91,7 +100,7 @@ export default function AdminOrdersPage() {
       const { data, error, count } = await query;
 
       if (error) throw error;
-      
+
       setOrders(data || []);
       setTotalCount(count || 0);
       setCurrentPage(page);
@@ -177,30 +186,41 @@ export default function AdminOrdersPage() {
                 onClick={async () => {
                   try {
                     // Get the current session token
-                    const { data: { session } } = await supabase.auth.getSession();
+                    const {
+                      data: { session },
+                    } = await supabase.auth.getSession();
                     if (!session) {
                       toast.error("Authentication required");
                       return;
                     }
 
-                    const response = await fetch(`/api/admin/orders/${orderId}`, {
-                      method: 'DELETE',
-                      headers: {
-                        'Authorization': `Bearer ${session.access_token}`,
-                        'Content-Type': 'application/json',
+                    const response = await fetch(
+                      `/api/admin/orders/${orderId}`,
+                      {
+                        method: "DELETE",
+                        headers: {
+                          Authorization: `Bearer ${session.access_token}`,
+                          "Content-Type": "application/json",
+                        },
                       },
-                    });
+                    );
 
                     if (!response.ok) {
                       const errorData = await response.json();
-                      throw new Error(errorData.error || 'Failed to delete order');
+                      throw new Error(
+                        errorData.error || "Failed to delete order",
+                      );
                     }
 
                     setOrders(orders.filter((order) => order.id !== orderId));
                     toast.success("Order deleted successfully");
                   } catch (error) {
                     console.error("Error deleting order:", error);
-                    toast.error(error instanceof Error ? error.message : "Failed to delete order");
+                    toast.error(
+                      error instanceof Error
+                        ? error.message
+                        : "Failed to delete order",
+                    );
                   } finally {
                     toast.dismiss(t);
                   }
@@ -420,12 +440,14 @@ export default function AdminOrdersPage() {
                 </TableBody>
               </Table>
             </div>
-            
+
             {/* Pagination */}
             {totalPages > 1 && (
               <div className="flex items-center justify-between mt-6">
                 <div className="text-sm text-gray-500">
-                  Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, totalCount)} of {totalCount} orders
+                  Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{" "}
+                  {Math.min(currentPage * ITEMS_PER_PAGE, totalCount)} of{" "}
+                  {totalCount} orders
                 </div>
                 <div className="flex items-center space-x-2">
                   <Button
@@ -437,7 +459,7 @@ export default function AdminOrdersPage() {
                     <ChevronLeft className="h-4 w-4" />
                     Previous
                   </Button>
-                  
+
                   <div className="flex items-center space-x-1">
                     {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                       let pageNum;
@@ -450,11 +472,13 @@ export default function AdminOrdersPage() {
                       } else {
                         pageNum = currentPage - 2 + i;
                       }
-                      
+
                       return (
                         <Button
                           key={pageNum}
-                          variant={currentPage === pageNum ? "default" : "outline"}
+                          variant={
+                            currentPage === pageNum ? "default" : "outline"
+                          }
                           size="sm"
                           onClick={() => handlePageChange(pageNum)}
                           className="w-8 h-8 p-0"
@@ -464,7 +488,7 @@ export default function AdminOrdersPage() {
                       );
                     })}
                   </div>
-                  
+
                   <Button
                     variant="outline"
                     size="sm"

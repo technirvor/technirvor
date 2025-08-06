@@ -17,7 +17,8 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: {
-    default: "Tech Nirvor - Best Online Shopping in Bangladesh | Electronics, Fashion & More",
+    default:
+      "Tech Nirvor - Best Online Shopping in Bangladesh | Electronics, Fashion & More",
     template: "%s | Tech Nirvor - Best Online Shopping Bangladesh",
   },
   description:
@@ -70,7 +71,8 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_BD",
     url: "/",
-    title: "Tech Nirvor - Best Online Shopping in Bangladesh | Electronics, Fashion & More",
+    title:
+      "Tech Nirvor - Best Online Shopping in Bangladesh | Electronics, Fashion & More",
     description:
       "🛒 Shop the best products online in Bangladesh with Tech Nirvor! ✅ Fast delivery nationwide ✅ Cash on delivery ✅ Authentic products ✅ Best prices. Electronics, Fashion, Home & Garden, Sports, Books, Beauty products. Order now!",
     siteName: "Tech Nirvor",
@@ -92,7 +94,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     site: "@technirvor",
-    title: "Tech Nirvor - Best Online Shopping in Bangladesh | Electronics, Fashion & More",
+    title:
+      "Tech Nirvor - Best Online Shopping in Bangladesh | Electronics, Fashion & More",
     description:
       "🛒 Shop the best products online in Bangladesh with Tech Nirvor! ✅ Fast delivery nationwide ✅ Cash on delivery ✅ Authentic products ✅ Best prices.",
     images: ["/og-image.jpg"],
@@ -152,36 +155,109 @@ export default function RootLayout({
     <html lang="en-BD">
       <head>
         {/* Favicon with cache busting */}
-        <link rel="icon" type="image/x-icon" href={`/favicon.ico?v=${Date.now()}`} />
-        <link rel="shortcut icon" type="image/x-icon" href={`/favicon.ico?v=${Date.now()}`} />
-        
+        <link
+          rel="icon"
+          type="image/x-icon"
+          href={`/favicon.ico?v=${Date.now()}`}
+        />
+        <link
+          rel="shortcut icon"
+          type="image/x-icon"
+          href={`/favicon.ico?v=${Date.now()}`}
+        />
+
         {/* Apple Touch Icons */}
-        <link rel="apple-touch-icon" sizes="180x180" href={`/logo/favicon-White.png?v=${Date.now()}`} />
-        <link rel="apple-touch-icon" sizes="152x152" href={`/logo/favicon-White.png?v=${Date.now()}`} />
-        <link rel="apple-touch-icon" sizes="144x144" href={`/logo/favicon-White.png?v=${Date.now()}`} />
-        <link rel="apple-touch-icon" sizes="120x120" href={`/logo/favicon-White.png?v=${Date.now()}`} />
-        <link rel="apple-touch-icon" sizes="114x114" href={`/logo/favicon-White.png?v=${Date.now()}`} />
-        <link rel="apple-touch-icon" sizes="76x76" href={`/logo/favicon-White.png?v=${Date.now()}`} />
-        <link rel="apple-touch-icon" sizes="72x72" href={`/logo/favicon-White.png?v=${Date.now()}`} />
-        <link rel="apple-touch-icon" sizes="60x60" href={`/logo/favicon-White.png?v=${Date.now()}`} />
-        <link rel="apple-touch-icon" sizes="57x57" href={`/logo/favicon-White.png?v=${Date.now()}`} />
-        
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href={`/logo/favicon-White.png?v=${Date.now()}`}
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="152x152"
+          href={`/logo/favicon-White.png?v=${Date.now()}`}
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="144x144"
+          href={`/logo/favicon-White.png?v=${Date.now()}`}
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="120x120"
+          href={`/logo/favicon-White.png?v=${Date.now()}`}
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="114x114"
+          href={`/logo/favicon-White.png?v=${Date.now()}`}
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="76x76"
+          href={`/logo/favicon-White.png?v=${Date.now()}`}
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="72x72"
+          href={`/logo/favicon-White.png?v=${Date.now()}`}
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="60x60"
+          href={`/logo/favicon-White.png?v=${Date.now()}`}
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="57x57"
+          href={`/logo/favicon-White.png?v=${Date.now()}`}
+        />
+
         {/* Android Chrome Icons */}
-        <link rel="icon" type="image/png" sizes="192x192" href={`/icon-192x192.png?v=${Date.now()}`} />
-        <link rel="icon" type="image/png" sizes="512x512" href={`/icon-512x512.png?v=${Date.now()}`} />
-        <link rel="icon" type="image/png" sizes="384x384" href={`/icon-384x384.png?v=${Date.now()}`} />
-        <link rel="icon" type="image/png" sizes="256x256" href={`/icon-256x256.png?v=${Date.now()}`} />
-        
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="192x192"
+          href={`/icon-192x192.png?v=${Date.now()}`}
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="512x512"
+          href={`/icon-512x512.png?v=${Date.now()}`}
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="384x384"
+          href={`/icon-384x384.png?v=${Date.now()}`}
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="256x256"
+          href={`/icon-256x256.png?v=${Date.now()}`}
+        />
+
         {/* Microsoft Tiles */}
-        <meta name="msapplication-TileImage" content={`/icon-512x512.png?v=${Date.now()}`} />
+        <meta
+          name="msapplication-TileImage"
+          content={`/icon-512x512.png?v=${Date.now()}`}
+        />
         <meta name="msapplication-TileColor" content="#000000" />
-        
+
         {/* SEO and Social Media */}
-        <link rel="canonical" href={process.env.NEXT_PUBLIC_SITE_URL || "https://technirvor.com"} />
+        <link
+          rel="canonical"
+          href={process.env.NEXT_PUBLIC_SITE_URL || "https://technirvor.com"}
+        />
         <meta name="theme-color" content="#000000" />
         <meta name="msapplication-navbutton-color" content="#000000" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent"
+        />
+
         {/* Sitemap */}
         <link
           rel="sitemap"
@@ -218,19 +294,20 @@ export default function RootLayout({
               publisher: {
                 "@type": "Organization",
                 name: "Tech Nirvor",
-                url: process.env.NEXT_PUBLIC_SITE_URL || "https://technirvor.com",
+                url:
+                  process.env.NEXT_PUBLIC_SITE_URL || "https://technirvor.com",
                 logo: {
                   "@type": "ImageObject",
                   url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://technirvor.com"}/logo/logo-black.png`,
                   width: 800,
-                  height: 600
+                  height: 600,
                 },
                 sameAs: [
                   "https://facebook.com/technirvor",
                   "https://twitter.com/technirvor",
-                  "https://instagram.com/technirvor"
-                ]
-              }
+                  "https://instagram.com/technirvor",
+                ],
+              },
             }),
           }}
         />
@@ -243,23 +320,24 @@ export default function RootLayout({
               name: "Tech Nirvor",
               url: process.env.NEXT_PUBLIC_SITE_URL || "https://technirvor.com",
               logo: `${process.env.NEXT_PUBLIC_SITE_URL || "https://technirvor.com"}/logo/logo-black.png`,
-              description: "Leading e-commerce platform in Bangladesh offering authentic products with fast delivery and cash on delivery options.",
+              description:
+                "Leading e-commerce platform in Bangladesh offering authentic products with fast delivery and cash on delivery options.",
               address: {
                 "@type": "PostalAddress",
                 addressCountry: "BD",
-                addressRegion: "Dhaka"
+                addressRegion: "Dhaka",
               },
               contactPoint: {
                 "@type": "ContactPoint",
                 contactType: "customer service",
                 areaServed: "BD",
-                availableLanguage: ["English", "Bengali"]
+                availableLanguage: ["English", "Bengali"],
               },
               sameAs: [
                 "https://facebook.com/technirvor",
                 "https://twitter.com/technirvor",
-                "https://instagram.com/technirvor"
-              ]
+                "https://instagram.com/technirvor",
+              ],
             }),
           }}
         />
@@ -271,29 +349,41 @@ export default function RootLayout({
               "@type": "Store",
               name: "Tech Nirvor",
               image: `${process.env.NEXT_PUBLIC_SITE_URL || "https://technirvor.com"}/logo/logo-black.png`,
-              description: "Best online shopping store in Bangladesh with authentic products, fast delivery, and cash on delivery options.",
+              description:
+                "Best online shopping store in Bangladesh with authentic products, fast delivery, and cash on delivery options.",
               url: process.env.NEXT_PUBLIC_SITE_URL || "https://technirvor.com",
               telephone: "+880-XXX-XXXXXX",
               address: {
                 "@type": "PostalAddress",
                 addressCountry: "BD",
-                addressRegion: "Dhaka"
+                addressRegion: "Dhaka",
               },
               geo: {
                 "@type": "GeoCoordinates",
                 latitude: "23.8103",
-                longitude: "90.4125"
+                longitude: "90.4125",
               },
               openingHoursSpecification: {
                 "@type": "OpeningHoursSpecification",
                 dayOfWeek: [
-                  "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+                  "Monday",
+                  "Tuesday",
+                  "Wednesday",
+                  "Thursday",
+                  "Friday",
+                  "Saturday",
+                  "Sunday",
                 ],
                 opens: "00:00",
-                closes: "23:59"
+                closes: "23:59",
               },
-              paymentAccepted: ["Cash", "Credit Card", "Debit Card", "Mobile Banking"],
-              currenciesAccepted: "BDT"
+              paymentAccepted: [
+                "Cash",
+                "Credit Card",
+                "Debit Card",
+                "Mobile Banking",
+              ],
+              currenciesAccepted: "BDT",
             }),
           }}
         />
@@ -346,30 +436,31 @@ export default function RootLayout({
           }
         })}
         {/* Enhanced Meta Pixel with CAPI Integration */}
-        {isMetaConfigured() && metaPixelScriptTags().map((tag, i) => {
-          if (tag.startsWith("<script")) {
-            return (
-              <script
-                key={`mp-${i}`}
-                dangerouslySetInnerHTML={{
-                  __html: tag.replace(/<script.*?>|<\/script>/g, ""),
-                }}
-              />
-            );
-          } else if (tag.startsWith("<noscript")) {
-            return (
-              <noscript
-                key={`mp-noscript-${i}`}
-                dangerouslySetInnerHTML={{
-                  __html: tag.replace(/<noscript.*?>|<\/noscript>/g, ""),
-                }}
-              />
-            );
-          }
-          return null;
-        })}
+        {isMetaConfigured() &&
+          metaPixelScriptTags().map((tag, i) => {
+            if (tag.startsWith("<script")) {
+              return (
+                <script
+                  key={`mp-${i}`}
+                  dangerouslySetInnerHTML={{
+                    __html: tag.replace(/<script.*?>|<\/script>/g, ""),
+                  }}
+                />
+              );
+            } else if (tag.startsWith("<noscript")) {
+              return (
+                <noscript
+                  key={`mp-noscript-${i}`}
+                  dangerouslySetInnerHTML={{
+                    __html: tag.replace(/<noscript.*?>|<\/noscript>/g, ""),
+                  }}
+                />
+              );
+            }
+            return null;
+          })}
         {/* Meta CAPI Configuration Debug Info (Development Only) */}
-        {process.env.NODE_ENV === 'development' && (
+        {process.env.NODE_ENV === "development" && (
           <script
             dangerouslySetInnerHTML={{
               __html: `

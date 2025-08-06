@@ -5,7 +5,7 @@ import { validateRequest } from "@/lib/api-security";
 // Use service role key for admin operations to bypass RLS
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
 
 // Use validateRequest for admin access
@@ -15,7 +15,7 @@ async function validateAdminAccess(request: NextRequest) {
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     const { isValid, error } = await validateAdminAccess(request);
@@ -28,7 +28,7 @@ export async function DELETE(
     if (!orderId) {
       return NextResponse.json(
         { error: "Order ID is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -42,7 +42,7 @@ export async function DELETE(
       console.error("Error deleting order items:", itemsError);
       return NextResponse.json(
         { error: "Failed to delete order items" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -67,19 +67,19 @@ export async function DELETE(
       console.error("Error deleting order:", orderError);
       return NextResponse.json(
         { error: "Failed to delete order" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     return NextResponse.json(
       { success: true, message: "Order deleted successfully" },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("Order deletion API error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

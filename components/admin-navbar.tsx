@@ -76,17 +76,18 @@ export default function AdminNavbar() {
 
   const handleSignOut = useCallback(async () => {
     if (loading) return; // Prevent multiple simultaneous logout attempts
-    
+
     setLoading(true);
     try {
       // Clear session cookie first to prevent middleware conflicts
-      document.cookie = "sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax";
-      
+      document.cookie =
+        "sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT; SameSite=Lax";
+
       // Sign out from Supabase
-      await supabase.auth.signOut({ scope: 'local' });
-      
+      await supabase.auth.signOut({ scope: "local" });
+
       toast.success("Signed out successfully");
-      
+
       // Use window.location for immediate redirect to avoid router conflicts
       window.location.href = "/auth/login";
     } catch (error) {

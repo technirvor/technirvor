@@ -32,7 +32,7 @@ function AdminLoginForm() {
     try {
       const hasAccess = await adminAuth.checkAdminAccess();
       if (hasAccess) {
-        const returnUrl = searchParams.get('returnUrl') || '/admin';
+        const returnUrl = searchParams.get("returnUrl") || "/admin";
         router.push(returnUrl);
       }
     } catch (error) {
@@ -77,10 +77,10 @@ function AdminLoginForm() {
     try {
       await adminAuth.signIn(formData.email, formData.password);
       toast.success("Login successful!");
-      
+
       // Add a small delay to ensure cookie is set before redirect
       setTimeout(() => {
-        const returnUrl = searchParams.get('returnUrl') || '/admin';
+        const returnUrl = searchParams.get("returnUrl") || "/admin";
         router.push(returnUrl);
       }, 100);
     } catch (error: any) {
@@ -205,20 +205,22 @@ function AdminLoginForm() {
 
 export default function AdminLoginPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <div className="mx-auto w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-              <Shield className="w-6 h-6 text-blue-600" />
-            </div>
-            <CardTitle className="text-2xl font-bold text-gray-900">
-              Loading...
-            </CardTitle>
-          </CardHeader>
-        </Card>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+          <Card className="w-full max-w-md">
+            <CardHeader className="text-center">
+              <div className="mx-auto w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                <Shield className="w-6 h-6 text-blue-600" />
+              </div>
+              <CardTitle className="text-2xl font-bold text-gray-900">
+                Loading...
+              </CardTitle>
+            </CardHeader>
+          </Card>
+        </div>
+      }
+    >
       <AdminLoginForm />
     </Suspense>
   );

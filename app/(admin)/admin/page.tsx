@@ -52,7 +52,7 @@ export default function AdminDashboard() {
   const fetchDashboardStats = async () => {
     try {
       setLoading(true);
-      
+
       // Use Promise.all for parallel queries with optimized selects
       const [
         ordersCountResult,
@@ -60,48 +60,45 @@ export default function AdminDashboard() {
         revenueResult,
         todayOrdersResult,
         productsCountResult,
-        lowStockResult
+        lowStockResult,
       ] = await Promise.all([
         // Total orders count
-        supabase
-          .from("orders")
-          .select("*", { count: 'exact', head: true }),
-        
+        supabase.from("orders").select("*", { count: "exact", head: true }),
+
         // Pending orders count
         supabase
           .from("orders")
-          .select("*", { count: 'exact', head: true })
+          .select("*", { count: "exact", head: true })
           .eq("status", "pending"),
-        
+
         // Total revenue
         supabase
           .from("orders")
           .select("total_amount")
           .not("total_amount", "is", null),
-        
+
         // Today's orders
         supabase
           .from("orders")
-          .select("*", { count: 'exact', head: true })
+          .select("*", { count: "exact", head: true })
           .gte("created_at", new Date().toISOString().split("T")[0]),
-        
+
         // Total products count
-        supabase
-          .from("products")
-          .select("*", { count: 'exact', head: true }),
-        
+        supabase.from("products").select("*", { count: "exact", head: true }),
+
         // Low stock products count
         supabase
           .from("products")
-          .select("*", { count: 'exact', head: true })
-          .lt("stock_quantity", 10)
+          .select("*", { count: "exact", head: true })
+          .lt("stock_quantity", 10),
       ]);
 
       // Calculate total revenue
-      const totalRevenue = revenueResult.data?.reduce(
-        (sum, order) => sum + (order.total_amount || 0),
-        0
-      ) || 0;
+      const totalRevenue =
+        revenueResult.data?.reduce(
+          (sum, order) => sum + (order.total_amount || 0),
+          0,
+        ) || 0;
 
       setStats({
         totalOrders: ordersCountResult.count || 0,
@@ -143,7 +140,9 @@ export default function AdminDashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Orders</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Total Orders
+                </p>
                 <p className="text-2xl font-bold text-gray-900">
                   {loading ? "..." : stats.totalOrders}
                 </p>
@@ -161,7 +160,9 @@ export default function AdminDashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Pending Orders</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Pending Orders
+                </p>
                 <p className="text-2xl font-bold text-gray-900">
                   {loading ? "..." : stats.pendingOrders}
                 </p>
@@ -180,7 +181,9 @@ export default function AdminDashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Revenue</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Total Revenue
+                </p>
                 <p className="text-2xl font-bold text-gray-900">
                   ৳{loading ? "..." : stats.totalRevenue.toLocaleString()}
                 </p>
@@ -226,25 +229,37 @@ export default function AdminDashboard() {
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Link href="/admin/products/new">
-              <Button className="w-full h-20 flex flex-col gap-2" variant="outline">
+              <Button
+                className="w-full h-20 flex flex-col gap-2"
+                variant="outline"
+              >
                 <Plus className="h-6 w-6" />
                 <span className="text-sm">Add Product</span>
               </Button>
             </Link>
             <Link href="/admin/orders">
-              <Button className="w-full h-20 flex flex-col gap-2" variant="outline">
+              <Button
+                className="w-full h-20 flex flex-col gap-2"
+                variant="outline"
+              >
                 <Eye className="h-6 w-6" />
                 <span className="text-sm">View Orders</span>
               </Button>
             </Link>
             <Link href="/admin/combo-products/new">
-              <Button className="w-full h-20 flex flex-col gap-2" variant="outline">
+              <Button
+                className="w-full h-20 flex flex-col gap-2"
+                variant="outline"
+              >
                 <Gift className="h-6 w-6" />
                 <span className="text-sm">Create Combo</span>
               </Button>
             </Link>
             <Link href="/admin/flash-sale/new">
-              <Button className="w-full h-20 flex flex-col gap-2" variant="outline">
+              <Button
+                className="w-full h-20 flex flex-col gap-2"
+                variant="outline"
+              >
                 <Zap className="h-6 w-6" />
                 <span className="text-sm">Flash Sale</span>
               </Button>
@@ -314,7 +329,10 @@ export default function AdminDashboard() {
               </Link>
               {stats.pendingOrders > 0 && (
                 <Link href="/admin/orders?status=pending">
-                  <Button variant="outline" className="w-full justify-between border-orange-200">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-between border-orange-200"
+                  >
                     <span className="flex items-center">
                       <Clock className="h-4 w-4 mr-2 text-orange-500" />
                       Pending Orders
@@ -369,8 +387,16 @@ export default function AdminDashboard() {
               </Button>
             </Link>
             <div className="text-sm text-gray-600">
-              <p>Today's Orders: <span className="font-semibold">{stats.todayOrders}</span></p>
-              <p>Revenue: <span className="font-semibold">৳{stats.totalRevenue.toLocaleString()}</span></p>
+              <p>
+                Today's Orders:{" "}
+                <span className="font-semibold">{stats.todayOrders}</span>
+              </p>
+              <p>
+                Revenue:{" "}
+                <span className="font-semibold">
+                  ৳{stats.totalRevenue.toLocaleString()}
+                </span>
+              </p>
             </div>
           </CardContent>
         </Card>
