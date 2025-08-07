@@ -24,7 +24,7 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { Copy, Save, CreditCard } from "lucide-react";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import type { Order, TrackingNote, PaymentTracking } from "@/lib/types";
 
@@ -48,6 +48,18 @@ export default function OrderDetailsClient({
     order.transaction_id || "",
   );
   const [isUpdatingPayment, setIsUpdatingPayment] = useState(false);
+  const [transactionIdError, setTransactionIdError] = useState<string>("");
+  const [validationTimeout, setValidationTimeout] =
+    useState<NodeJS.Timeout | null>(null);
+
+  // Cleanup timeout on component unmount
+  useEffect(() => {
+    return () => {
+      if (validationTimeout) {
+        clearTimeout(validationTimeout);
+      }
+    };
+  }, [validationTimeout]);
 
   const statusOptions = [
     { value: "pending", label: "Pending" },
@@ -68,6 +80,56 @@ export default function OrderDetailsClient({
 
   const handleStatusChange = (value: string) => {
     setCurrentStatus(value);
+  };
+
+  const validateTransactionId = async (txId: string) => {
+    if (!txId || txId.trim() === "") {
+      setTransactionIdError("");
+      return;
+    }
+
+    if (txId.trim() === order.transaction_id) {
+      setTransactionIdError("");
+      return;
+    }
+
+    try {
+      const { data: existingOrder, error } = await supabase
+        .from("orders")
+        .select("id")
+        .eq("transaction_id", txId.trim())
+        .neq("id", order.id)
+        .single();
+
+      if (error && error.code !== "PGRST116") {
+        console.error("Error checking transaction ID:", error);
+        return;
+      }
+
+      if (existingOrder) {
+        setTransactionIdError("Transaction ID already used for another order");
+      } else {
+        setTransactionIdError("");
+      }
+    } catch (error) {
+      console.error("Error validating transaction ID:", error);
+    }
+  };
+
+  const handleTransactionIdChange = (value: string) => {
+    setTransactionId(value);
+
+    // Clear previous timeout
+    if (validationTimeout) {
+      clearTimeout(validationTimeout);
+    }
+
+    // Set new timeout for validation
+    const timeoutId = setTimeout(() => {
+      validateTransactionId(value);
+    }, 500);
+
+    setValidationTimeout(timeoutId);
   };
 
   const handleStatusUpdate = async () => {
@@ -137,7 +199,28 @@ export default function OrderDetailsClient({
       }
 
       if (transactionId !== (order.transaction_id || "")) {
-        updateData.transaction_id = transactionId || null;
+        // Check if transaction ID already exists for security
+        if (transactionId && transactionId.trim() !== "") {
+          const { data: existingOrder, error: checkError } = await supabase
+            .from("orders")
+            .select("id")
+            .eq("transaction_id", transactionId.trim())
+            .neq("id", order.id)
+            .single();
+
+          if (checkError && checkError.code !== "PGRST116") {
+            throw checkError;
+          }
+
+          if (existingOrder) {
+            toast.error(
+              "Transaction ID already exists. Please use a unique transaction ID.",
+            );
+            return;
+          }
+        }
+
+        updateData.transaction_id = transactionId.trim() || null;
       }
 
       const { error } = await supabase
@@ -145,7 +228,18 @@ export default function OrderDetailsClient({
         .update(updateData)
         .eq("id", order.id);
 
-      if (error) throw error;
+      if (error) {
+        if (
+          error.code === "23505" &&
+          error.message.includes("transaction_id")
+        ) {
+          toast.error(
+            "Transaction ID already exists. Please use a unique transaction ID.",
+          );
+          return;
+        }
+        throw error;
+      }
 
       toast.success("Payment status updated successfully!");
 
@@ -341,18 +435,27 @@ export default function OrderDetailsClient({
             </div>
             <div className="space-y-2">
               <Label htmlFor="transaction-id">Transaction ID</Label>
-              <Input
-                id="transaction-id"
-                placeholder="Enter transaction ID..."
-                value={transactionId}
-                onChange={(e) => setTransactionId(e.target.value)}
-              />
+              <div>
+                <Input
+                  id="transaction-id"
+                  placeholder="Enter transaction ID..."
+                  value={transactionId}
+                  onChange={(e) => handleTransactionIdChange(e.target.value)}
+                  className={transactionIdError ? "border-red-500" : ""}
+                />
+                {transactionIdError && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {transactionIdError}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
           <Button
             onClick={handlePaymentUpdate}
             disabled={
               isUpdatingPayment ||
+              !!transactionIdError ||
               (paymentStatus === order.payment_status &&
                 transactionId === (order.transaction_id || ""))
             }
