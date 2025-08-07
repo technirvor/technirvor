@@ -32,6 +32,7 @@ export async function POST(request: NextRequest) {
       district,
       address,
       payment_method,
+      transaction_id,
       items,
       total_amount,
     } = body;
@@ -142,6 +143,7 @@ export async function POST(request: NextRequest) {
         district,
         address,
         payment_method,
+        transaction_id: transaction_id || null,
         total_amount,
         status: "pending",
       })

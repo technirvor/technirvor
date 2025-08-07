@@ -14,6 +14,7 @@ async function getOrder(id: string): Promise<Order | null> {
       .select(
         `
         *,
+        transaction_id,
         items:order_items(
           *,
           product:products(*)
@@ -39,9 +40,10 @@ async function getOrder(id: string): Promise<Order | null> {
 
 async function getTrackingNotes(orderId: string) {
   const { data, error } = await supabase
-    .from("tracking_notes")
+    .from("order_tracking")
     .select("*")
-    .eq("order_id", orderId);
+    .eq("order_id", orderId)
+    .order("created_at", { ascending: false });
   if (error) {
     console.error("Tracking notes error:", error);
     return [];

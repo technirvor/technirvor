@@ -57,6 +57,7 @@ export interface Order {
   address: string;
   shipping_address?: string;
   payment_method: string;
+  transaction_id?: string;
   total_amount: number;
   status:
     | "pending"
@@ -82,8 +83,8 @@ export interface OrderItem {
 export interface TrackingNote {
   id: string;
   order_id: string;
-  note: string;
   status: string;
+  note: string;
   created_at: string;
 }
 
