@@ -48,10 +48,22 @@ export default function CheckoutPage() {
     paymentMethod: "cod",
     transactionId: "",
   });
+  const [transactionIdError, setTransactionIdError] = useState<string>("");
+  const [validationTimeout, setValidationTimeout] =
+    useState<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     fetchDistricts();
   }, []);
+
+  // Cleanup timeout on component unmount
+  useEffect(() => {
+    return () => {
+      if (validationTimeout) {
+        clearTimeout(validationTimeout);
+      }
+    };
+  }, [validationTimeout]);
 
   useEffect(() => {
     if (formData.paymentMethod) {
@@ -146,6 +158,50 @@ export default function CheckoutPage() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const validateTransactionId = async (txId: string) => {
+    if (!txId || txId.trim() === "") {
+      setTransactionIdError("");
+      return;
+    }
+
+    try {
+      const { data: existingOrder, error } = await supabase
+        .from("orders")
+        .select("id")
+        .eq("transaction_id", txId.trim())
+        .single();
+
+      if (error && error.code !== "PGRST116") {
+        console.error("Error checking transaction ID:", error);
+        return;
+      }
+
+      if (existingOrder) {
+        setTransactionIdError("Transaction ID already used for another order");
+      } else {
+        setTransactionIdError("");
+      }
+    } catch (error) {
+      console.error("Error validating transaction ID:", error);
+    }
+  };
+
+  const handleTransactionIdChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, transactionId: value }));
+
+    // Clear previous timeout
+    if (validationTimeout) {
+      clearTimeout(validationTimeout);
+    }
+
+    // Set new timeout for validation
+    const timeoutId = setTimeout(() => {
+      validateTransactionId(value);
+    }, 500);
+
+    setValidationTimeout(timeoutId);
+  };
+
   // Bangladeshi phone number validation
   const isValidBangladeshiPhone = (phone: string) => {
     // Accepts 01410077761 or +8801410077761 (11 or 14 digits)
@@ -174,6 +230,19 @@ export default function CheckoutPage() {
       toast.error("Address is required");
       return false;
     }
+
+    // Validate transaction ID for mobile payments
+    if (["bkash", "nagad", "rocket", "upay"].includes(formData.paymentMethod)) {
+      if (!formData.transactionId.trim()) {
+        toast.error("Transaction ID is required for mobile payments");
+        return false;
+      }
+      if (transactionIdError) {
+        toast.error("Please fix the transaction ID error before proceeding");
+        return false;
+      }
+    }
+
     return true;
   };
 
@@ -226,6 +295,29 @@ export default function CheckoutPage() {
     setLoading(true);
 
     try {
+      // Additional validation for transaction ID uniqueness before submission
+      if (
+        ["bkash", "nagad", "rocket", "upay"].includes(formData.paymentMethod) &&
+        formData.transactionId.trim()
+      ) {
+        const { data: existingOrder, error: checkError } = await supabase
+          .from("orders")
+          .select("id")
+          .eq("transaction_id", formData.transactionId.trim())
+          .single();
+
+        if (checkError && checkError.code !== "PGRST116") {
+          throw checkError;
+        }
+
+        if (existingOrder) {
+          toast.error(
+            "Transaction ID already exists. Please use a unique transaction ID.",
+          );
+          setLoading(false);
+          return;
+        }
+      }
       const orderItems = items.flatMap((item) => {
         if (item.isCombo && item.comboItems) {
           // For combo items, create order items for each individual product
@@ -306,11 +398,22 @@ export default function CheckoutPage() {
       clearCart();
       toast.success("Order placed successfully!");
       router.push(`/order-confirmation/${result.order.id}`);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Order submission error:", error);
-      toast.error(
-        error instanceof Error ? error.message : "Failed to place order",
-      );
+
+      // Handle unique constraint violation for transaction ID
+      if (
+        error?.code === "23505" &&
+        error?.message?.includes("transaction_id")
+      ) {
+        toast.error(
+          "Transaction ID already exists. Please use a unique transaction ID.",
+        );
+      } else {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to place order",
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -795,26 +898,37 @@ export default function CheckoutPage() {
                   ) && (
                     <div className="mt-4">
                       <Label htmlFor="transactionId">Transaction ID *</Label>
-                      <Input
-                        id="transactionId"
-                        type="text"
-                        value={formData.transactionId}
-                        onChange={(e) =>
-                          handleInputChange("transactionId", e.target.value)
-                        }
-                        placeholder="Enter transaction ID after payment"
-                        required
-                        className="mt-1"
-                      />
-                      <p className="text-xs text-gray-500 mt-1">
-                        Complete the payment first, then enter the transaction
-                        ID here
-                      </p>
+                      <div>
+                        <Input
+                          id="transactionId"
+                          type="text"
+                          value={formData.transactionId}
+                          onChange={(e) =>
+                            handleTransactionIdChange(e.target.value)
+                          }
+                          placeholder="Enter transaction ID after payment"
+                          required
+                          className={`mt-1 ${transactionIdError ? "border-red-500" : ""}`}
+                        />
+                        {transactionIdError && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {transactionIdError}
+                          </p>
+                        )}
+                        <p className="text-xs text-gray-500 mt-1">
+                          Complete the payment first, then enter the transaction
+                          ID here
+                        </p>
+                      </div>
                     </div>
                   )}
                 </div>
 
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={loading || transactionIdError !== ""}
+                >
                   {loading ? "Placing Order..." : "Place Order"}
                 </Button>
               </form>
