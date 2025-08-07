@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createServerClient } from "@/lib/supabase";
 import { notFound } from "next/navigation";
+import ClientTracker from "./client-tracker";
 
 interface PageProps {
   params: {
@@ -34,13 +35,12 @@ export default async function ShortLinkRedirect({ params }: PageProps) {
       notFound();
     }
 
-    // Increment click count asynchronously (fire and forget)
-    supabase.rpc("increment_clicks", { short_code: code }).then(() => {});
+    // Note: Click tracking is now handled client-side to ensure unique user tracking
   } catch (error) {
     console.error("Error processing short link:", error);
     notFound();
   }
 
-  // Redirect to the original URL (outside try-catch to avoid catching NEXT_REDIRECT)
-  redirect(shortLink.original_url);
+  // Return the client tracker component which will handle both tracking and redirect
+  return <ClientTracker shortCode={code} originalUrl={shortLink.original_url} />;
 }
