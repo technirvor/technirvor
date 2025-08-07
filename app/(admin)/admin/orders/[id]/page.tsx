@@ -15,6 +15,7 @@ async function getOrder(id: string): Promise<Order | null> {
         `
         *,
         transaction_id,
+        payment_status,
         items:order_items(
           *,
           product:products(*)

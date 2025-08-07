@@ -42,5 +42,7 @@ export default async function ShortLinkRedirect({ params }: PageProps) {
   }
 
   // Return the client tracker component which will handle both tracking and redirect
-  return <ClientTracker shortCode={code} originalUrl={shortLink.original_url} />;
+  return (
+    <ClientTracker shortCode={code} originalUrl={shortLink.original_url} />
+  );
 }

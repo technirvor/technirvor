@@ -11,15 +11,22 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { Copy, Save } from "lucide-react";
+import { Copy, Save, CreditCard } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
-import type { Order, TrackingNote } from "@/lib/types";
+import type { Order, TrackingNote, PaymentTracking } from "@/lib/types";
 
 interface OrderDetailsClientProps {
   order: Order;
@@ -34,6 +41,13 @@ export default function OrderDetailsClient({
   const [newNote, setNewNote] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
   const [notes, setNotes] = useState(trackingNotes);
+  const [paymentStatus, setPaymentStatus] = useState<string>(
+    order.payment_status || "pending",
+  );
+  const [transactionId, setTransactionId] = useState<string>(
+    order.transaction_id || "",
+  );
+  const [isUpdatingPayment, setIsUpdatingPayment] = useState(false);
 
   const statusOptions = [
     { value: "pending", label: "Pending" },
@@ -41,6 +55,14 @@ export default function OrderDetailsClient({
     { value: "processing", label: "Processing" },
     { value: "shipped", label: "Shipped" },
     { value: "delivered", label: "Delivered" },
+    { value: "cancelled", label: "Cancelled" },
+  ];
+
+  const paymentStatusOptions = [
+    { value: "pending", label: "Pending" },
+    { value: "paid", label: "Paid" },
+    { value: "failed", label: "Failed" },
+    { value: "refunded", label: "Refunded" },
     { value: "cancelled", label: "Cancelled" },
   ];
 
@@ -86,7 +108,7 @@ export default function OrderDetailsClient({
       }
 
       toast.success("Order updated successfully!");
-      
+
       // Refresh the page to show updated data
       window.location.reload();
     } catch (error) {
@@ -94,6 +116,46 @@ export default function OrderDetailsClient({
       toast.error("Failed to update order");
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handlePaymentUpdate = async () => {
+    if (
+      paymentStatus === order.payment_status &&
+      transactionId === (order.transaction_id || "")
+    ) {
+      toast.error("No changes to update");
+      return;
+    }
+
+    setIsUpdatingPayment(true);
+    try {
+      const updateData: any = {};
+
+      if (paymentStatus !== order.payment_status) {
+        updateData.payment_status = paymentStatus;
+      }
+
+      if (transactionId !== (order.transaction_id || "")) {
+        updateData.transaction_id = transactionId || null;
+      }
+
+      const { error } = await supabase
+        .from("orders")
+        .update(updateData)
+        .eq("id", order.id);
+
+      if (error) throw error;
+
+      toast.success("Payment status updated successfully!");
+
+      // Refresh the page to show updated data
+      window.location.reload();
+    } catch (error) {
+      console.error("Error updating payment status:", error);
+      toast.error("Failed to update payment status");
+    } finally {
+      setIsUpdatingPayment(false);
     }
   };
   return (
@@ -186,19 +248,21 @@ export default function OrderDetailsClient({
           </div>
           <div>
             <span className="font-semibold">Status:</span>{" "}
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-              order.status === "delivered" 
-                ? "bg-green-100 text-green-800"
-                : order.status === "cancelled"
-                ? "bg-red-100 text-red-800"
-                : order.status === "confirmed"
-                ? "bg-blue-100 text-blue-800"
-                : order.status === "processing"
-                ? "bg-purple-100 text-purple-800"
-                : order.status === "shipped"
-                ? "bg-indigo-100 text-indigo-800"
-                : "bg-yellow-100 text-yellow-800"
-            }`}>
+            <span
+              className={`px-2 py-1 rounded-full text-xs font-medium ${
+                order.status === "delivered"
+                  ? "bg-green-100 text-green-800"
+                  : order.status === "cancelled"
+                    ? "bg-red-100 text-red-800"
+                    : order.status === "confirmed"
+                      ? "bg-blue-100 text-blue-800"
+                      : order.status === "processing"
+                        ? "bg-purple-100 text-purple-800"
+                        : order.status === "shipped"
+                          ? "bg-indigo-100 text-indigo-800"
+                          : "bg-yellow-100 text-yellow-800"
+              }`}
+            >
               {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
             </span>
           </div>
@@ -256,6 +320,54 @@ export default function OrderDetailsClient({
 
       <Card className="shadow-sm border">
         <CardHeader className="pb-4">
+          <CardTitle className="text-2xl">Update Payment Status</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="payment-status">Payment Status</Label>
+              <Select value={paymentStatus} onValueChange={setPaymentStatus}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select payment status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {paymentStatusOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="transaction-id">Transaction ID</Label>
+              <Input
+                id="transaction-id"
+                placeholder="Enter transaction ID..."
+                value={transactionId}
+                onChange={(e) => setTransactionId(e.target.value)}
+              />
+            </div>
+          </div>
+          <Button
+            onClick={handlePaymentUpdate}
+            disabled={
+              isUpdatingPayment ||
+              (paymentStatus === order.payment_status &&
+                transactionId === (order.transaction_id || ""))
+            }
+            className="w-full md:w-auto"
+          >
+            <CreditCard className="w-4 h-4 mr-2" />
+            {isUpdatingPayment ? "Updating..." : "Update Payment"}
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Separator className="my-6" />
+
+      <Card className="shadow-sm border">
+        <CardHeader className="pb-4">
           <CardTitle className="text-2xl">Payment Information</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-base">
@@ -272,7 +384,9 @@ export default function OrderDetailsClient({
           {order.transaction_id && (
             <div className="flex items-center gap-2">
               <span className="font-semibold">Transaction ID:</span>{" "}
-              <span className="font-mono text-gray-900">{order.transaction_id}</span>
+              <span className="font-mono text-gray-900">
+                {order.transaction_id}
+              </span>
               <Button
                 variant="ghost"
                 size="sm"
@@ -287,26 +401,21 @@ export default function OrderDetailsClient({
           )}
           <div>
             <span className="font-semibold">Payment Status:</span>{" "}
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-              order.status === "delivered" 
-                ? "bg-green-100 text-green-800"
-                : order.status === "cancelled"
-                ? "bg-red-100 text-red-800"
-                : order.payment_method === "cod" || order.payment_method === "COD"
-                ? "bg-yellow-100 text-yellow-800"
-                : order.transaction_id
-                ? "bg-green-100 text-green-800"
-                : "bg-gray-100 text-gray-800"
-            }`}>
-              {order.status === "delivered" 
-                ? "Paid"
-                : order.status === "cancelled"
-                ? "Cancelled"
-                : order.payment_method === "cod" || order.payment_method === "COD"
-                ? "Pay on Delivery"
-                : order.transaction_id
-                ? "Paid"
-                : "Pending"}
+            <span
+              className={`px-2 py-1 rounded-full text-xs font-medium ${
+                order.payment_status === "paid"
+                  ? "bg-green-100 text-green-800"
+                  : order.payment_status === "failed"
+                    ? "bg-red-100 text-red-800"
+                    : order.payment_status === "refunded"
+                      ? "bg-orange-100 text-orange-800"
+                      : order.payment_status === "cancelled"
+                        ? "bg-gray-100 text-gray-800"
+                        : "bg-yellow-100 text-yellow-800"
+              }`}
+            >
+              {(order.payment_status || "pending").charAt(0).toUpperCase() +
+                (order.payment_status || "pending").slice(1)}
             </span>
           </div>
         </CardContent>
@@ -346,9 +455,11 @@ export default function OrderDetailsClient({
               />
             </div>
           </div>
-          <Button 
-            onClick={handleStatusUpdate} 
-            disabled={isUpdating || (currentStatus === order.status && !newNote.trim())}
+          <Button
+            onClick={handleStatusUpdate}
+            disabled={
+              isUpdating || (currentStatus === order.status && !newNote.trim())
+            }
             className="w-full md:w-auto"
           >
             <Save className="w-4 h-4 mr-2" />

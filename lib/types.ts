@@ -66,6 +66,8 @@ export interface Order {
     | "shipped"
     | "delivered"
     | "cancelled";
+  payment_status?: string;
+  notes?: string;
   items: OrderItem[];
   tracking_notes: TrackingNote[];
   created_at: string;
@@ -85,6 +87,16 @@ export interface TrackingNote {
   order_id: string;
   status: string;
   note: string;
+  created_at: string;
+}
+
+export interface PaymentTracking {
+  id: string;
+  order_id: string;
+  payment_status: string;
+  note?: string;
+  amount?: number;
+  transaction_reference?: string;
   created_at: string;
 }
 

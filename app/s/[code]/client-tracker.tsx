@@ -1,41 +1,44 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
 interface ClientTrackerProps {
   shortCode: string;
   originalUrl: string;
 }
 
-export default function ClientTracker({ shortCode, originalUrl }: ClientTrackerProps) {
+export default function ClientTracker({
+  shortCode,
+  originalUrl,
+}: ClientTrackerProps) {
   useEffect(() => {
     const trackAndRedirect = async () => {
       // Check if this user has already clicked this link
       const storageKey = `clicked_${shortCode}`;
       const hasClicked = localStorage.getItem(storageKey);
-      
+
       if (!hasClicked) {
         // Mark this link as clicked for this user
-        localStorage.setItem(storageKey, 'true');
-        
+        localStorage.setItem(storageKey, "true");
+
         // Increment the click count
         try {
-          await supabase.rpc('increment_clicks', { short_code: shortCode });
+          await supabase.rpc("increment_clicks", { short_code: shortCode });
         } catch (error) {
-          console.error('Error tracking click:', error);
+          console.error("Error tracking click:", error);
           // If there's an error, remove the localStorage entry so it can be retried
           localStorage.removeItem(storageKey);
         }
       }
-      
+
       // Redirect to the original URL
       window.location.href = originalUrl;
     };
-    
+
     trackAndRedirect();
   }, [shortCode, originalUrl]);
-  
+
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="text-center">

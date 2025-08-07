@@ -122,13 +122,43 @@ export default function InvoicePrint({ order }: Props) {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                  Payment Method:
+                  Payment Information:
                 </h3>
-                <div className="text-gray-600">
-                  <p className="font-medium">
-                    {order.payment_method.toUpperCase()}
-                  </p>
-                  <p>Cash on Delivery</p>
+                <div className="text-gray-600 space-y-2">
+                  <div>
+                    <span className="font-medium text-gray-900">Method:</span>
+                    <span className="ml-2">
+                      {order.payment_method.toUpperCase()}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-900">Status:</span>
+                    <span
+                      className={`ml-2 px-2 py-1 rounded text-xs font-medium ${
+                        order.payment_status === "paid"
+                          ? "bg-green-100 text-green-800"
+                          : order.payment_status === "failed"
+                            ? "bg-red-100 text-red-800"
+                            : order.payment_status === "refunded"
+                              ? "bg-orange-100 text-orange-800"
+                              : order.payment_status === "cancelled"
+                                ? "bg-gray-100 text-gray-800"
+                                : "bg-yellow-100 text-yellow-800"
+                      }`}
+                    >
+                      {(order.payment_status || "pending").toUpperCase()}
+                    </span>
+                  </div>
+                  {order.transaction_id && (
+                    <div>
+                      <span className="font-medium text-gray-900">
+                        Transaction ID:
+                      </span>
+                      <span className="ml-2 font-mono text-sm">
+                        {order.transaction_id}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

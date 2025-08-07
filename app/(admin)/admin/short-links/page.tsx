@@ -99,24 +99,22 @@ export default function ShortLinksAdmin() {
 
     // Set up real-time subscription for short_links table
     const channel = supabase
-      .channel('short_links_changes')
+      .channel("short_links_changes")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'short_links'
+          event: "UPDATE",
+          schema: "public",
+          table: "short_links",
         },
         (payload) => {
           // Update the specific short link in the state
-          setShortLinks(prev => 
-            prev.map(link => 
-              link.id === payload.new.id 
-                ? { ...link, ...payload.new }
-                : link
-            )
+          setShortLinks((prev) =>
+            prev.map((link) =>
+              link.id === payload.new.id ? { ...link, ...payload.new } : link,
+            ),
           );
-        }
+        },
       )
       .subscribe();
 

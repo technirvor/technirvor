@@ -14,6 +14,7 @@ async function getOrder(id: string): Promise<Order | null> {
       .select(
         `
         *,
+        payment_status,
         items:order_items(
           *,
           product:products(*)
