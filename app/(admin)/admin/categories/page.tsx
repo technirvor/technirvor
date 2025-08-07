@@ -14,6 +14,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Edit, Trash2, Plus, Search } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import type { Category } from "@/lib/types";
@@ -23,6 +33,10 @@ export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [deleteDialog, setDeleteDialog] = useState<{
+    open: boolean;
+    category: Category | null;
+  }>({ open: false, category: null });
 
   useEffect(() => {
     fetchCategories();
@@ -45,23 +59,29 @@ export default function AdminCategoriesPage() {
     }
   };
 
-  const handleDelete = async (id: string, name: string) => {
-    if (
-      !confirm(
-        `Are you sure you want to delete "${name}"? This will also delete all products in this category.`,
-      )
-    )
-      return;
+  const handleDeleteClick = (category: Category) => {
+    setDeleteDialog({ open: true, category });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteDialog.category) return;
 
     try {
-      const { error } = await supabase.from("categories").delete().eq("id", id);
+      const { error } = await supabase
+        .from("categories")
+        .delete()
+        .eq("id", deleteDialog.category.id);
       if (error) throw error;
 
-      setCategories(categories.filter((c) => c.id !== id));
+      setCategories(
+        categories.filter((c) => c.id !== deleteDialog.category!.id),
+      );
       toast.success("Category deleted successfully");
     } catch (error) {
       console.error("Error deleting category:", error);
       toast.error("Failed to delete category");
+    } finally {
+      setDeleteDialog({ open: false, category: null });
     }
   };
 
@@ -170,9 +190,7 @@ export default function AdminCategoriesPage() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() =>
-                              handleDelete(category.id, category.name)
-                            }
+                            onClick={() => handleDeleteClick(category)}
                             className="text-red-600 hover:text-red-800"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -187,6 +205,37 @@ export default function AdminCategoriesPage() {
           </CardContent>
         </Card>
       </div>
+
+      <AlertDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) =>
+          setDeleteDialog({ open, category: deleteDialog.category })
+        }
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Category</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{deleteDialog.category?.name}"?
+              This will also delete all products in this category. This action
+              cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={() => setDeleteDialog({ open: false, category: null })}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

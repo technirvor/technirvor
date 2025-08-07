@@ -21,6 +21,7 @@ import {
   Shield,
   ChevronLeft,
   ChevronRight,
+  Link2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -91,6 +92,12 @@ const navigationSections = [
         href: "/admin/hero-slides",
         icon: ImageIcon,
         description: "Homepage banners",
+      },
+      {
+        name: "Short Links",
+        href: "/admin/short-links",
+        icon: Link2,
+        description: "URL shortening management",
       },
     ],
   },

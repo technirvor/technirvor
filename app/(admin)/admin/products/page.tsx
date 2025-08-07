@@ -48,6 +48,19 @@ export default function AdminProductsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [stockUpdateDialog, setStockUpdateDialog] = useState<{
+    isOpen: boolean;
+    productId: string;
+    productName: string;
+    currentStock: number;
+    newStock: string;
+  }>({
+    isOpen: false,
+    productId: "",
+    productName: "",
+    currentStock: 0,
+    newStock: "",
+  });
 
   useEffect(() => {
     fetchProducts(1, "");
@@ -188,6 +201,22 @@ export default function AdminProductsPage() {
       console.error("Error updating stock:", error);
       toast.error("Failed to update stock");
     }
+  };
+
+  const handleStockUpdate = () => {
+    const newStockValue = Number(stockUpdateDialog.newStock);
+    if (isNaN(newStockValue) || newStockValue < 0) {
+      toast.error("Please enter a valid stock number");
+      return;
+    }
+    updateStock(stockUpdateDialog.productId, newStockValue);
+    setStockUpdateDialog({
+      isOpen: false,
+      productId: "",
+      productName: "",
+      currentStock: 0,
+      newStock: "",
+    });
   };
 
   const getStockStatus = (stock: number) => {
@@ -440,19 +469,13 @@ export default function AdminProductsPage() {
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => {
-                                      const newStock = prompt(
-                                        `Update stock for ${product.name}:`,
-                                        product.stock.toString(),
-                                      );
-                                      if (
-                                        newStock !== null &&
-                                        !isNaN(Number(newStock))
-                                      ) {
-                                        updateStock(
-                                          product.id,
-                                          Number(newStock),
-                                        );
-                                      }
+                                      setStockUpdateDialog({
+                                        isOpen: true,
+                                        productId: product.id,
+                                        productName: product.name,
+                                        currentStock: product.stock,
+                                        newStock: product.stock.toString(),
+                                      });
                                     }}
                                     className="text-blue-600 hover:text-blue-800"
                                     title="Update Stock"
@@ -550,6 +573,52 @@ export default function AdminProductsPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Stock Update Dialog */}
+      {stockUpdateDialog.isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-96 max-w-md">
+            <h3 className="text-lg font-semibold mb-4">
+              Update Stock for {stockUpdateDialog.productName}
+            </h3>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">
+                Current Stock: {stockUpdateDialog.currentStock}
+              </label>
+              <Input
+                type="number"
+                value={stockUpdateDialog.newStock}
+                onChange={(e) =>
+                  setStockUpdateDialog((prev) => ({
+                    ...prev,
+                    newStock: e.target.value,
+                  }))
+                }
+                placeholder="Enter new stock quantity"
+                min="0"
+                className="w-full"
+              />
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="outline"
+                onClick={() =>
+                  setStockUpdateDialog({
+                    isOpen: false,
+                    productId: "",
+                    productName: "",
+                    currentStock: 0,
+                    newStock: "",
+                  })
+                }
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleStockUpdate}>Update Stock</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

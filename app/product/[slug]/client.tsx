@@ -32,6 +32,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import ImageUpload from "@/components/image-upload";
+import ShortLinkGenerator from "@/components/short-link-generator";
 
 interface Review {
   id: string;
@@ -469,6 +470,16 @@ export default function ProductPageClient({ product }: Props) {
                 <Share2 className="w-4 h-4 mr-2" />
                 Share
               </Button>
+              <ShortLinkGenerator
+                originalUrl={
+                  typeof window !== "undefined" ? window.location.href : ""
+                }
+                title={product.name}
+                description={
+                  product.description ||
+                  `Buy ${product.name} online in Bangladesh`
+                }
+              />
             </div>
 
             {/* Product Details */}
