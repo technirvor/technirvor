@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -95,6 +96,34 @@ export default function ShortLinksAdmin() {
   useEffect(() => {
     fetchShortLinks();
     fetchProducts("");
+
+    // Set up real-time subscription for short_links table
+    const channel = supabase
+      .channel('short_links_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'short_links'
+        },
+        (payload) => {
+          // Update the specific short link in the state
+          setShortLinks(prev => 
+            prev.map(link => 
+              link.id === payload.new.id 
+                ? { ...link, ...payload.new }
+                : link
+            )
+          );
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscription on unmount
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchShortLinks = async () => {

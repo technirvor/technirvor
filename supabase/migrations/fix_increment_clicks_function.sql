@@ -1,4 +1,4 @@
--- Create function to increment clicks for short links
+-- Fix increment_clicks function to use correct column name
 CREATE OR REPLACE FUNCTION increment_clicks(short_code TEXT)
 RETURNS void
 LANGUAGE plpgsql
@@ -16,3 +16,6 @@ $$;
 -- Grant execute permission to authenticated and anon users
 GRANT EXECUTE ON FUNCTION increment_clicks(TEXT) TO authenticated;
 GRANT EXECUTE ON FUNCTION increment_clicks(TEXT) TO anon;
+
+-- Enable realtime for short_links table
+ALTER PUBLICATION supabase_realtime ADD TABLE short_links;
