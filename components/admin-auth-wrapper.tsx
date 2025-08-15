@@ -23,15 +23,16 @@ export default function AdminAuthWrapper({ children }: AdminAuthWrapperProps) {
         setError(null);
 
         // Add a small delay to allow session to be established after login redirect
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
 
         const { isAdmin, user } = await checkAdminAccess();
 
         if (!isAdmin || !user) {
           // Give it one more try after a longer delay in case session is still being established
-          await new Promise(resolve => setTimeout(resolve, 500));
-          const { isAdmin: retryIsAdmin, user: retryUser } = await checkAdminAccess();
-          
+          await new Promise((resolve) => setTimeout(resolve, 500));
+          const { isAdmin: retryIsAdmin, user: retryUser } =
+            await checkAdminAccess();
+
           if (!retryIsAdmin || !retryUser) {
             // Clear any existing session data
             document.cookie =

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -60,9 +60,25 @@ export default function ProductPageClient({ product }: Props) {
   const [reviewImages, setReviewImages] = useState<string[]>([]);
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [rating, setRating] = useState(0);
-  const [reviews, setReviews] = useState<Review[]>([]); // New state for reviews
-  const [averageRating, setAverageRating] = useState(0);
-  const [totalReviews, setTotalReviews] = useState(0);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [reviewsLoaded, setReviewsLoaded] = useState(false);
+
+  // Memoized review statistics to prevent recalculation on every render
+  const reviewStats = useMemo(() => {
+    if (reviews.length === 0) {
+      return { averageRating: 0, totalReviews: 0 };
+    }
+
+    const avgRating =
+      reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length;
+    return {
+      averageRating: avgRating,
+      totalReviews: reviews.length,
+    };
+  }, [reviews]);
+
+  const { averageRating, totalReviews } = reviewStats;
 
   const addItem = useCartStore((state) => state.addItem);
 
@@ -74,36 +90,56 @@ export default function ProductPageClient({ product }: Props) {
       currency: "BDT",
       value: product.price,
     });
-
-    fetchReviews(); // Fetch reviews when component mounts or product changes
   }, [product]);
 
-  const fetchReviews = async () => {
-    try {
-      const response = await fetch(`/api/reviews?productId=${product.id}`);
-      if (response.ok) {
-        const data: Review[] = await response.json();
-        setReviews(data);
-        if (data.length > 0) {
-          const sumRatings = data.reduce(
-            (sum, review) => sum + review.rating,
-            0,
-          );
-          setAverageRating(sumRatings / data.length);
-          setTotalReviews(data.length);
-        } else {
-          setAverageRating(0);
-          setTotalReviews(0);
+  // Lazy load reviews when section becomes visible
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting && !reviewsLoaded) {
+          fetchReviews();
         }
+      },
+      { threshold: 0.1 },
+    );
+
+    const reviewsSection = document.getElementById("reviews-section");
+    if (reviewsSection) {
+      observer.observe(reviewsSection);
+    }
+
+    return () => {
+      if (reviewsSection) {
+        observer.unobserve(reviewsSection);
+      }
+    };
+  }, [reviewsLoaded]);
+
+  const fetchReviews = useCallback(async () => {
+    if (reviewsLoading || reviewsLoaded) return;
+
+    setReviewsLoading(true);
+    try {
+      const response = await fetch(
+        `/api/reviews?productId=${product.id}&limit=10`,
+      );
+      if (response.ok) {
+        const data = await response.json();
+        const reviewsData = data.reviews || data; // Handle both old and new API format
+        setReviews(reviewsData);
+        setReviewsLoaded(true);
       } else {
         console.error("Failed to fetch reviews:", response.statusText);
       }
     } catch (error) {
       console.error("Error fetching reviews:", error);
+    } finally {
+      setReviewsLoading(false);
     }
-  };
+  }, [product.id, reviewsLoading, reviewsLoaded]);
 
-  const handleSubmitReview = async () => {
+  const handleSubmitReview = useCallback(async () => {
     if (!orderNumber || !phoneNumber || !reviewText || rating === 0) {
       toast.error("Please fill in all required fields and provide a rating.");
       return;
@@ -136,7 +172,8 @@ export default function ProductPageClient({ product }: Props) {
         setReviewText("");
         setReviewImages([]);
         setRating(0);
-        fetchReviews(); // Re-fetch reviews after successful submission
+        // Update reviews state with the new review instead of re-fetching
+        setReviews((prev) => [data, ...prev]);
       } else {
         toast.error(data.error || "Failed to submit review.");
       }
@@ -146,7 +183,7 @@ export default function ProductPageClient({ product }: Props) {
     } finally {
       setIsSubmittingReview(false);
     }
-  };
+  }, [orderNumber, phoneNumber, reviewText, rating, reviewImages, product.id]);
 
   const handleAddToCart = () => {
     addItem(product, quantity);
@@ -218,15 +255,30 @@ export default function ProductPageClient({ product }: Props) {
     }
   };
 
-  const currentPrice = product.sale_price || product.price;
-  const hasDiscount = product.sale_price && product.sale_price < product.price;
-  const discountPercentage = hasDiscount
-    ? Math.round(((product.price - product.sale_price!) / product.price) * 100)
-    : 0;
-  const images =
-    product.images && product.images.length > 0
-      ? product.images
-      : [product.image_url];
+  const currentPrice = useMemo(
+    () => product.sale_price || product.price,
+    [product.sale_price, product.price],
+  );
+  const hasDiscount = useMemo(
+    () => product.sale_price && product.sale_price < product.price,
+    [product.sale_price, product.price],
+  );
+  const discountPercentage = useMemo(
+    () =>
+      hasDiscount
+        ? Math.round(
+            ((product.price - product.sale_price!) / product.price) * 100,
+          )
+        : 0,
+    [hasDiscount, product.price, product.sale_price],
+  );
+  const images = useMemo(
+    () =>
+      product.images && product.images.length > 0
+        ? product.images
+        : [product.image_url],
+    [product.images, product.image_url],
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
@@ -526,11 +578,45 @@ export default function ProductPageClient({ product }: Props) {
         </div>
 
         {/* Reviews Section */}
-        <div className="mt-8 sm:mt-12 max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+        <div
+          id="reviews-section"
+          className="mt-8 sm:mt-12 max-w-7xl mx-auto px-2 sm:px-4 lg:px-8"
+        >
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
             Customer Reviews ({totalReviews})
           </h2>
-          {reviews.length === 0 ? (
+          {reviewsLoading ? (
+            <div className="space-y-4">
+              <div className="text-center py-8">
+                <div className="inline-flex items-center space-x-2">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>
+                  <span className="text-gray-600">Loading reviews...</span>
+                </div>
+              </div>
+              {/* Skeleton loading cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                {[...Array(3)].map((_, i) => (
+                  <Card key={i} className="bg-white shadow-sm">
+                    <CardContent className="p-4 sm:p-5">
+                      <div className="flex items-center mb-2 space-x-1">
+                        {[...Array(5)].map((_, j) => (
+                          <div
+                            key={j}
+                            className="w-4 h-4 bg-gray-200 rounded animate-pulse"
+                          ></div>
+                        ))}
+                      </div>
+                      <div className="space-y-2 mb-3">
+                        <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                        <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
+                      </div>
+                      <div className="h-3 bg-gray-200 rounded animate-pulse w-1/2"></div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          ) : reviews.length === 0 && reviewsLoaded ? (
             <p className="text-gray-600">
               No reviews yet. Be the first to review this product!
             </p>

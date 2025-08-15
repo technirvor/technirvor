@@ -5,7 +5,7 @@ import ProductPageClient from "./client";
 import type { Product } from "@/lib/types";
 
 // Force dynamic rendering to ensure real-time data
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 interface Props {

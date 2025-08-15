@@ -1,10 +1,27 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase";
 
+/*
+ * Database Optimization Recommendations for Reviews Table:
+ *
+ * 1. Create composite index on (product_id, created_at) for efficient filtering and sorting:
+ *    CREATE INDEX idx_reviews_product_created ON reviews(product_id, created_at DESC);
+ *
+ * 2. Create index on product_id for faster filtering:
+ *    CREATE INDEX idx_reviews_product_id ON reviews(product_id);
+ *
+ * 3. Consider partitioning by product_id if you have millions of reviews
+ *
+ * 4. Add index on created_at for general date-based queries:
+ *    CREATE INDEX idx_reviews_created_at ON reviews(created_at DESC);
+ */
+
 export async function GET(request: Request) {
   const supabase = createServerClient();
   const { searchParams } = new URL(request.url);
   const productId = searchParams.get("productId");
+  const limit = parseInt(searchParams.get("limit") || "10");
+  const offset = parseInt(searchParams.get("offset") || "0");
 
   if (!productId) {
     return NextResponse.json(
@@ -14,11 +31,19 @@ export async function GET(request: Request) {
   }
 
   try {
+    // First get the total count for pagination info
+    const { count } = await supabase
+      .from("reviews")
+      .select("*", { count: "exact", head: true })
+      .eq("product_id", productId);
+
+    // Then get the paginated reviews
     const { data: reviews, error } = await supabase
       .from("reviews")
       .select("*")
       .eq("product_id", productId)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .range(offset, offset + limit - 1);
 
     if (error) {
       console.error("Error fetching reviews:", error);
@@ -28,7 +53,18 @@ export async function GET(request: Request) {
       );
     }
 
-    return NextResponse.json(reviews, { status: 200 });
+    return NextResponse.json(
+      {
+        reviews,
+        pagination: {
+          total: count || 0,
+          limit,
+          offset,
+          hasMore: (count || 0) > offset + limit,
+        },
+      },
+      { status: 200 },
+    );
   } catch (error: any) {
     console.error("Unexpected error in GET reviews API:", error);
     return NextResponse.json(

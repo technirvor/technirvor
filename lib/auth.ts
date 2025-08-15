@@ -77,13 +77,13 @@ export const adminAuth = {
           typeof window !== "undefined" &&
           window.location.protocol === "https:" &&
           !isLocalhost;
-        
+
         // Set cookie with proper attributes
         const cookieValue = `sb-access-token=${data.session.access_token}; path=/; max-age=3600; samesite=lax${isProd ? "; secure" : ""}`;
         document.cookie = cookieValue;
-        
+
         // Force a small delay to ensure cookie is written
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise((resolve) => setTimeout(resolve, 50));
       }
 
       return { user: data.user, adminUser };
