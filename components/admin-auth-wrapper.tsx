@@ -22,17 +22,26 @@ export default function AdminAuthWrapper({ children }: AdminAuthWrapperProps) {
         setIsLoading(true);
         setError(null);
 
+        // Add a small delay to allow session to be established after login redirect
+        await new Promise(resolve => setTimeout(resolve, 100));
+
         const { isAdmin, user } = await checkAdminAccess();
 
         if (!isAdmin || !user) {
-          // Clear any existing session data
-          document.cookie =
-            "sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT";
+          // Give it one more try after a longer delay in case session is still being established
+          await new Promise(resolve => setTimeout(resolve, 500));
+          const { isAdmin: retryIsAdmin, user: retryUser } = await checkAdminAccess();
+          
+          if (!retryIsAdmin || !retryUser) {
+            // Clear any existing session data
+            document.cookie =
+              "sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT";
 
-          // Redirect to login with return URL
-          const returnUrl = encodeURIComponent(pathname);
-          router.replace(`/auth/login?returnUrl=${returnUrl}`);
-          return;
+            // Redirect to login with return URL
+            const returnUrl = encodeURIComponent(pathname);
+            router.replace(`/auth/login?returnUrl=${returnUrl}`);
+            return;
+          }
         }
 
         setIsAuthenticated(true);

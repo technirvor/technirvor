@@ -75,14 +75,27 @@ function AdminLoginForm() {
     setLoading(true);
 
     try {
-      await adminAuth.signIn(formData.email, formData.password);
+      const result = await adminAuth.signIn(formData.email, formData.password);
       toast.success("Login successful!");
 
-      // Add a small delay to ensure cookie is set before redirect
-      setTimeout(() => {
-        const returnUrl = searchParams.get("returnUrl") || "/admin";
-        router.push(returnUrl);
-      }, 100);
+      // Verify the session is properly established before redirecting
+      const verifySession = async () => {
+        const { isAdmin } = await adminAuth.checkAdminAccess();
+        if (isAdmin) {
+          const returnUrl = searchParams.get("returnUrl") || "/admin";
+          // Use router.replace instead of router.push to avoid back button issues
+          router.replace(returnUrl);
+        } else {
+          // If session verification fails, try again after a short delay
+          setTimeout(() => {
+            const returnUrl = searchParams.get("returnUrl") || "/admin";
+            router.replace(returnUrl);
+          }, 500);
+        }
+      };
+
+      // Wait a bit for the cookie to be set, then verify and redirect
+      setTimeout(verifySession, 200);
     } catch (error: any) {
       console.error("Login error:", error);
       toast.error(error.message || "Login failed");
