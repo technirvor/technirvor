@@ -4,6 +4,10 @@ import { supabase } from "@/lib/supabase";
 import ProductPageClient from "./client";
 import type { Product } from "@/lib/types";
 
+// Force dynamic rendering to ensure real-time data
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 interface Props {
   params: { slug: string };
 }
@@ -146,19 +150,5 @@ export default async function ProductPage({ params }: Props) {
   );
 }
 
-export async function generateStaticParams() {
-  try {
-    const { data: products } = await supabase
-      .from("products")
-      .select("slug")
-      .limit(100); // Generate static pages for top 100 products
-
-    return (
-      products?.map((product) => ({
-        slug: product.slug,
-      })) || []
-    );
-  } catch (error) {
-    return [];
-  }
-}
+// Removed generateStaticParams to enable dynamic rendering
+// This ensures product data is always fresh and reflects real-time price changes
